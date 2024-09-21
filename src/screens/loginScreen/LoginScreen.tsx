@@ -1,160 +1,49 @@
-// import React, { useState } from 'react';
-// import { View, Text, TextInput, TouchableOpacity, StyleSheet, Alert } from 'react-native';
-// import { useNavigation, NavigationProp } from '@react-navigation/native';
-// import { RootStackParamList } from '../../types/navigation';
-// import { IconFill, IconOutline } from "@ant-design/icons-react-native";
-
-// const LoginScreen: React.FC = () => {
-//     const [email, setEmail] = useState('');
-//     const [password, setPassword] = useState('');
-//     const navigation = useNavigation<NavigationProp<RootStackParamList>>();
-
-//     const handleLogin = () => {
-//         // Xử lý đăng nhập ở đây  
-//         Alert.alert('Đăng nhập', 'Đăng nhập thành công!');
-//     };
-
-//     const handleRegister = () => {
-//         navigation.navigate('Register');
-//     };
-
-//     return (
-//         <View style={styles.container}>
-//             <View style={styles.header}>
-//                 <Text style={styles.title}>Đăng nhập</Text>
-//                 <Text style={styles.subtitle}>Vui lòng nhập thông tin đăng nhập của bạn.</Text>
-//             </View>
-//             <View style={styles.socialButtons}>
-//                 <TouchableOpacity
-//                     style={styles.button}
-//                     activeOpacity={0.7} // Thay đổi độ mờ khi nhấn
-//                 >
-//                     <IconFill name="facebook" size={24} color="#000" />
-//                     <Text style={styles.buttonText}>Facebook</Text>
-//                 </TouchableOpacity>
-//                 <TouchableOpacity
-//                     style={styles.button}
-//                     activeOpacity={0.7}
-//                 >
-//                     <IconOutline name="google" size={24} color="#000" />
-//                     <Text style={styles.buttonText}>Google</Text>
-//                 </TouchableOpacity>
-//             </View>
-
-//             <Text style={styles.orText}>Hoặc</Text>
-
-//             <TextInput
-//                 style={styles.input}
-//                 placeholder="m@example.com"
-//                 value={email}
-//                 onChangeText={setEmail}
-//                 keyboardType="email-address"
-//             />
-//             <TextInput
-//                 style={styles.input}
-//                 placeholder="Nhập mật khẩu của bạn"
-//                 value={password}
-//                 onChangeText={setPassword}
-//                 secureTextEntry
-//             />
-
-//             <TouchableOpacity style={styles.loginButton} onPress={handleLogin}>
-//                 <Text style={styles.loginText}>Đăng nhập</Text>
-//             </TouchableOpacity>
-
-//             <TouchableOpacity onPress={handleRegister}>
-//                 <Text style={styles.link}>Chưa có tài khoản? Đăng ký ngay</Text>
-//             </TouchableOpacity>
-//             <TouchableOpacity onPress={() => Alert.alert('Quên mật khẩu', 'Chuyển đến trang quên mật khẩu!')}>
-//                 <Text style={styles.link}>Quên mật khẩu?</Text>
-//             </TouchableOpacity>
-//         </View>
-//     );
-// };
-
-// const styles = StyleSheet.create({
-//     container: {
-//         flex: 1,
-//         padding: 20,
-//         justifyContent: 'center',
-//     },
-//     header: {
-//         alignItems: 'center',
-//         marginBottom: 20,
-//     },
-//     title: {
-//         fontSize: 24,
-//         fontWeight: 'bold',
-//         marginBottom: 10,
-//     },
-//     subtitle: {
-//         marginBottom: 20,
-//     },
-//     socialButtons: {
-//         flexDirection: 'row',
-//         justifyContent: 'space-between',
-//         marginBottom: 15,
-//     },
-//     button: {
-//         flex: 1,
-//         backgroundColor: '#ddd',
-//         padding: 10,
-//         marginHorizontal: 5,
-//         alignItems: 'center',
-//         justifyContent: 'center',
-//         borderRadius: 5,
-//         flexDirection: 'row',
-//     },
-//     buttonText: {
-//         fontWeight: 'bold',
-//         // color: '#fff',
-//     },
-//     orText: {
-//         textAlign: 'center',
-//         marginVertical: 10,
-//     },
-//     input: {
-//         height: 45,
-//         borderColor: '#ccc',
-//         borderWidth: 1,
-//         marginBottom: 15,
-//         paddingHorizontal: 10,
-//     },
-//     loginButton: {
-//         backgroundColor: '#000',
-//         paddingVertical: 15,
-//         alignItems: 'center',
-//         borderRadius: 5,
-//         marginBottom: 15,
-//     },
-//     loginText: {
-//         color: '#fff',
-//         fontWeight: 'bold',
-//     },
-//     link: {
-//         marginTop: 20,
-//         color: 'blue',
-//         textAlign: 'center',
-//     },
-// });
-
-// export default LoginScreen;
-
-import React, { useState } from 'react';
-import { View, Text, TextInput, TouchableOpacity, Alert, StyleSheet } from 'react-native';
+import React, { useState, useEffect } from 'react';
+import { View, Text, TextInput, TouchableOpacity, Alert, StyleSheet, Image, ActivityIndicator } from 'react-native';
 import { useNavigation, NavigationProp } from '@react-navigation/native';
+import { useDispatch, useSelector } from 'react-redux';
 import { RootStackParamList } from '../../types/navigation';
 import { IconFill, IconOutline } from "@ant-design/icons-react-native";
 import { commonStyles, COLORS } from '../../styles/theme';
+import { loginUserAsync } from '../../redux-toolkit/slices/userSlice';
+import { RootState, AppDispatch } from '../../redux-toolkit/store';
 
 const LoginScreen: React.FC = () => {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const navigation = useNavigation<NavigationProp<RootStackParamList>>();
+    const dispatch = useDispatch<AppDispatch>();
+    const { loading, error, user } = useSelector((state: RootState) => state.user);
 
-    const handleLogin = () => {
-        // Xử lý đăng nhập ở đây  
-        Alert.alert('Đăng nhập', 'Đăng nhập thành công!');
+    useEffect(() => {
+        console.log('User state updated:', user);
+        if (user && Array.isArray(user.userTypes)) {
+            if (user.userTypes.includes('owner')) {
+                navigation.navigate('DashboardOwner');
+            } else if (user.userTypes.includes('renter')) {
+                navigation.navigate('DashboardRenter');
+            }
+        }
+    }, [user]);
+
+    const handleLogin = async () => {
+        try {
+            await dispatch(loginUserAsync({ email, password })).unwrap();
+            Alert.alert('Đăng nhập', 'Đăng nhập thành công!');
+        } catch (err) {
+            console.error('Login failed:', err);
+
+            let errorMessage = 'Đã xảy ra lỗi, vui lòng thử lại.';
+            if (err instanceof Error) {
+                errorMessage = err.message;
+            } else if (typeof err === 'string') {
+                errorMessage = err;
+            } else if (err && typeof err === 'object' && 'message' in err && typeof (err as any).message === 'string') {
+                errorMessage = (err as any).message;
+            }
+
+            Alert.alert('Đăng nhập thất bại', errorMessage);
+        }
     };
 
     const handleRegister = () => {
@@ -164,13 +53,18 @@ const LoginScreen: React.FC = () => {
     return (
         <View style={commonStyles.container}>
             <View style={commonStyles.header}>
+                <Image
+                    source={require('../../../assets/img/2.png')}
+                    style={styles.image}
+                    resizeMode='contain'
+                />
                 <Text style={styles.title}>Đăng nhập</Text>
                 <Text style={styles.subtitle}>Vui lòng nhập thông tin đăng nhập của bạn.</Text>
             </View>
             <View style={styles.socialButtons}>
                 <TouchableOpacity
                     style={styles.socialButton}
-                    activeOpacity={0.7} // Thay đổi độ mờ khi nhấn
+                    activeOpacity={0.7}
                 >
                     <IconFill name="facebook" size={24} color={COLORS.primary} />
                     <Text style={styles.socialButtonText}>Facebook</Text>
@@ -201,9 +95,15 @@ const LoginScreen: React.FC = () => {
                 secureTextEntry
             />
 
-            <TouchableOpacity style={commonStyles.button} onPress={handleLogin}>
-                <Text style={commonStyles.buttonText}>Đăng nhập</Text>
+            <TouchableOpacity style={commonStyles.button} onPress={handleLogin} disabled={loading}>
+                {loading ? (
+                    <ActivityIndicator color="#fff" />
+                ) : (
+                    <Text style={commonStyles.buttonText}>Đăng nhập</Text>
+                )}
             </TouchableOpacity>
+
+            {error && <Text style={styles.errorText}>{error}</Text>}
 
             <TouchableOpacity onPress={handleRegister}>
                 <Text style={styles.link}>Chưa có tài khoản? Đăng ký ngay</Text>
@@ -221,6 +121,10 @@ const styles = StyleSheet.create({
         fontWeight: 'bold',
         marginBottom: 10,
         color: COLORS.primary,
+    },
+    image: {
+        width: 100,
+        height: 100,
     },
     subtitle: {
         marginBottom: 20,
@@ -255,6 +159,11 @@ const styles = StyleSheet.create({
         marginTop: 20,
         color: 'blue',
         textAlign: 'center',
+    },
+    errorText: {
+        color: 'red',
+        textAlign: 'center',
+        marginBottom: 15,
     },
 });
 

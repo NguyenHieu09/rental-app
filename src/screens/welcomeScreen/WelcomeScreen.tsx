@@ -12,7 +12,7 @@ const WelcomeScreen: React.FC = () => {
     return (
         <View style={styles.container}>
             <Image
-                source={require('../../../assets/img/image01.png')} // Replace with your image path  
+                source={require('../../../assets/img/image01.png')}
                 style={styles.image}
             />
             <Text style={styles.title}>Chào mừng đến với</Text>
