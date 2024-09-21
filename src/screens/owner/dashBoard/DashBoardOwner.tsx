@@ -1,11 +1,30 @@
-import React from 'react';
-import { View, Text, StyleSheet } from 'react-native';
+import React, { useEffect } from 'react';
+import { View, Text, StyleSheet, Button } from 'react-native';
+import { useDispatch, useSelector } from 'react-redux';
+import { AppDispatch, RootState } from '../../../redux-toolkit/store';
+import { logoutUserAsync } from '../../../redux-toolkit/slices/userSlice';
+import { useNavigation, NavigationProp } from '@react-navigation/native';
+import { RootStackParamList } from '../../../types/navigation'; // Import the type
 
 const DashboardOwner: React.FC = () => {
+    const dispatch = useDispatch<AppDispatch>();
+    const navigation = useNavigation<NavigationProp<RootStackParamList>>(); // Use the type here
+    const { user } = useSelector((state: RootState) => state.user);
+
+    const handleLogout = () => {
+        dispatch(logoutUserAsync());
+    };
+
+    useEffect(() => {
+        if (!user) {
+            navigation.navigate('Login');
+        }
+    }, [user, navigation]);
+
     return (
         <View style={styles.container}>
             <Text style={styles.title}>Dashboard Chủ Nhà</Text>
-            {/* Thêm các thành phần khác cho màn hình chủ nhà */}
+            <Button title="Đăng xuất" onPress={handleLogout} />
         </View>
     );
 };

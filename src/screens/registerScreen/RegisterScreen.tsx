@@ -6,26 +6,28 @@ import { RadioButton } from 'react-native-paper';
 import { commonStyles, COLORS } from '../../styles/theme';
 import axios from 'axios';
 import { API_URL } from '@env';
+import { useDispatch, useSelector } from 'react-redux';
+import { AppDispatch, RootState } from '../../redux-toolkit/store';
+import { loginUserAsync, registerUserAsync } from '../../redux-toolkit/slices/userSlice';
+
 
 const RegisterScreen: React.FC = () => {
-    const [name, setname] = useState('');
+    const [name, setName] = useState('');
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
-    const [userType, setuserType] = useState('Người thuê');
+    const [userType, setUserType] = useState('Người thuê');
     const [otp, setOtp] = useState('');
-    const [loading, setLoading] = useState(false);
     const [otpLoading, setOtpLoading] = useState(false);
-    const [error, setError] = useState<string | null>(null);
     const navigation = useNavigation<NavigationProp<RootStackParamList>>();
+    const dispatch = useDispatch<AppDispatch>();
+    const { loading } = useSelector((state: RootState) => state.user);
+    const [error, setError] = useState<string | null>(null);
 
     const handleRegister = async () => {
         if (!name || !email || !password || !otp) {
             Alert.alert('Lỗi', 'Vui lòng nhập đầy đủ thông tin.');
             return;
         }
-
-        setLoading(true);
-        setError(null);
 
         console.log('Starting registration with:', {
             name,
@@ -36,34 +38,33 @@ const RegisterScreen: React.FC = () => {
         });
 
         try {
-            const response = await axios.post(`${API_URL}/estate-manager-service/auth/register`, {
+            const resultAction = await dispatch(registerUserAsync({
                 name,
                 email,
                 password,
                 userType: userType === 'Người thuê' ? 'renter' : 'owner',
                 otp,
-            });
+            }));
 
-            console.log('Registration response:', response);
-
-            if (response.status === 200) {
+            if (registerUserAsync.fulfilled.match(resultAction)) {
                 Alert.alert('Đăng ký', 'Đăng ký thành công!');
-                navigation.navigate('Login');
+
+                // Chuyển hướng đến trang Dashboard tương ứng
+                if (userType === 'Chủ nhà') {
+                    navigation.navigate('DashboardOwner');
+                } else if (userType === 'Người thuê') {
+                    navigation.navigate('DashboardRenter');
+                }
             } else {
-                setError(response.data.message || 'Đã xảy ra lỗi, vui lòng thử lại.');
-                console.log('Registration error:', response.data.message);
+                if (resultAction.payload) {
+                    Alert.alert('Lỗi', resultAction.payload as string);
+                } else {
+                    Alert.alert('Lỗi', 'Đã xảy ra lỗi, vui lòng thử lại.');
+                }
             }
         } catch (error) {
-            if (axios.isAxiosError(error)) {
-                console.error('Registration Axios error:', error.response?.data);
-                setError(error.response?.data?.message || 'Đã xảy ra lỗi, vui lòng thử lại.');
-            } else {
-                console.error('Registration unknown error:', error);
-                setError('Đã xảy ra lỗi, vui lòng thử lại.');
-            }
-        } finally {
-            setLoading(false);
-            console.log('Registration process finished');
+            console.error('Registration error:', error);
+            Alert.alert('Lỗi', 'Đã xảy ra lỗi, vui lòng thử lại.');
         }
     };
 
@@ -103,6 +104,7 @@ const RegisterScreen: React.FC = () => {
             setOtpLoading(false);
         }
     };
+
     return (
         <View style={commonStyles.container}>
             <View style={commonStyles.header}>
@@ -114,7 +116,7 @@ const RegisterScreen: React.FC = () => {
                 style={commonStyles.input}
                 placeholder="Nhập họ tên của bạn"
                 value={name}
-                onChangeText={setname}
+                onChangeText={setName}
             />
             <TextInput
                 style={commonStyles.input}
@@ -133,7 +135,7 @@ const RegisterScreen: React.FC = () => {
 
             <View style={styles.userTypeContainer}>
                 <Text>Loại tài khoản:</Text>
-                <RadioButton.Group onValueChange={value => setuserType(value)} value={userType}>
+                <RadioButton.Group onValueChange={value => setUserType(value)} value={userType}>
                     <View style={styles.radioButtonRow}>
                         <View style={styles.radioButtonContainer}>
                             <RadioButton value="Người thuê" />

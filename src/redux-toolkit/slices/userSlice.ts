@@ -35,7 +35,18 @@ const initialState: userInfoInterfaceI = {
     error: null,
 };
 
-// Async action to login user
+// Hàm chung để lấy token và dữ liệu người dùng
+const fetchUserData = async (token: string, email: string) => {
+    const userResponse = await axios.get(`${API_URL}/estate-manager-service/users/me`, {
+        params: { email },
+        headers: {
+            Authorization: `Bearer ${token}`,
+        },
+    });
+    return userResponse.data;
+};
+
+// Đăng nhập
 export const loginUserAsync = createAsyncThunk(
     'user/loginUserAsync',
     async (credentials: { email: string; password: string }, { rejectWithValue }) => {
@@ -48,165 +59,109 @@ export const loginUserAsync = createAsyncThunk(
             const accessToken = token.accessToken.token;
 
             // Fetch user data using accessToken
-            const userResponse = await axios.get(`${API_URL}/estate-manager-service/users/me`, {
-                params: { email: credentials.email },
-                headers: {
-                    Authorization: `Bearer ${accessToken}`,
-                },
-            });
-            console.log('User data response:', userResponse.data);
-
-            const userInfo: userInfoInterfaceI = {
-                user: {
-                    userId: userResponse.data.userId,
-                    email: userResponse.data.email,
-                    name: userResponse.data.name,
-                    userTypes: userResponse.data.userTypes,
-                    status: userResponse.data.status,
-                    avatar: userResponse.data.avatar,
-                    phoneNumber: userResponse.data.phoneNumber,
-                    walletAddress: userResponse.data.walletAddress,
-                    isVerified: userResponse.data.isVerified,
-                    createdAt: userResponse.data.createdAt,
-                    updatedAt: userResponse.data.updatedAt,
-                },
-                accessToken: accessToken,
-                refreshToken: token.refreshToken.token,
-                loading: false,
-                error: null,
-            };
-
-            // Save accessToken and user info to AsyncStorage (Optional)
-            await AsyncStorage.setItem('accessToken', accessToken || '');
-            await AsyncStorage.setItem('userInfo', JSON.stringify(userInfo.user));
-
-            return userInfo;
+            const userData = await fetchUserData(accessToken, credentials.email);
+            return { user: userData, accessToken, refreshToken: token.refreshToken.token };
         } catch (error) {
-            console.error('Login error:', error);
-            if (axios.isAxiosError(error) && error.response?.data) {
-                return rejectWithValue(error.response.data);
-            } else {
-                return rejectWithValue({ message: 'An unexpected error occurred' });
+            if (axios.isAxiosError(error)) {
+                return rejectWithValue(error.response?.data.message || 'An error occurred');
             }
+            return rejectWithValue('An unknown error occurred');
         }
     }
 );
 
+// Đăng ký
+export const registerUserAsync = createAsyncThunk(
+    'user/registerUserAsync',
+    async (registrationData: { name: string; email: string; password: string; userType: string; otp: string }, { rejectWithValue }) => {
+        try {
+            console.log('Sending registration request with data:', registrationData);
+            const registerResponse = await axios.post(`${API_URL}/estate-manager-service/auth/register`, registrationData);
+            console.log('Registration response:', registerResponse.data);
+
+            const { token } = registerResponse.data;
+            const accessToken = token.accessToken.token;
+
+            // Fetch user data using accessToken
+            const userData = await fetchUserData(accessToken, registrationData.email);
+            return { user: userData, accessToken, refreshToken: token.refreshToken.token };
+        } catch (error) {
+            if (axios.isAxiosError(error)) {
+                return rejectWithValue(error.response?.data.message || 'An error occurred');
+            }
+            return rejectWithValue('An unknown error occurred');
+        }
+    }
+);
+
+// Kiểm tra trạng thái đăng nhập
 export const checkLoginStatus = createAsyncThunk(
     'user/checkLoginStatus',
     async (_, { rejectWithValue }) => {
         try {
             const accessToken = await AsyncStorage.getItem('accessToken');
-            const userInfoString = await AsyncStorage.getItem('userInfo');
-
-            if (!accessToken || !userInfoString) {
-                return rejectWithValue('No tokens found');
+            const email = await AsyncStorage.getItem('email');
+            if (accessToken && email) {
+                const userData = await fetchUserData(accessToken, email);
+                return { user: userData, accessToken };
+            } else {
+                return rejectWithValue('No token found');
             }
-
-            const userInfo = JSON.parse(userInfoString);
-
-            // Fetch user data using accessToken to verify token validity
-            const userResponse = await axios.get(`${API_URL}/estate-manager-service/users/me`, {
-                headers: {
-                    Authorization: `Bearer ${accessToken}`,
-                },
-            });
-
-            // Assuming the API response structure
-            if (!userResponse.data || !userResponse.data.userId) {
-                throw new Error('Invalid token response');
-            }
-
-            return {
-                user: userInfo,
-                accessToken: accessToken,
-                refreshToken: userResponse.data.token?.refreshToken?.token || '',
-                loading: false,
-                error: null,
-            };
         } catch (error) {
             console.error('Check login status error:', error);
-            if (axios.isAxiosError(error)) {
-                return rejectWithValue(error.response?.data || 'An unexpected error occurred');
-            } else {
-                return rejectWithValue('An unexpected error occurred');
-            }
+            return rejectWithValue(error);
         }
     }
 );
 
-// Async action to logout user
-export const logoutUserAsync = createAsyncThunk('user/logoutUserAsync', async (_, { dispatch }) => {
-    await AsyncStorage.removeItem('accessToken');
-    await AsyncStorage.removeItem('userInfo');
-    dispatch(userSlice.actions.logoutUser());
-});
-
-// Redux slice for user
 const userSlice = createSlice({
     name: 'user',
     initialState,
-    reducers: {
-        logoutUser: (state) => {
-            state.user = undefined;
-            state.accessToken = undefined;
-            state.refreshToken = undefined;
-            state.loading = false;
-            state.error = null;
-        },
-        setLoading: (state, action: PayloadAction<boolean>) => {
-            state.loading = action.payload;
-        },
-        setError: (state, action: PayloadAction<string | null>) => {
-            state.error = action.payload;
-        },
-    },
+    reducers: {},
     extraReducers: (builder) => {
         builder
             .addCase(loginUserAsync.pending, (state) => {
                 state.loading = true;
                 state.error = null;
             })
-            .addCase(loginUserAsync.fulfilled, (state, action: PayloadAction<userInfoInterfaceI>) => {
-                console.log('Login fulfilled:', action.payload);
+            .addCase(loginUserAsync.fulfilled, (state, action) => {
+                state.loading = false;
                 state.user = action.payload.user;
                 state.accessToken = action.payload.accessToken;
                 state.refreshToken = action.payload.refreshToken;
+            })
+            .addCase(loginUserAsync.rejected, (state, action) => {
                 state.loading = false;
+                state.error = action.payload as string;
+            })
+            .addCase(registerUserAsync.pending, (state) => {
+                state.loading = true;
                 state.error = null;
             })
-            .addCase(loginUserAsync.rejected, (state, action: PayloadAction<any>) => {
-                console.log('Login rejected:', action.payload);
+            .addCase(registerUserAsync.fulfilled, (state, action) => {
                 state.loading = false;
-                state.error = action.payload?.message || 'Đã xảy ra lỗi, vui lòng thử lại.';
+                state.user = action.payload.user;
+                state.accessToken = action.payload.accessToken;
+                state.refreshToken = action.payload.refreshToken;
+            })
+            .addCase(registerUserAsync.rejected, (state, action) => {
+                state.loading = false;
+                state.error = action.payload as string;
             })
             .addCase(checkLoginStatus.pending, (state) => {
                 state.loading = true;
                 state.error = null;
             })
-            .addCase(checkLoginStatus.fulfilled, (state, action: PayloadAction<userInfoInterfaceI>) => {
-                console.log('Check login status fulfilled:', action.payload);
+            .addCase(checkLoginStatus.fulfilled, (state, action) => {
+                state.loading = false;
                 state.user = action.payload.user;
                 state.accessToken = action.payload.accessToken;
-                state.refreshToken = action.payload.refreshToken;
-                state.loading = false;
-                state.error = null;
             })
-            .addCase(checkLoginStatus.rejected, (state, action: PayloadAction<any>) => {
-                console.log('Check login status rejected:', action.payload);
+            .addCase(checkLoginStatus.rejected, (state, action) => {
                 state.loading = false;
-                state.error = action.payload.message || 'Đã xảy ra lỗi, vui lòng thử lại.';
-            })
-            .addCase(logoutUserAsync.fulfilled, (state) => {
-                state.user = undefined;
-                state.accessToken = undefined;
-                state.refreshToken = undefined;
-                state.loading = false;
-                state.error = null;
+                state.error = action.payload as string;
             });
     },
 });
-
-export const { setLoading, setError } = userSlice.actions;
 
 export default userSlice.reducer;
