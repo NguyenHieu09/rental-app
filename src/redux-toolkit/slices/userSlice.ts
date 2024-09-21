@@ -3,6 +3,7 @@ import axios from 'axios';
 import { Role } from '../../types/role';
 import { UserStatus } from '../../types/userStatus';
 import { API_URL } from '@env';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 export interface userInfoInterfaceDetailI {
     userId: string;
@@ -34,6 +35,7 @@ const initialState: userInfoInterfaceI = {
     error: null,
 };
 
+// Async action to login user
 export const loginUserAsync = createAsyncThunk(
     'user/loginUserAsync',
     async (credentials: { email: string; password: string }, { rejectWithValue }) => {
@@ -46,16 +48,12 @@ export const loginUserAsync = createAsyncThunk(
             const accessToken = token.accessToken.token;
 
             // Fetch user data using accessToken
-            const userResponse = await axios.get(
-                `${API_URL}/estate-manager-service/users/me`,
-                {
-                    params: { email: credentials.email },
-                    headers: {
-                        Authorization: `Bearer ${accessToken}`,
-                    },
-                }
-
-            );
+            const userResponse = await axios.get(`${API_URL}/estate-manager-service/users/me`, {
+                params: { email: credentials.email },
+                headers: {
+                    Authorization: `Bearer ${accessToken}`,
+                },
+            });
             console.log('User data response:', userResponse.data);
 
             const userInfo: userInfoInterfaceI = {
@@ -78,11 +76,58 @@ export const loginUserAsync = createAsyncThunk(
                 error: null,
             };
 
+            // Save accessToken and user info to AsyncStorage (Optional)
+            await AsyncStorage.setItem('accessToken', accessToken || '');
+            await AsyncStorage.setItem('userInfo', JSON.stringify(userInfo.user));
+
             return userInfo;
         } catch (error) {
             console.error('Login error:', error);
+            if (axios.isAxiosError(error) && error.response?.data) {
+                return rejectWithValue(error.response.data);
+            } else {
+                return rejectWithValue({ message: 'An unexpected error occurred' });
+            }
+        }
+    }
+);
+
+export const checkLoginStatus = createAsyncThunk(
+    'user/checkLoginStatus',
+    async (_, { rejectWithValue }) => {
+        try {
+            const accessToken = await AsyncStorage.getItem('accessToken');
+            const userInfoString = await AsyncStorage.getItem('userInfo');
+
+            if (!accessToken || !userInfoString) {
+                return rejectWithValue('No tokens found');
+            }
+
+            const userInfo = JSON.parse(userInfoString);
+
+            // Fetch user data using accessToken to verify token validity
+            const userResponse = await axios.get(`${API_URL}/estate-manager-service/users/me`, {
+                headers: {
+                    Authorization: `Bearer ${accessToken}`,
+                },
+            });
+
+            // Assuming the API response structure
+            if (!userResponse.data || !userResponse.data.userId) {
+                throw new Error('Invalid token response');
+            }
+
+            return {
+                user: userInfo,
+                accessToken: accessToken,
+                refreshToken: userResponse.data.token?.refreshToken?.token || '',
+                loading: false,
+                error: null,
+            };
+        } catch (error) {
+            console.error('Check login status error:', error);
             if (axios.isAxiosError(error)) {
-                return rejectWithValue(error.response?.data);
+                return rejectWithValue(error.response?.data || 'An unexpected error occurred');
             } else {
                 return rejectWithValue('An unexpected error occurred');
             }
@@ -90,6 +135,14 @@ export const loginUserAsync = createAsyncThunk(
     }
 );
 
+// Async action to logout user
+export const logoutUserAsync = createAsyncThunk('user/logoutUserAsync', async (_, { dispatch }) => {
+    await AsyncStorage.removeItem('accessToken');
+    await AsyncStorage.removeItem('userInfo');
+    dispatch(userSlice.actions.logoutUser());
+});
+
+// Redux slice for user
 const userSlice = createSlice({
     name: 'user',
     initialState,
@@ -125,11 +178,35 @@ const userSlice = createSlice({
             .addCase(loginUserAsync.rejected, (state, action: PayloadAction<any>) => {
                 console.log('Login rejected:', action.payload);
                 state.loading = false;
+                state.error = action.payload?.message || 'Đã xảy ra lỗi, vui lòng thử lại.';
+            })
+            .addCase(checkLoginStatus.pending, (state) => {
+                state.loading = true;
+                state.error = null;
+            })
+            .addCase(checkLoginStatus.fulfilled, (state, action: PayloadAction<userInfoInterfaceI>) => {
+                console.log('Check login status fulfilled:', action.payload);
+                state.user = action.payload.user;
+                state.accessToken = action.payload.accessToken;
+                state.refreshToken = action.payload.refreshToken;
+                state.loading = false;
+                state.error = null;
+            })
+            .addCase(checkLoginStatus.rejected, (state, action: PayloadAction<any>) => {
+                console.log('Check login status rejected:', action.payload);
+                state.loading = false;
                 state.error = action.payload.message || 'Đã xảy ra lỗi, vui lòng thử lại.';
+            })
+            .addCase(logoutUserAsync.fulfilled, (state) => {
+                state.user = undefined;
+                state.accessToken = undefined;
+                state.refreshToken = undefined;
+                state.loading = false;
+                state.error = null;
             });
-    }
+    },
 });
 
-export const { logoutUser, setLoading, setError } = userSlice.actions;
+export const { setLoading, setError } = userSlice.actions;
 
 export default userSlice.reducer;
