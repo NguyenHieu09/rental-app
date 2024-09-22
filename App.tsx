@@ -46,6 +46,7 @@ function App() {
     return <ActivityIndicator size="large" color="#0000ff" style={styles.loading} />;
   }
 
+
   return (
     <NavigationContainer>
       <Stack.Navigator initialRouteName={isFirstLaunch ? "Wellcome" : user ? (user.userTypes.includes('owner') ? "DashboardOwner" : "DashboardRenter") : "Login"}>

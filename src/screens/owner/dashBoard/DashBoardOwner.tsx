@@ -9,17 +9,18 @@ import { RootStackParamList } from '../../../types/navigation'; // Import the ty
 const DashboardOwner: React.FC = () => {
     const dispatch = useDispatch<AppDispatch>();
     const navigation = useNavigation<NavigationProp<RootStackParamList>>(); // Use the type here
-    const { user } = useSelector((state: RootState) => state.user);
+    const { user, loading } = useSelector((state: RootState) => state.user);
 
-    const handleLogout = () => {
-        dispatch(logoutUserAsync());
+    const handleLogout = async () => {
+        await dispatch(logoutUserAsync()).unwrap();
+        navigation.navigate('Login');
     };
 
     useEffect(() => {
-        if (!user) {
+        if (!user && !loading) {
             navigation.navigate('Login');
         }
-    }, [user, navigation]);
+    }, [user, loading, navigation])
 
     return (
         <View style={styles.container}>

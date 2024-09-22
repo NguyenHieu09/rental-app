@@ -44,27 +44,31 @@ const RegisterScreen: React.FC = () => {
                 password,
                 userType: userType === 'Người thuê' ? 'renter' : 'owner',
                 otp,
-            }));
+            })).unwrap();
+            console.log(resultAction);
 
-            if (registerUserAsync.fulfilled.match(resultAction)) {
-                Alert.alert('Đăng ký', 'Đăng ký thành công!');
 
-                // Chuyển hướng đến trang Dashboard tương ứng
-                if (userType === 'Chủ nhà') {
-                    navigation.navigate('DashboardOwner');
-                } else if (userType === 'Người thuê') {
-                    navigation.navigate('DashboardRenter');
-                }
-            } else {
-                if (resultAction.payload) {
-                    Alert.alert('Lỗi', resultAction.payload as string);
-                } else {
-                    Alert.alert('Lỗi', 'Đã xảy ra lỗi, vui lòng thử lại.');
-                }
+            Alert.alert('Đăng ký', 'Đăng ký thành công!');
+
+            // Chuyển hướng đến trang Dashboard tương ứng
+            if (userType === 'Chủ nhà') {
+                navigation.navigate('DashboardOwner');
+            } else if (userType === 'Người thuê') {
+                navigation.navigate('DashboardRenter');
             }
-        } catch (error) {
-            console.error('Registration error:', error);
-            Alert.alert('Lỗi', 'Đã xảy ra lỗi, vui lòng thử lại.');
+        } catch (err) {
+            console.error('Registration failed:', err);
+
+            let errorMessage = 'Đã xảy ra lỗi, vui lòng thử lại.';
+            if (err instanceof Error) {
+                errorMessage = err.message;
+            } else if (typeof err === 'string') {
+                errorMessage = err;
+            } else if (err && typeof err === 'object' && 'message' in err && typeof (err as any).message === 'string') {
+                errorMessage = (err as any).message;
+            }
+
+            Alert.alert('Đăng ký thất bại', errorMessage);
         }
     };
 

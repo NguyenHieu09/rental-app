@@ -24,7 +24,7 @@ const LoginScreen: React.FC = () => {
                 navigation.navigate('DashboardRenter');
             }
         }
-    }, [user]);
+    }, [user, navigation]);
 
     const handleLogin = async () => {
         try {
