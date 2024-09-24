@@ -3,4 +3,5 @@ export type RootStackParamList = {
     Register: undefined;
     DashboardOwner: undefined;
     DashboardRenter: undefined;
+    RenterTabs: undefined;
 };

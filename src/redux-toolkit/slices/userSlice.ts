@@ -153,7 +153,7 @@ export const checkLoginStatus = createAsyncThunk(
                 const userData = await fetchUserData(accessToken, email);
                 return { user: userData, accessToken };
             } else {
-                return rejectWithValue('No token found');
+                return rejectWithValue('');
             }
         } catch (error) {
             console.error('Check login status error:', error);

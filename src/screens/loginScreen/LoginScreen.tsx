@@ -21,7 +21,7 @@ const LoginScreen: React.FC = () => {
             if (user.userTypes.includes('owner')) {
                 navigation.navigate('DashboardOwner');
             } else if (user.userTypes.includes('renter')) {
-                navigation.navigate('DashboardRenter');
+                navigation.navigate('RenterTabs'); // Điều hướng đến Bottom Tabs Navigator cho người thuê
             }
         }
     }, [user, navigation]);
