@@ -8,6 +8,7 @@ export const COLORS = {
     text: '#333',
     buttonBackground: '#007BFF',
     buttonText: '#fff',
+    error: '#dc3545',
 };
 
 export const FONTS = {

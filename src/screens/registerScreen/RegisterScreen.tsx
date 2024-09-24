@@ -8,8 +8,17 @@ import axios from 'axios';
 import { API_URL } from '@env';
 import { useDispatch, useSelector } from 'react-redux';
 import { AppDispatch, RootState } from '../../redux-toolkit/store';
-import { loginUserAsync, registerUserAsync } from '../../redux-toolkit/slices/userSlice';
+import { registerUserAsync } from '../../redux-toolkit/slices/userSlice';
+import { validateName, validateEmail, validatePassword, validateOtp, validateUserType, validateInputs } from '../../utils/validation';
 
+
+interface ErrorState {
+    name: string | null;
+    email: string | null;
+    password: string | null;
+    otp: string | null;
+    userType: string | null;
+}
 
 const RegisterScreen: React.FC = () => {
     const [name, setName] = useState('');
@@ -21,11 +30,51 @@ const RegisterScreen: React.FC = () => {
     const navigation = useNavigation<NavigationProp<RootStackParamList>>();
     const dispatch = useDispatch<AppDispatch>();
     const { loading } = useSelector((state: RootState) => state.user);
-    const [error, setError] = useState<string | null>(null);
+    const [errors, setErrors] = useState<ErrorState>({
+        name: null,
+        email: null,
+        password: null,
+        otp: null,
+        userType: null,
+    });
+
+    const handleNameChange = (value: string) => {
+        setName(value);
+        setErrors(prevErrors => ({ ...prevErrors, name: validateName(value) }));
+    };
+
+    const handleEmailChange = (value: string) => {
+        setEmail(value);
+        setErrors(prevErrors => ({ ...prevErrors, email: validateEmail(value) }));
+    };
+
+    const handlePasswordChange = (value: string) => {
+        setPassword(value);
+        setErrors(prevErrors => ({ ...prevErrors, password: validatePassword(value) }));
+    };
+
+    const handleOtpChange = (value: string) => {
+        setOtp(value);
+        setErrors(prevErrors => ({ ...prevErrors, otp: validateOtp(value) }));
+    };
+
+    const handleUserTypeChange = (value: string) => {
+        setUserType(value);
+        setErrors(prevErrors => ({ ...prevErrors, userType: validateUserType(value) }));
+    };
 
     const handleRegister = async () => {
-        if (!name || !email || !password || !otp) {
-            Alert.alert('Lỗi', 'Vui lòng nhập đầy đủ thông tin.');
+        setErrors({
+            name: null,
+            email: null,
+            password: null,
+            otp: null,
+            userType: null,
+        });
+
+        const validationErrors = validateInputs(name, email, password, otp, userType);
+        if (Object.values(validationErrors).some(error => error !== null)) {
+            setErrors(validationErrors);
             return;
         }
 
@@ -46,7 +95,6 @@ const RegisterScreen: React.FC = () => {
                 otp,
             })).unwrap();
             console.log(resultAction);
-
 
             Alert.alert('Đăng ký', 'Đăng ký thành công!');
 
@@ -83,7 +131,13 @@ const RegisterScreen: React.FC = () => {
         }
 
         setOtpLoading(true);
-        setError(null);
+        setErrors({
+            name: null,
+            email: null,
+            password: null,
+            otp: null,
+            userType: null,
+        });
 
         try {
             const response = await axios.post(`${API_URL}/estate-manager-service/auth/register/otp`, {
@@ -93,16 +147,16 @@ const RegisterScreen: React.FC = () => {
             if (response.status === 200) {
                 Alert.alert('OTP', 'Mã OTP đã được gửi!');
             } else {
-                setError(response.data.message || 'Đã xảy ra lỗi, vui lòng thử lại.');
+                setErrors(prevErrors => ({ ...prevErrors, otp: response.data.message || 'Đã xảy ra lỗi, vui lòng thử lại.' }));
                 console.log('OTP error:', response.data.message);
             }
         } catch (error) {
             if (axios.isAxiosError(error)) {
                 console.error('OTP Axios error:', error.response?.data);
-                setError(error.response?.data?.message || 'Đã xảy ra lỗi, vui lòng thử lại.');
+                setErrors(prevErrors => ({ ...prevErrors, otp: error.response?.data?.message || 'Đã xảy ra lỗi, vui lòng thử lại.' }));
             } else {
                 console.error('OTP unknown error:', error);
-                setError('Đã xảy ra lỗi, vui lòng thử lại.');
+                setErrors(prevErrors => ({ ...prevErrors, otp: 'Đã xảy ra lỗi, vui lòng thử lại.' }));
             }
         } finally {
             setOtpLoading(false);
@@ -120,26 +174,31 @@ const RegisterScreen: React.FC = () => {
                 style={commonStyles.input}
                 placeholder="Nhập họ tên của bạn"
                 value={name}
-                onChangeText={setName}
+                onChangeText={handleNameChange}
             />
+            {errors.name && <Text style={styles.errorText}>{errors.name}</Text>}
+
             <TextInput
                 style={commonStyles.input}
                 placeholder="m@example.com"
                 value={email}
-                onChangeText={setEmail}
+                onChangeText={handleEmailChange}
                 keyboardType="email-address"
             />
+            {errors.email && <Text style={styles.errorText}>{errors.email}</Text>}
+
             <TextInput
                 style={commonStyles.input}
                 placeholder="Nhập mật khẩu của bạn"
                 value={password}
-                onChangeText={setPassword}
+                onChangeText={handlePasswordChange}
                 secureTextEntry
             />
+            {errors.password && <Text style={styles.errorText}>{errors.password}</Text>}
 
             <View style={styles.userTypeContainer}>
                 <Text>Loại tài khoản:</Text>
-                <RadioButton.Group onValueChange={value => setUserType(value)} value={userType}>
+                <RadioButton.Group onValueChange={handleUserTypeChange} value={userType}>
                     <View style={styles.radioButtonRow}>
                         <View style={styles.radioButtonContainer}>
                             <RadioButton value="Người thuê" />
@@ -152,13 +211,14 @@ const RegisterScreen: React.FC = () => {
                     </View>
                 </RadioButton.Group>
             </View>
+            {errors.userType && <Text style={styles.errorText}>{errors.userType}</Text>}
 
             <View style={styles.otpContainer}>
                 <TextInput
                     style={styles.otpInput}
                     placeholder="Nhập mã OTP"
                     value={otp}
-                    onChangeText={setOtp}
+                    onChangeText={handleOtpChange}
                 />
                 <TouchableOpacity style={styles.otpButton} onPress={handleGetOtp} disabled={otpLoading}>
                     {otpLoading ? (
@@ -168,8 +228,7 @@ const RegisterScreen: React.FC = () => {
                     )}
                 </TouchableOpacity>
             </View>
-
-            {error && <Text style={styles.errorText}>{error}</Text>}
+            {errors.otp && <Text style={styles.errorText}>{errors.otp}</Text>}
 
             <TouchableOpacity style={styles.registerButton} onPress={handleRegister} disabled={loading}>
                 {loading ? (
@@ -248,8 +307,9 @@ const styles = StyleSheet.create({
     },
     errorText: {
         color: 'red',
-        textAlign: 'center',
+        // textAlign: 'center',
         marginBottom: 15,
+        marginTop: -5,
     },
 });
 
