@@ -57,7 +57,7 @@ const HomeScreen: React.FC = () => {
     const properties = [
         {
             id: 1,
-            imageUrl: 'https://example.com/apartment1.jpg',
+            imageUrl: 'https://res.cloudinary.com/dxvrdtaky/image/upload/v1699325615/Image_226_hge2bb.png',
             title: 'Sky Dandelions Apartment',
             rating: 4.9,
             location: 'Jakarta, Indonesia',
@@ -66,7 +66,7 @@ const HomeScreen: React.FC = () => {
         },
         {
             id: 2,
-            imageUrl: 'https://example.com/apartment2.jpg',
+            imageUrl: 'https://res.cloudinary.com/dxvrdtaky/image/upload/v1699325615/Image_226_hge2bb.png',
             title: 'Ocean View Villa',
             rating: 4.8,
             location: 'Bali, Indonesia',
@@ -75,7 +75,7 @@ const HomeScreen: React.FC = () => {
         },
         {
             id: 3,
-            imageUrl: 'https://example.com/apartment3.jpg',
+            imageUrl: 'https://res.cloudinary.com/dxvrdtaky/image/upload/v1699325615/Image_226_hge2bb.png',
             title: 'City Center Studio',
             rating: 4.7,
             location: 'Hanoi, Vietnam',
@@ -88,7 +88,7 @@ const HomeScreen: React.FC = () => {
     const nearbyProperties = [
         {
             id: 4,
-            imageUrl: 'https://example.com/nearby1.jpg',
+            imageUrl: 'https://res.cloudinary.com/dxvrdtaky/image/upload/v1699325615/Image_226_hge2bb.png',
             title: 'Cozy Cottage',
             rating: 4.5,
             location: 'Jakarta, Indonesia',
@@ -96,7 +96,7 @@ const HomeScreen: React.FC = () => {
         },
         {
             id: 5,
-            imageUrl: 'https://example.com/nearby2.jpg',
+            imageUrl: 'https://res.cloudinary.com/dxvrdtaky/image/upload/v1699325615/Image_226_hge2bb.png',
             title: 'Modern Loft',
             rating: 4.6,
             location: 'Bali, Indonesia',
@@ -104,7 +104,7 @@ const HomeScreen: React.FC = () => {
         },
         {
             id: 6,
-            imageUrl: 'https://example.com/nearby3.jpg',
+            imageUrl: 'https://res.cloudinary.com/dxvrdtaky/image/upload/v1699325615/Image_226_hge2bb.png',
             title: 'Luxury Penthouse',
             rating: 4.9,
             location: 'Hanoi, Vietnam',
@@ -112,7 +112,7 @@ const HomeScreen: React.FC = () => {
         },
         {
             id: 7,
-            imageUrl: 'https://example.com/nearby4.jpg',
+            imageUrl: 'https://res.cloudinary.com/dxvrdtaky/image/upload/v1699325615/Image_226_hge2bb.png',
             title: 'Charming Bungalow',
             rating: 4.4,
             location: 'Yogyakarta, Indonesia',
