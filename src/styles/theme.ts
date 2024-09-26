@@ -20,18 +20,18 @@ export const SIZES = {
     base: 10,
     font: 14,
     radius: 5,
-    padding: 20,
+    padding: 14,
 };
 
 export const commonStyles = StyleSheet.create({
     container: {
         flex: 1,
         padding: SIZES.padding,
-        justifyContent: 'center' as 'center',
+        // justifyContent: 'center' as 'center',
         backgroundColor: COLORS.secondary,
     },
     header: {
-        alignItems: 'center' as 'center',
+        // alignItems: 'center' as 'center',
         marginBottom: SIZES.base * 2,
     },
     input: {

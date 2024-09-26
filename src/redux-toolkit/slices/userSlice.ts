@@ -4,6 +4,7 @@ import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import { Role } from '../../types/role';
 import { UserStatus } from '../../types/userStatus';
 import { API_URL } from '@env';
+import { fetchUserData, loginUser, registerUser } from '../../api/api';
 
 export interface userInfoInterfaceDetailI {
     userId: string;
@@ -35,36 +36,16 @@ const initialState: userInfoInterfaceI = {
     error: null,
 };
 
-const fetchUserData = async (token: string, email: string) => {
-    try {
-        console.log('Fetching user data with email:', email);
-        const userResponse = await axios.get(`${API_URL}/estate-manager-service/users/me`, {
-            params: { email },
-            headers: {
-                Authorization: `Bearer ${token}`,
-            },
-        });
-        console.log('User data response:', userResponse.data);
-        return userResponse.data;
-    } catch (error) {
-        console.error('Error fetching user data:', error);
-        throw error;
-    }
-};
-
 export const loginUserAsync = createAsyncThunk(
     'user/loginUserAsync',
     async (credentials: { email: string; password: string }, { rejectWithValue }) => {
         try {
-            console.log('Sending login request with credentials:', credentials);
-            const loginResponse = await axios.post(`${API_URL}/estate-manager-service/auth/login`, credentials);
-            console.log('Login response:', loginResponse.data);
-            const { token } = loginResponse.data;
+            const loginResponse = await loginUser(credentials);
+            const { token } = loginResponse;
             const accessToken = token.accessToken.token;
 
             // Fetch user data using accessToken
             const userInfo = await fetchUserData(accessToken, credentials.email);
-            console.log('Fetched user data:', userInfo);
 
             // Save accessToken and user info to AsyncStorage (Optional)
             if (accessToken) {
@@ -76,18 +57,9 @@ export const loginUserAsync = createAsyncThunk(
             await AsyncStorage.setItem('refreshToken', token.refreshToken.token);
             await AsyncStorage.setItem('email', credentials.email);
 
-            console.log('Stored tokens and email in AsyncStorage');
-
             return { user: userInfo, accessToken, refreshToken: token.refreshToken.token };
         } catch (error) {
-            console.error('Login error:', error);
             if (axios.isAxiosError(error) && error.response?.data) {
-                console.error('Axios error details:', {
-                    message: error.message,
-                    code: error.code,
-                    response: error.response,
-                    config: error.config,
-                });
                 return rejectWithValue(error.response.data.message || `An error occurred: ${error.message}`);
             }
             return rejectWithValue('An unknown error occurred');
@@ -100,17 +72,12 @@ export const registerUserAsync = createAsyncThunk(
     'user/registerUserAsync',
     async (registrationData: { name: string; email: string; password: string; userType: string; otp: string }, { rejectWithValue }) => {
         try {
-            console.log('Sending registration request with data:', registrationData);
-            const registerResponse = await axios.post(`${API_URL}/estate-manager-service/auth/register`, registrationData);
-            console.log('Registration response:', registerResponse.data);
-            const { token } = registerResponse.data;
+            const registerResponse = await registerUser(registrationData);
+            const { token } = registerResponse;
             const accessToken = token.accessToken.token;
-            console.log(accessToken);
 
-
-            // Gọi hàm lấy thông tin người dùng
+            // Fetch user data using accessToken
             const userInfo = await fetchUserData(accessToken, registrationData.email);
-            console.log('Fetched user data:', userInfo);
 
             // Save accessToken and user info to AsyncStorage (Optional)
             if (accessToken) {
@@ -120,21 +87,11 @@ export const registerUserAsync = createAsyncThunk(
                 await AsyncStorage.setItem('userInfo', JSON.stringify(userInfo));
             }
             await AsyncStorage.setItem('refreshToken', token.refreshToken.token);
-            console.log('Stored refreshToken:', token.refreshToken.token);
             await AsyncStorage.setItem('email', registrationData.email);
-
-            console.log('Stored tokens and email in AsyncStorage');
 
             return { user: userInfo, accessToken, refreshToken: token.refreshToken.token };
         } catch (error) {
-            console.error('Registration error:', error);
             if (axios.isAxiosError(error) && error.response?.data) {
-                console.error('Axios error details:', {
-                    message: error.message,
-                    code: error.code,
-                    response: error.response,
-                    config: error.config,
-                });
                 return rejectWithValue(error.response.data.message || `An error occurred: ${error.message}`);
             }
             return rejectWithValue('An unknown error occurred');

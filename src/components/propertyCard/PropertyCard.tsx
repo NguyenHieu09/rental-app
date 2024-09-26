@@ -95,7 +95,7 @@ interface PropertyCardProps {
     price: number;
 }
 
-const PropertyCard: React.FC<PropertyCardProps> = ({ imageUrl, title, rating, location, price }) => {
+const PropertyCard: React.FC<PropertyCardProps> = ({ imageUrl, title, location, price }) => {
     const [isFavorite, setIsFavorite] = useState(false); // Trạng thái yêu thích
 
     const handleFavoriteToggle = () => {
@@ -117,7 +117,7 @@ const PropertyCard: React.FC<PropertyCardProps> = ({ imageUrl, title, rating, lo
             </View>
             <View style={styles.infoContainer}>
                 <Text style={styles.title}>{title}</Text>
-                <Text style={styles.rating}>⭐ {rating}</Text>
+                {/* <Text style={styles.rating}>⭐ {rating}</Text> */}
                 <Text style={styles.location}>{location}</Text>
             </View>
         </View>

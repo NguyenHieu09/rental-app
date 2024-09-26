@@ -5,23 +5,26 @@ import Icon from 'react-native-vector-icons/MaterialIcons';
 interface PropertyCardProps {
     imageUrl: string;
     title: string;
-    rating: number;
+    // rating: number;
     location: string;
     price: number;
     type: string;
 }
 
-const Properties: React.FC<PropertyCardProps> = ({ imageUrl, title, rating, location, price, type }) => {
+const Properties: React.FC<PropertyCardProps> = ({ imageUrl, title, location, price, type }) => {
+    const truncateTitle = (title: string, maxLength: number) => {
+        return title.length > maxLength ? title.substring(0, maxLength) + '...' : title;
+    };
     return (
         <View style={styles.card}>
             <Image source={{ uri: imageUrl }} style={styles.image} />
             <View style={styles.infoContainer}>
                 <View style={styles.header}>
-                    <Text style={styles.title}>{title}</Text>
-                    <Icon name="favorite" size={20} color="green" />
+                    <Text style={styles.title}>{truncateTitle(title, 25)}</Text>
+                    {/* <Icon name="favorite" size={20} color="green" /> */}
                 </View>
-                <Text style={styles.rating}>⭐ {rating}</Text>
-                <Text style={styles.location}>{location}</Text>
+                {/* <Text style={styles.rating}>⭐ {rating}</Text> */}
+                <Text style={styles.location}>{truncateTitle(location, 30)}</Text>
                 <Text style={styles.price}>${price}/month</Text>
                 <Text style={styles.type}>{type}</Text>
             </View>

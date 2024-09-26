@@ -46,44 +46,16 @@
 
 // export default DashboardRenter;
 
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { View, Text, TextInput, ScrollView, Image, StyleSheet } from 'react-native';
-import { Avatar, Button } from 'react-native-elements';
+import { commonStyles, COLORS } from '../../../styles/theme';
 import HomeHeader from '../../../components/homeHeader/HomeHeader';
 import Properties from '../../../components/properties/Properties';
 import PropertyCard from '../../../components/propertyCard/PropertyCard';
+import CustomButton from '../../../components/CustomButton/CustomButton';
+import { fetchProperties } from '../../../api/api';
 
 const HomeScreen: React.FC = () => {
-    const properties = [
-        {
-            id: 1,
-            imageUrl: 'https://res.cloudinary.com/dxvrdtaky/image/upload/v1699325615/Image_226_hge2bb.png',
-            title: 'Sky Dandelions Apartment',
-            rating: 4.9,
-            location: 'Jakarta, Indonesia',
-            price: 290,
-            type: 'Apartment',
-        },
-        {
-            id: 2,
-            imageUrl: 'https://res.cloudinary.com/dxvrdtaky/image/upload/v1699325615/Image_226_hge2bb.png',
-            title: 'Ocean View Villa',
-            rating: 4.8,
-            location: 'Bali, Indonesia',
-            price: 450,
-            type: 'Villa',
-        },
-        {
-            id: 3,
-            imageUrl: 'https://res.cloudinary.com/dxvrdtaky/image/upload/v1699325615/Image_226_hge2bb.png',
-            title: 'City Center Studio',
-            rating: 4.7,
-            location: 'Hanoi, Vietnam',
-            price: 200,
-            type: 'Studio',
-        },
-
-    ];
 
     const nearbyProperties = [
         {
@@ -120,10 +92,42 @@ const HomeScreen: React.FC = () => {
         },
     ];
 
+    const [properties, setProperties] = useState([]);
+    // const [nearbyProperties, setNearbyProperties] = useState([]);
+    const [loading, setLoading] = useState(true);
+
+    useEffect(() => {
+        const getProperties = async () => {
+            try {
+                const data = await fetchProperties();
+                setProperties(data);
+                // setNearbyProperties(data); // Assuming the same endpoint for nearby properties
+                setLoading(false);
+            } catch (error) {
+                console.error('Error fetching properties:', error);
+                setLoading(false);
+            }
+        };
+
+        getProperties();
+    }, []);
+
+    const handlePress = (label: string) => {
+        console.log(`${label} button pressed!`);
+    };
+
+    if (loading) {
+        return (
+            <View style={commonStyles.container}>
+                <Text>Loading...</Text>
+            </View>
+        );
+    }
+
     return (
-        <View style={styles.container}>
+        <View style={commonStyles.container}>
             <HomeHeader />
-            <View style={styles.header}>
+            <View style={commonStyles.header}>
                 <View>
                     <Text style={styles.greeting}>Hey, Jonathan!</Text>
                     <Text style={styles.subGreeting}>Let's start exploring</Text>
@@ -131,29 +135,41 @@ const HomeScreen: React.FC = () => {
             </View>
 
             <TextInput
-                style={styles.searchInput}
+                style={commonStyles.input} // Using common input style
                 placeholder="Search houses, apartments, etc."
             />
 
             <ScrollView>
                 <Text style={styles.sectionTitle}>Top Locations</Text>
-                <View style={styles.locationContainer}>
-                    <Button title="Bali" type="clear" />
-                    <Button title="Jakarta" type="clear" />
-                    <Button title="Yogyakarta" type="clear" />
-                </View>
+
+                <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.scrollView}>
+                    <CustomButton
+                        imageSource={require("../../../../assets/img/1.png")}
+                        label="Bali"
+                        onPress={() => handlePress('Bali')}
+                    />
+                    <CustomButton
+                        imageSource={require("../../../../assets/img/1.png")}
+                        label="Jakarta"
+                        onPress={() => handlePress('Jakarta')}
+                    />
+                    <CustomButton
+                        imageSource={require("../../../../assets/img/1.png")}
+                        label="Yogyakarta"
+                        onPress={() => handlePress('Yogyakarta')}
+                    />
+                </ScrollView>
 
                 <Text style={styles.sectionTitle}>Featured Estates</Text>
                 <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.featuredContainer}>
-                    {properties.map(property => (
+                    {properties.map((property: any) => (
                         <Properties
-                            key={property.id}
-                            imageUrl={property.imageUrl}
+                            key={property.propertyId}
+                            imageUrl={property.images[0]}
                             title={property.title}
-                            rating={property.rating}
-                            location={property.location}
+                            location={`${property.address.street}, ${property.address.ward}, ${property.address.district}, ${property.address.city}`}
                             price={property.price}
-                            type={property.type}
+                            type={property.type.name}
                         />
                     ))}
                 </ScrollView>
@@ -179,16 +195,6 @@ const HomeScreen: React.FC = () => {
 };
 
 const styles = StyleSheet.create({
-    container: {
-        flex: 1,
-        backgroundColor: '#f0f4ff',
-        padding: 14,
-    },
-    header: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        marginBottom: 16,
-    },
     greeting: {
         fontSize: 24,
         fontWeight: 'bold',
@@ -196,61 +202,29 @@ const styles = StyleSheet.create({
     },
     subGreeting: {
         fontSize: 16,
-        color: '#888',
+        color: COLORS.text,
         marginLeft: 8,
-    },
-    searchInput: {
-        height: 40,
-        borderColor: '#ccc',
-        borderWidth: 1,
-        borderRadius: 20,
-        paddingHorizontal: 16,
-        marginBottom: 16,
-    },
-    sectionTitle: {
-        fontSize: 18,
-        fontWeight: 'bold',
-        marginBottom: 8,
-    },
-    locationContainer: {
-        flexDirection: 'row',
-        justifyContent: 'space-between',
     },
     featuredContainer: {
         flexDirection: 'row',
         marginBottom: 16,
-    },
-    card: {
-        backgroundColor: '#fff',
-        borderRadius: 10,
-        marginRight: 10,
-        padding: 10,
-        width: 150,
     },
     grid: {
         flexDirection: 'row',
         flexWrap: 'wrap',
         justifyContent: 'space-between',
     },
-    image: {
-        width: '100%',
-        height: 100,
-        borderRadius: 10,
-    },
-    cardTitle: {
-        fontWeight: 'bold',
-        marginTop: 8,
-    },
-    cardPrice: {
-        color: '#888',
-    },
-    agentContainer: {
-        flexDirection: 'row',
-        marginBottom: 16,
+    scrollView: {
+        paddingHorizontal: 10,
     },
     nearbyContainer: {
         flexDirection: 'row',
         justifyContent: 'space-between',
+    },
+    sectionTitle: {
+        fontSize: 18,
+        fontWeight: 'bold',
+        marginBottom: 8,
     },
 });
 
