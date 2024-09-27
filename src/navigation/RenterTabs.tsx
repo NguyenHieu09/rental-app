@@ -39,7 +39,7 @@ const RenterTabs: React.FC = () => {
                         <IconOutline name="search" color={color} size={size} />
                     ),
                     tabBarLabel: ({ color }) => (
-                        <Text style={{ color, fontSize: 14, fontWeight: '700' }}>Explore</Text>
+                        <Text style={{ color, fontSize: 14, fontWeight: '700' }}>Find</Text>
                     ),
                 }}
             />

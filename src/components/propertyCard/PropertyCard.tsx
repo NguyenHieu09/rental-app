@@ -86,11 +86,13 @@
 import React, { useState } from 'react';
 import { View, Text, Image, StyleSheet, TouchableOpacity } from 'react-native';
 import { IconOutline, IconFill } from '@ant-design/icons-react-native';
+import { truncate } from '../../utils/truncate';
+import { formatPrice } from '../../utils/formattedPrice';
 
 interface PropertyCardProps {
     imageUrl: string;
     title: string;
-    rating: number;
+    // rating: number;
     location: string;
     price: number;
 }
@@ -102,11 +104,13 @@ const PropertyCard: React.FC<PropertyCardProps> = ({ imageUrl, title, location, 
         setIsFavorite(!isFavorite); // Chuyển đổi trạng thái yêu thích
     };
 
+    const formattedPrice = formatPrice(price);
+
     return (
         <View style={styles.card}>
             <View style={styles.imageContainer}>
                 <Image source={{ uri: imageUrl }} style={styles.image} />
-                <Text style={styles.price}>${price}/month</Text>
+                <Text style={styles.price}>{formattedPrice}/tháng</Text>
                 <TouchableOpacity onPress={handleFavoriteToggle} style={styles.favoriteIcon}>
                     {isFavorite ? (
                         <IconFill name="heart" size={24} color="red" />
@@ -116,9 +120,9 @@ const PropertyCard: React.FC<PropertyCardProps> = ({ imageUrl, title, location, 
                 </TouchableOpacity>
             </View>
             <View style={styles.infoContainer}>
-                <Text style={styles.title}>{title}</Text>
+                <Text style={styles.title}>{truncate(title, 32)}</Text>
                 {/* <Text style={styles.rating}>⭐ {rating}</Text> */}
-                <Text style={styles.location}>{location}</Text>
+                <Text style={styles.location}>{truncate(location, 15)}</Text>
             </View>
         </View>
     );
@@ -134,7 +138,8 @@ const styles = StyleSheet.create({
         shadowOpacity: 0.1,
         shadowRadius: 4,
         elevation: 2,
-        width: '48%', // Để hiển thị 2 cột  
+        width: '48%',
+        marginBottom: 10,
     },
     imageContainer: {
         position: 'relative',

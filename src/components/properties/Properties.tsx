@@ -1,6 +1,8 @@
 import React from 'react';
 import { View, Text, Image, StyleSheet } from 'react-native';
 import Icon from 'react-native-vector-icons/MaterialIcons';
+import { truncate } from '../../utils/truncate';
+import { formatPrice } from '../../utils/formattedPrice';
 
 interface PropertyCardProps {
     imageUrl: string;
@@ -12,20 +14,19 @@ interface PropertyCardProps {
 }
 
 const Properties: React.FC<PropertyCardProps> = ({ imageUrl, title, location, price, type }) => {
-    const truncateTitle = (title: string, maxLength: number) => {
-        return title.length > maxLength ? title.substring(0, maxLength) + '...' : title;
-    };
+
+    const formattedPrice = formatPrice(price);
     return (
         <View style={styles.card}>
             <Image source={{ uri: imageUrl }} style={styles.image} />
             <View style={styles.infoContainer}>
                 <View style={styles.header}>
-                    <Text style={styles.title}>{truncateTitle(title, 25)}</Text>
+                    <Text style={styles.title}>{truncate(title, 25)}</Text>
                     {/* <Icon name="favorite" size={20} color="green" /> */}
                 </View>
                 {/* <Text style={styles.rating}>⭐ {rating}</Text> */}
-                <Text style={styles.location}>{truncateTitle(location, 30)}</Text>
-                <Text style={styles.price}>${price}/month</Text>
+                <Text style={styles.location}>{truncate(location, 30)}</Text>
+                <Text style={styles.price}>{formattedPrice}/tháng</Text>
                 <Text style={styles.type}>{type}</Text>
             </View>
         </View>
@@ -43,6 +44,7 @@ const styles = StyleSheet.create({
         shadowRadius: 4,
         elevation: 2,
         margin: 10,
+
     },
     image: {
         width: '100%',

@@ -27,11 +27,11 @@ export const commonStyles = StyleSheet.create({
     container: {
         flex: 1,
         padding: SIZES.padding,
-        // justifyContent: 'center' as 'center',
+        justifyContent: 'center' as 'center',
         backgroundColor: COLORS.secondary,
     },
     header: {
-        // alignItems: 'center' as 'center',
+        alignItems: 'center' as 'center',
         marginBottom: SIZES.base * 2,
     },
     input: {
