@@ -7,9 +7,10 @@ import Properties from '../../../components/properties/Properties';
 import PropertyCard from '../../../components/propertyCard/PropertyCard';
 import CustomButton from '../../../components/CustomButton/CustomButton';
 import { fetchProperties } from '../../../api/api';
-import { ActivityIndicator } from 'react-native-paper';
 import { useSelector } from 'react-redux';
 import { RootState } from '../../../redux-toolkit/store';
+import { NavigationProp, useNavigation } from '@react-navigation/native';
+import { Property, RootStackParamList } from '../../../types/navigation';
 
 const HomeScreen: React.FC = () => {
 
@@ -19,6 +20,7 @@ const HomeScreen: React.FC = () => {
     const [nearbyProperties, setNearbyProperties] = useState([]);
     const [loading, setLoading] = useState(true);
     const user = useSelector((state: RootState) => state.user.user);
+    const navigation = useNavigation<NavigationProp<RootStackParamList>>();
 
     useEffect(() => {
         const getLocation = async () => {
@@ -34,8 +36,8 @@ const HomeScreen: React.FC = () => {
             // Reverse geocode to get human-readable address
             let reverseGeocode = await Location.reverseGeocodeAsync({ latitude, longitude });
             if (reverseGeocode.length > 0) {
-                const { city, region, country } = reverseGeocode[0];
-                setLocation(`${city}, ${region}, ${country}`);
+                const { street, district, city } = reverseGeocode[0];
+                setLocation(`${street}, ${district}, ${city}`);
             } else {
                 setLocation('Location not found');
             }
@@ -58,6 +60,12 @@ const HomeScreen: React.FC = () => {
         getProperties();
     }, []);
 
+    const handlePressProperty = (property: Property) => {
+        // Điều hướng đến màn hình PropertyDetail với thông tin property
+        navigation.navigate('PropertyScreen', { property });
+    };
+
+
     const handlePress = (label: string) => {
         console.log(`${label} button pressed!`);
     };
@@ -72,31 +80,31 @@ const HomeScreen: React.FC = () => {
 
             <TextInput
                 style={commonStyles.input} // Using common input style
-                placeholder="Search houses, apartments, etc."
+                placeholder="Tìm kiếm nhà, căn hộ, v.v."
             />
 
             <ScrollView>
-                <Text style={styles.sectionTitle}>Top Locations</Text>
+                <Text style={styles.sectionTitle}>Địa điểm hàng đầu</Text>
 
                 <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.scrollView}>
                     <CustomButton
                         imageSource={require("../../../../assets/img/1.png")}
-                        label="Bali"
+                        label="Hà Nội"
                         onPress={() => handlePress('Bali')}
                     />
                     <CustomButton
                         imageSource={require("../../../../assets/img/1.png")}
-                        label="Jakarta"
+                        label="TP.HCM"
                         onPress={() => handlePress('Jakarta')}
                     />
                     <CustomButton
                         imageSource={require("../../../../assets/img/1.png")}
-                        label="Yogyakarta"
+                        label="Đà Nẵng"
                         onPress={() => handlePress('Yogyakarta')}
                     />
                 </ScrollView>
 
-                <Text style={styles.sectionTitle}>Featured Estates</Text>
+                <Text style={styles.sectionTitle}>Bất động sản nổi bật</Text>
                 <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.featuredContainer}>
                     {properties.map((property: any) => (
                         <Properties
@@ -110,16 +118,14 @@ const HomeScreen: React.FC = () => {
                     ))}
                 </ScrollView>
 
-                <Text style={styles.sectionTitle}>Explore Nearby Estates</Text>
+                <Text style={styles.sectionTitle}>Khám phá bất động sản gần đây</Text>
                 <View style={styles.nearbyContainer}>
                     <View style={styles.grid}>
                         {nearbyProperties.map((property: any) => (
                             <PropertyCard
                                 key={property.propertyId}
-                                imageUrl={property.images[0]}
-                                title={property.title}
-                                location={`${property.address.street}, ${property.address.ward}, ${property.address.district}, ${property.address.city}`}
-                                price={property.price}
+                                property={property}
+                                onPress={() => handlePressProperty(property)} // Gọi hàm khi nhấn
                             />
                         ))}
                     </View>

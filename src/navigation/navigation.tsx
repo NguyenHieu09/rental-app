@@ -12,6 +12,8 @@ import RegisterScreen from '../screens/registerScreen/RegisterScreen';
 import WelcomeScreen from '../screens/welcomeScreen/WelcomeScreen';
 import DashboardOwner from '../screens/owner/dashBoard/DashBoardOwner';
 import RenterTabs from './RenterTabs';
+import PropertyScreen from '../screens/renter/PropertyScreen/PropertyScreen';
+// import PropertyDetail from '../screens/renter/PropertyScreen/PropertyDetail';
 
 const Stack = createStackNavigator();
 
@@ -65,6 +67,8 @@ const Navigation: React.FC = () => {
                     options={{ headerShown: false }}
                 />
                 <Stack.Screen name="RenterTabs" component={RenterTabs} options={{ headerShown: false }} />
+
+                <Stack.Screen name="PropertyScreen" component={PropertyScreen} options={{ headerShown: false }} />
             </Stack.Navigator>
         </NavigationContainer>
     );

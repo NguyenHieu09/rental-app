@@ -53,3 +53,13 @@ export const registerUser = async (registrationData: { name: string; email: stri
         throw error;
     }
 };
+
+export const fetchPropertyDetail = async (slug: string) => {
+    try {
+        const response = await axios.get(`${API_BASE_URL}/estate-manager-service/properties/slug/${slug}`);
+        return response.data;
+    } catch (error) {
+        console.error('Error fetching property detail:', error);
+        throw error;
+    }
+};

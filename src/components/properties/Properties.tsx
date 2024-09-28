@@ -1,6 +1,5 @@
 import React from 'react';
 import { View, Text, Image, StyleSheet } from 'react-native';
-import Icon from 'react-native-vector-icons/MaterialIcons';
 import { truncate } from '../../utils/truncate';
 import { formatPrice } from '../../utils/formattedPrice';
 

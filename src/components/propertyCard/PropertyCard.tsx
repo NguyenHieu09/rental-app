@@ -88,26 +88,32 @@ import { View, Text, Image, StyleSheet, TouchableOpacity } from 'react-native';
 import { IconOutline, IconFill } from '@ant-design/icons-react-native';
 import { truncate } from '../../utils/truncate';
 import { formatPrice } from '../../utils/formattedPrice';
+import { NavigationProp, useNavigation } from '@react-navigation/native';
+import { RootStackParamList, Property } from '../../types/navigation';
+
 
 interface PropertyCardProps {
-    imageUrl: string;
-    title: string;
-    // rating: number;
-    location: string;
-    price: number;
+    property: Property;
+    onPress: () => void;
 }
 
-const PropertyCard: React.FC<PropertyCardProps> = ({ imageUrl, title, location, price }) => {
+const PropertyCard: React.FC<PropertyCardProps> = ({ property, onPress }) => {
+    const { slug, images, title, address, price } = property;
     const [isFavorite, setIsFavorite] = useState(false); // Trạng thái yêu thích
+    const navigation = useNavigation<NavigationProp<RootStackParamList>>();
+
 
     const handleFavoriteToggle = () => {
         setIsFavorite(!isFavorite); // Chuyển đổi trạng thái yêu thích
     };
 
     const formattedPrice = formatPrice(price);
+    const imageUrl = images.length > 0 ? images[0] : '';
+    const location = `${address.street}, ${address.ward}, ${address.district}, ${address.city}`;
+
 
     return (
-        <View style={styles.card}>
+        <TouchableOpacity onPress={onPress} style={styles.card}>
             <View style={styles.imageContainer}>
                 <Image source={{ uri: imageUrl }} style={styles.image} />
                 <Text style={styles.price}>{formattedPrice}/tháng</Text>
@@ -120,11 +126,14 @@ const PropertyCard: React.FC<PropertyCardProps> = ({ imageUrl, title, location, 
                 </TouchableOpacity>
             </View>
             <View style={styles.infoContainer}>
-                <Text style={styles.title}>{truncate(title, 32)}</Text>
-                {/* <Text style={styles.rating}>⭐ {rating}</Text> */}
-                <Text style={styles.location}>{truncate(location, 15)}</Text>
+                <Text style={styles.title}>{truncate(title || '', 32)}</Text>
+                {/* <Text style={styles.location}>{truncate(location || '', 15)}</Text> */}
+                <View style={styles.locationContainer}>
+                    <IconOutline name="environment" size={16} color="#666" />
+                    <Text style={styles.location}>{truncate(location || '', 15)}</Text>
+                </View>
             </View>
-        </View>
+        </TouchableOpacity>
     );
 };
 
@@ -157,6 +166,7 @@ const styles = StyleSheet.create({
         padding: 5,
         borderRadius: 5,
         fontWeight: 'bold',
+        fontSize: 12,
     },
     favoriteIcon: {
         position: 'absolute',
@@ -170,13 +180,14 @@ const styles = StyleSheet.create({
         fontSize: 16,
         fontWeight: 'bold',
     },
-    rating: {
-        fontSize: 14,
-        color: '#666',
+    locationContainer: {
+        flexDirection: 'row',
+        alignItems: 'center',
     },
     location: {
         fontSize: 14,
         color: '#666',
+        marginLeft: 5,
     },
 });
 
