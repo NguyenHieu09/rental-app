@@ -8,13 +8,42 @@ export type Address = {
     city: string;
 };
 
+export type RentalCondition = {
+    type: string;
+    value: string;
+};
+
 export type Property = {
     slug: string;
     images: string[];
     title: string;
     address: Address;
     price: number;
+    description: string;
+    rentalConditions: RentalCondition[];
+    propertyId: string;
+    status: string;
+    createdAt: string;
+    updatedAt: string;
+    deposit: number;
+    minDuration: number;
+    owner: {
+        userId: string;
+        name: string;
+        avatar: string | null;
+        email: string;
+        phoneNumber: string | null;
+    };
+    type: {
+        id: string;
+        name: string;
+    };
+    attributes: {
+        name: string;
+        type: string;
+    }[];
 };
+
 export type RootStackParamList = {
     Login: undefined;
     Register: undefined;

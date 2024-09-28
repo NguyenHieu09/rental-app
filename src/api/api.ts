@@ -63,3 +63,23 @@ export const fetchPropertyDetail = async (slug: string) => {
         throw error;
     }
 };
+
+export const sendRentalRequest = async (rentalRequestData: {
+    ownerId: string;
+    property: string;
+    rentalDeposit: number;
+    rentalEndDate: string;
+    rentalPrice: number;
+    rentalStartDate: string;
+    renterId: string;
+}) => {
+    try {
+        console.log('Sending rental request with data:', rentalRequestData);
+        const response = await axios.post(`${API_BASE_URL}/rental-requests`, rentalRequestData);
+        console.log('Rental request response:', response.data);
+        return response.data;
+    } catch (error) {
+        console.error('Error sending rental request:', error);
+        throw error;
+    }
+};

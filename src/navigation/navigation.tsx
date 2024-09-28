@@ -2,7 +2,7 @@
 import React, { useEffect, useState } from 'react';
 import { createStackNavigator } from '@react-navigation/stack';
 import { NavigationContainer } from '@react-navigation/native';
-import { ActivityIndicator } from 'react-native';
+import { ActivityIndicator, TouchableOpacity } from 'react-native';
 import { useDispatch, useSelector } from 'react-redux';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { checkLoginStatus } from '../redux-toolkit/slices/userSlice';
@@ -13,6 +13,8 @@ import WelcomeScreen from '../screens/welcomeScreen/WelcomeScreen';
 import DashboardOwner from '../screens/owner/dashBoard/DashBoardOwner';
 import RenterTabs from './RenterTabs';
 import PropertyScreen from '../screens/renter/PropertyScreen/PropertyScreen';
+import { IconOutline } from '@ant-design/icons-react-native';
+import FontAwesome from 'react-native-vector-icons/FontAwesome';
 // import PropertyDetail from '../screens/renter/PropertyScreen/PropertyDetail';
 
 const Stack = createStackNavigator();
@@ -21,6 +23,7 @@ const Navigation: React.FC = () => {
     const dispatch = useDispatch<AppDispatch>();
     const { user, loading } = useSelector((state: RootState) => state.user);
     const [isFirstLaunch, setIsFirstLaunch] = useState<boolean | null>(null);
+    const [isBookmarked, setIsBookmarked] = useState(false);
 
     useEffect(() => {
         const checkFirstLaunch = async () => {
@@ -40,6 +43,11 @@ const Navigation: React.FC = () => {
     if (isFirstLaunch === null || loading) {
         return <ActivityIndicator size="large" color="#0000ff" style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }} />;
     }
+
+    // Hàm để thay đổi trạng thái khi click
+    const toggleBookmark = () => {
+        setIsBookmarked(!isBookmarked);
+    };
 
     return (
         <NavigationContainer>
@@ -68,7 +76,26 @@ const Navigation: React.FC = () => {
                 />
                 <Stack.Screen name="RenterTabs" component={RenterTabs} options={{ headerShown: false }} />
 
-                <Stack.Screen name="PropertyScreen" component={PropertyScreen} options={{ headerShown: false }} />
+                <Stack.Screen name="PropertyScreen" component={PropertyScreen} options={{
+                    title: 'Thông tin bất động sản',
+                    headerTitleStyle: {
+                        fontWeight: 'bold',
+                        fontSize: 20,
+                        color: '#333', // Custom color
+                    },
+                    headerStyle: {
+                        // backgroundColor: '#f8f8f8', // Custom background color
+                    },
+                    headerRight: () => (
+                        <TouchableOpacity onPress={toggleBookmark} style={{ marginRight: 16 }}>
+                            <FontAwesome
+                                name={isBookmarked ? "bookmark" : "bookmark-o"}  // bookmark-o là biểu tượng outline, bookmark là fill
+                                size={30}
+                                color={isBookmarked ? "blue" : "black"} // Đổi màu nếu được chọn
+                            />
+                        </TouchableOpacity>
+                    ),
+                }} />
             </Stack.Navigator>
         </NavigationContainer>
     );
