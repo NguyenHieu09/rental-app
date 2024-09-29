@@ -14,6 +14,7 @@ export type RentalCondition = {
 };
 
 export type Property = {
+    id: string,
     slug: string;
     images: string[];
     title: string;
@@ -50,6 +51,7 @@ export type RootStackParamList = {
     DashboardOwner: undefined;
     DashboardRenter: undefined;
     RenterTabs: undefined;
+    OwnerTabs: undefined;
     PropertyScreen: { property: Property };
 };
 

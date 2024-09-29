@@ -19,7 +19,7 @@ const LoginScreen: React.FC = () => {
         console.log('User state updated:', user);
         if (user && Array.isArray(user.userTypes)) {
             if (user.userTypes.includes('owner')) {
-                navigation.navigate('DashboardOwner');
+                navigation.navigate('OwnerTabs');
             } else if (user.userTypes.includes('renter')) {
                 navigation.navigate('RenterTabs'); // Điều hướng đến Bottom Tabs Navigator cho người thuê
             }

@@ -15,6 +15,7 @@ import RenterTabs from './RenterTabs';
 import PropertyScreen from '../screens/renter/PropertyScreen/PropertyScreen';
 import { IconOutline } from '@ant-design/icons-react-native';
 import FontAwesome from 'react-native-vector-icons/FontAwesome';
+import OwnerTabs from './OwnerTabs';
 // import PropertyDetail from '../screens/renter/PropertyScreen/PropertyDetail';
 
 const Stack = createStackNavigator();
@@ -69,12 +70,13 @@ const Navigation: React.FC = () => {
                     component={RegisterScreen}
                     options={{ headerShown: false }}
                 />
-                <Stack.Screen
+                {/* <Stack.Screen
                     name="DashboardOwner"
                     component={DashboardOwner}
                     options={{ headerShown: false }}
-                />
+                /> */}
                 <Stack.Screen name="RenterTabs" component={RenterTabs} options={{ headerShown: false }} />
+                <Stack.Screen name="OwnerTabs" component={OwnerTabs} options={{ headerShown: false }} />
 
                 <Stack.Screen name="PropertyScreen" component={PropertyScreen} options={{
                     title: 'Thông tin bất động sản',

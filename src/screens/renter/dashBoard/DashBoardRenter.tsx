@@ -141,11 +141,11 @@ const styles = StyleSheet.create({
         fontWeight: 'bold',
         marginLeft: 8,
     },
-    header: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        marginBottom: 16,
-    },
+    // header: {
+    //     flexDirection: 'row',
+    //     alignItems: 'center',
+    //     marginBottom: 16,
+    // },
     subGreeting: {
 
         fontSize: 16,

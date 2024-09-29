@@ -427,7 +427,7 @@
 
 // export default PropertyDetail;
 
-import React from 'react';
+import React, { useState } from 'react';
 import { View, Text, Image, StyleSheet, TouchableOpacity, Dimensions, FlatList } from 'react-native';
 import { Property } from '../../types/navigation';
 import { AntDesign } from '@expo/vector-icons';
@@ -436,6 +436,7 @@ import { IconOutline } from '@ant-design/icons-react-native';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import { useSelector } from 'react-redux';
 import { RootState } from '../../redux-toolkit/store';
+import RentalRequestModal from '../Modal/RentalRequestModal';
 
 interface PropertyDetailProps {
     property: Property;
@@ -445,9 +446,12 @@ const { width: screenWidth } = Dimensions.get('window');
 
 const PropertyDetail: React.FC<PropertyDetailProps> = ({ property }) => {
     const { images, title, address, price, rentalConditions, owner } = property;
+    const [isModalVisible, setModalVisible] = useState(false);
     const user = useSelector((state: RootState) => state.user.user);
     const location = `${address.street}, ${address.ward}, ${address.district}, ${address.city}`;
     const formattedPrice = formatPrice(price);
+    console.log(property.propertyId);
+
 
     const area = rentalConditions.find((condition) => condition.type === 'Diện tích')?.value;
     const bed = rentalConditions.find((condition) => condition.type === 'Phòng ngủ')?.value;
@@ -462,30 +466,9 @@ const PropertyDetail: React.FC<PropertyDetailProps> = ({ property }) => {
             </View>
         );
     };
-
-    // const handleRentalRequest = async () => {
-    //     if (!user) {
-    //         Alert.alert('Error', 'User not logged in');
-    //         return;
-    //     }
-
-    //     const rentalRequestData = {
-    //         ownerId: owner.id,
-    //         property: property.id,
-    //         rentalDeposit: property.rentalDeposit,
-    //         rentalEndDate: property.rentalEndDate,
-    //         rentalPrice: property.rentalPrice,
-    //         rentalStartDate: property.rentalStartDate,
-    //         renterId: user.userId,
-    //     };
-
-    //     try {
-    //         const response = await sendRentalRequest(rentalRequestData);
-    //         Alert.alert('Success', 'Rental request sent successfully!');
-    //     } catch (error) {
-    //         Alert.alert('Error', 'Failed to send rental request.');
-    //     }
-    // };
+    const toggleModal = () => {
+        setModalVisible(!isModalVisible);
+    };
 
     return (
         <View style={styles.container}>
@@ -539,7 +522,7 @@ const PropertyDetail: React.FC<PropertyDetailProps> = ({ property }) => {
                     <Text style={styles.ownerName}>{owner.name}</Text>
                     <Text style={styles.ownerRole}>Chủ sở hữu</Text>
                 </View>
-                <TouchableOpacity style={styles.requestButton}>
+                <TouchableOpacity style={styles.requestButton} onPress={toggleModal}>
                     <View style={styles.buttonContent}>
                         <Icon name="send" size={20} color="black" />
                         <Text style={styles.buttonText}>Yêu cầu thuê nhà</Text>
@@ -555,6 +538,14 @@ const PropertyDetail: React.FC<PropertyDetailProps> = ({ property }) => {
                 </Text>
                 <Text style={styles.rating}>⭐⭐⭐⭐⭐</Text>
             </View>
+
+            <RentalRequestModal
+                isVisible={isModalVisible}
+                onClose={toggleModal}
+                propertyId={property.propertyId}
+                ownerId={owner.userId}
+                userId="currentUserId" // Replace with actual user ID
+            />
         </View>
     );
 };

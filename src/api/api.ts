@@ -66,7 +66,7 @@ export const fetchPropertyDetail = async (slug: string) => {
 
 export const sendRentalRequest = async (rentalRequestData: {
     ownerId: string;
-    property: string;
+    property: { propertyId: string };
     rentalDeposit: number;
     rentalEndDate: string;
     rentalPrice: number;
