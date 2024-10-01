@@ -436,7 +436,7 @@ import { IconOutline } from '@ant-design/icons-react-native';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import { useSelector } from 'react-redux';
 import { RootState } from '../../redux-toolkit/store';
-import RentalRequestModal from '../Modal/RentalRequestModal';
+import RentalRequestModal from '../modal/RentalRequestModal';
 
 interface PropertyDetailProps {
     property: Property;
@@ -542,9 +542,9 @@ const PropertyDetail: React.FC<PropertyDetailProps> = ({ property }) => {
             <RentalRequestModal
                 isVisible={isModalVisible}
                 onClose={toggleModal}
-                propertyId={property.propertyId}
+                property={property}
                 ownerId={owner.userId}
-                userId="currentUserId" // Replace with actual user ID
+                userId={user?.userId || ''} // Replace with actual user ID
             />
         </View>
     );

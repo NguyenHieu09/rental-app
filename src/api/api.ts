@@ -1,5 +1,7 @@
 import axios from 'axios';
 import { API_URL } from '@env';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+
 
 const API_BASE_URL = `${API_URL}/estate-manager-service`;
 
@@ -30,9 +32,12 @@ export const fetchUserData = async (token: string, email: string) => {
     }
 };
 
+
+
 export const loginUser = async (credentials: { email: string; password: string }) => {
     try {
         console.log('Sending login request with credentials:', credentials);
+        console.log(API_BASE_URL)
         const loginResponse = await axios.post(`${API_BASE_URL}/auth/login`, credentials);
         console.log('Login response:', loginResponse.data);
         return loginResponse.data;
@@ -66,7 +71,7 @@ export const fetchPropertyDetail = async (slug: string) => {
 
 export const sendRentalRequest = async (rentalRequestData: {
     ownerId: string;
-    property: { propertyId: string };
+    property: { propertyId: string; title: string; images: string[]; slug: string };
     rentalDeposit: number;
     rentalEndDate: string;
     rentalPrice: number;
@@ -74,12 +79,47 @@ export const sendRentalRequest = async (rentalRequestData: {
     renterId: string;
 }) => {
     try {
+        // Lấy token xác thực từ AsyncStorage
+        const token = await AsyncStorage.getItem('accessToken');
+
+        if (!token) {
+            throw new Error('No token provided');
+        }
+
         console.log('Sending rental request with data:', rentalRequestData);
-        const response = await axios.post(`${API_BASE_URL}/rental-requests`, rentalRequestData);
+
+        const response = await axios.post(`${API_BASE_URL}/rental-requests`, rentalRequestData, {
+            headers: {
+                Authorization: `Bearer ${token}`
+            }
+        });
+
         console.log('Rental request response:', response.data);
         return response.data;
+    } catch (error: any) {
+        if (error.response && error.response.data && error.response.data.message) {
+            console.error('Error message:', error.response.data.message);
+            throw new Error(error.response.data.message);
+        } else {
+            // Handle other errors
+            console.error('Error sending rental request:', error);
+            throw error;
+        }
+    }
+};
+
+export const fetchRentalRequestsForOwner = async (accessToken: string) => {
+    try {
+        console.log('Fetching rental requests with access token:', accessToken);
+        const response = await axios.get(`${API_BASE_URL}/rental-requests/owner`, {
+            headers: {
+                Authorization: `Bearer ${accessToken}`,
+            },
+        });
+        console.log('Rental requests response:', response.data);
+        return response.data;
     } catch (error) {
-        console.error('Error sending rental request:', error);
+        console.error('Error fetching rental requests:', error);
         throw error;
     }
 };

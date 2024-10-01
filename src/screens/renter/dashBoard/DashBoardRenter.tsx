@@ -5,7 +5,7 @@ import { commonStyles, COLORS } from '../../../styles/theme';
 import HomeHeader from '../../../components/homeHeader/HomeHeader';
 import Properties from '../../../components/properties/Properties';
 import PropertyCard from '../../../components/propertyCard/PropertyCard';
-import CustomButton from '../../../components/CustomButton/CustomButton';
+import CustomButton from '../../../components/customButton/CustomButton';
 import { fetchProperties } from '../../../api/api';
 import { useSelector } from 'react-redux';
 import { RootState } from '../../../redux-toolkit/store';

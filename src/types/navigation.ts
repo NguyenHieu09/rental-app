@@ -14,7 +14,7 @@ export type RentalCondition = {
 };
 
 export type Property = {
-    id: string,
+    propertyId: string;
     slug: string;
     images: string[];
     title: string;
@@ -22,7 +22,6 @@ export type Property = {
     price: number;
     description: string;
     rentalConditions: RentalCondition[];
-    propertyId: string;
     status: string;
     createdAt: string;
     updatedAt: string;
@@ -53,6 +52,7 @@ export type RootStackParamList = {
     RenterTabs: undefined;
     OwnerTabs: undefined;
     PropertyScreen: { property: Property };
+    ManageProperty: undefined;
 };
 
 type PropertyDetailRouteProp = RouteProp<RootStackParamList, 'PropertyScreen'>;

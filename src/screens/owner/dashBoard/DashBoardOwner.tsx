@@ -52,52 +52,74 @@ const DashboardOwner: React.FC = () => {
         getLocation();
     }, []);
 
+    const handleViewProperties = () => {
+        navigation.navigate('ManageProperty');
+    };
+
     const avatar = user?.avatar || 'https://res.cloudinary.com/dxvrdtaky/image/upload/v1727451808/avatar_iirzeq.jpg'; // Replace with actual avatar URL
 
     return (
-        <View style={commonStyles.container}>
+        <View style={[commonStyles.container, styles.dashboard]}>
             <HomeHeader location={location} avatar={avatar} />
-            <View style={styles.owner}>
-                <Text style={styles.title}>user</Text>
-                <Text style={styles.revenue}>Tổng Doanh Thu Thuê</Text>
-                <Text style={styles.amount}>42,000,000</Text>
-                <TouchableOpacity style={styles.button}>
-                    <Text style={styles.buttonText}>Xem Tài Sản Của Tôi →</Text>
-                </TouchableOpacity>
+            <View>
+                <View style={styles.owner}>
+                    <Text style={styles.title}>{user?.name || 'Guest'}</Text>
+                    <Text style={styles.revenue}>Tổng Doanh Thu Thuê</Text>
+                    <Text style={styles.amount}>42,000,000</Text>
+                    <TouchableOpacity style={styles.button} onPress={handleViewProperties}>
+                        <Text style={styles.buttonText}>Xem Tài Sản Của Tôi →</Text>
+                    </TouchableOpacity>
+                </View>
+
+                <Text style={styles.summaryTitle}>Tóm Tắt</Text>
+                <View style={styles.summaryContainer}>
+                    <TouchableOpacity style={styles.card} onPress={handleViewProperties}>
+                        <Text style={styles.cardText}>04</Text>
+                        <Text style={styles.cardLabel}>Tài Sản</Text>
+                    </TouchableOpacity>
+                    <TouchableOpacity style={styles.card}>
+                        <Text style={styles.cardText}>11</Text>
+                        <Text style={styles.cardLabel}>Hợp Đồng Thuê</Text>
+                    </TouchableOpacity>
+                    <TouchableOpacity style={styles.card}>
+                        <Text style={styles.cardText}>88</Text>
+                        <Text style={styles.cardLabel}>Yêu Cầu thuê nhà</Text>
+                    </TouchableOpacity>
+                    <TouchableOpacity style={styles.card}>
+                        <Text style={styles.cardText}>31</Text>
+                        <Text style={styles.cardLabel}>Kiểm Tra Nhà</Text>
+                    </TouchableOpacity>
+                </View>
+                {/* <View style={styles.summaryContainer}>
+                    <Card style={styles.card}>
+                        <Text style={styles.cardText}>04</Text>
+                        <Text style={styles.cardLabel}>Tài Sản</Text>
+                    </Card>
+                    <Card style={styles.card}>
+                        <Text style={styles.cardText}>11</Text>
+                        <Text style={styles.cardLabel}>Hợp Đồng Thuê</Text>
+                    </Card>
+                    <Card style={styles.card}>
+                        <Text style={styles.cardText}>88</Text>
+                        <Text style={styles.cardLabel}>Yêu Cầu thuê nhà</Text>
+                    </Card>
+                    <Card style={styles.card}>
+                        <Text style={styles.cardText}>31</Text>
+                        <Text style={styles.cardLabel}>Kiểm Tra Nhà</Text>
+                    </Card>
+                </View> */}
             </View>
 
-            <Text style={styles.summaryTitle}>Tóm Tắt</Text>
-            <View style={styles.summaryContainer}>
-                <Card style={styles.card}>
-                    <Text style={styles.cardText}>04</Text>
-                    <Text style={styles.cardLabel}>Tài Sản</Text>
-                </Card>
-                <Card style={styles.card}>
-                    <Text style={styles.cardText}>11</Text>
-                    <Text style={styles.cardLabel}>Hợp Đồng Thuê</Text>
-                </Card>
-                <Card style={styles.card}>
-                    <Text style={styles.cardText}>88</Text>
-                    <Text style={styles.cardLabel}>Yêu Cầu thuê nhà</Text>
-                </Card>
-                <Card style={styles.card}>
-                    <Text style={styles.cardText}>31</Text>
-                    <Text style={styles.cardLabel}>Kiểm Tra Nhà</Text>
-                </Card>
-            </View>
         </View>
     );
 };
 
 const styles = StyleSheet.create({
-    header: {
-        position: 'absolute',
-        top: 0,
-        left: 0,
-        right: 0,
-        zIndex: 1,
+    dashboard: {
+        justifyContent: 'flex-start',
     },
     owner: {
+        marginTop: 20,
         backgroundColor: '#6a5acd',
         borderRadius: 10,
         padding: 20,
