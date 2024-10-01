@@ -1,6 +1,6 @@
 // import { format } from 'date-fns';
 // import React, { useEffect, useState } from 'react';
-// import { View, Text, StyleSheet, Button, Image, ScrollView, TouchableOpacity, ActivityIndicator } from 'react-native';
+// import { View, Text, StyleSheet, Image, ScrollView, TouchableOpacity, ActivityIndicator } from 'react-native';
 // import { commonStyles } from '../../../styles/theme';
 // import { fetchRentalRequestsForOwner } from '../../../api/api';
 
@@ -45,46 +45,35 @@
 //     const [currentPage, setCurrentPage] = useState(0);
 //     const [totalRequests, setTotalRequests] = useState(0);
 //     const [loading, setLoading] = useState(true);
-//     const ITEMS_PER_PAGE = 5;
+//     const [isLoadingMore, setIsLoadingMore] = useState(false);
+//     const ITEMS_PER_PAGE = 10;
 
 //     useEffect(() => {
 //         const loadRentalRequests = async () => {
 //             try {
-//                 const { data, total } = await fetchRentalRequestsForOwner(currentPage, ITEMS_PER_PAGE);
+//                 setLoading(true);
+//                 const skip = currentPage * ITEMS_PER_PAGE;
+//                 const { data, total } = await fetchRentalRequestsForOwner(ITEMS_PER_PAGE, skip);
 //                 console.log('Rental requests:', data);
 //                 setRentalRequests(data);
-//                 setTotalRequests(total); // Lưu tổng số yêu cầu
+//                 setTotalRequests(total);
 //             } catch (error) {
 //                 console.error('Error fetching rental requests:', error);
 //             } finally {
 //                 setLoading(false);
+//                 setIsLoadingMore(false);
 //             }
 //         };
 
 //         loadRentalRequests();
 //     }, [currentPage]);
 
-//     const handleNextPage = () => {
-//         if ((currentPage + 1) * ITEMS_PER_PAGE < totalRequests) {
-//             setCurrentPage(currentPage + 1);
-//         }
+//     const handlePageChange = (page: number) => {
+//         setRentalRequests([]); // Clear current requests
+//         setCurrentPage(page);
 //     };
 
-//     const handlePreviousPage = () => {
-//         if (currentPage > 0) {
-//             setCurrentPage(currentPage - 1);
-//         }
-//     };
-
-//     const handleCancelRequest = (requestId: string) => {
-//         console.log(`Cancel request with ID: ${requestId}`);
-//     };
-
-//     const handleEReceipt = (requestId: string) => {
-//         console.log(`Generate e-receipt for request ID: ${requestId}`);
-//     };
-
-//     if (loading) {
+//     if (loading && currentPage === 0) {
 //         return (
 //             <View style={[commonStyles.container, { justifyContent: 'center', alignItems: 'center', flex: 1 }]}>
 //                 <ActivityIndicator size="large" color="#0000ff" />
@@ -95,7 +84,9 @@
 //     return (
 //         <View style={commonStyles.container}>
 //             <ScrollView>
-//                 {Array.isArray(rentalRequests) && rentalRequests.length > 0 ? (
+//                 {loading ? (
+//                     <Text style={styles.loadingText}>Đang tải...</Text>
+//                 ) : rentalRequests.length > 0 ? (
 //                     rentalRequests.map((request) => (
 //                         <View key={request.requestId} style={styles.requestCard}>
 //                             <View style={styles.containerRequest}>
@@ -107,8 +98,7 @@
 //                                     <Text style={styles.price}>Giá thuê: {request.rentalPrice.toLocaleString()} đ</Text>
 //                                     <Text style={styles.deposit}>Tiền cọc: {request.rentalDeposit.toLocaleString()} đ</Text>
 //                                     <Text style={styles.dates}>
-//                                         Từ: {format(new Date(request.rentalStartDate), 'dd/MM/yyyy')} -
-//                                         Đến: {format(new Date(request.rentalEndDate), 'dd/MM/yyyy')}
+//                                         Từ: {format(new Date(request.rentalStartDate), 'dd/MM/yyyy')} - Đến: {format(new Date(request.rentalEndDate), 'dd/MM/yyyy')}
 //                                     </Text>
 //                                 </View>
 //                             </View>
@@ -117,10 +107,10 @@
 //                                     <Text style={styles.status}>{getStatusInVietnamese(request.status)}</Text>
 //                                     {request.status === 'PENDING' ? (
 //                                         <>
-//                                             <TouchableOpacity style={[styles.button, styles.rejectButton]} onPress={() => handleCancelRequest(request.requestId)}>
+//                                             <TouchableOpacity style={[styles.button, styles.rejectButton]} >
 //                                                 <Text style={styles.buttonText}>Từ chối</Text>
 //                                             </TouchableOpacity>
-//                                             <TouchableOpacity style={styles.button} onPress={() => handleEReceipt(request.requestId)}>
+//                                             <TouchableOpacity style={styles.button} >
 //                                                 <Text style={styles.buttonText}>Chấp nhận</Text>
 //                                             </TouchableOpacity>
 //                                         </>
@@ -141,10 +131,18 @@
 //                 ) : (
 //                     <Text>Không có yêu cầu thuê nào.</Text>
 //                 )}
+//                 {isLoadingMore && <Text style={styles.loadingText}>Đang tải thêm...</Text>}
 //             </ScrollView>
-//             <View style={styles.pagination}>
-//                 <Button title="Trước" onPress={handlePreviousPage} disabled={currentPage === 0} />
-//                 <Button title="Sau" onPress={handleNextPage} disabled={(currentPage + 1) * ITEMS_PER_PAGE >= totalRequests} />
+//             <View style={styles.paginationContainer}>
+//                 <TouchableOpacity style={styles.pageButton} onPress={() => handlePageChange(0)}>
+//                     <Text style={styles.pageButtonText}>1</Text>
+//                 </TouchableOpacity>
+//                 <TouchableOpacity style={styles.pageButton} onPress={() => handlePageChange(1)}>
+//                     <Text style={styles.pageButtonText}>2</Text>
+//                 </TouchableOpacity>
+//                 <TouchableOpacity style={styles.pageButton} onPress={() => handlePageChange(2)}>
+//                     <Text style={styles.pageButtonText}>3</Text>
+//                 </TouchableOpacity>
 //             </View>
 //         </View>
 //     );
@@ -218,18 +216,35 @@
 //     disabledButton: {
 //         backgroundColor: '#B0BEC5',
 //     },
-//     pagination: {
+//     loadingText: {
+//         textAlign: 'center',
+//         marginVertical: 10,
+//         fontSize: 16,
+//         color: 'gray',
+//     },
+//     paginationContainer: {
 //         flexDirection: 'row',
-//         justifyContent: 'space-between',
-//         marginTop: 16,
+//         justifyContent: 'center',
+//         marginVertical: 10,
+//     },
+//     pageButton: {
+//         backgroundColor: '#2196F3',
+//         padding: 10,
+//         borderRadius: 5,
+//         marginHorizontal: 5,
+//     },
+//     pageButtonText: {
+//         color: '#fff',
+//         fontWeight: 'bold',
 //     },
 // });
 
 // export default ManageRequestRental;
 
+
 import { format } from 'date-fns';
 import React, { useEffect, useState } from 'react';
-import { View, Text, StyleSheet, Image, ScrollView, TouchableOpacity, ActivityIndicator } from 'react-native';
+import { View, Text, StyleSheet, Image, FlatList, TouchableOpacity, ActivityIndicator, Alert } from 'react-native';
 import { commonStyles } from '../../../styles/theme';
 import { fetchRentalRequestsForOwner } from '../../../api/api';
 
@@ -275,50 +290,99 @@ const ManageRequestRental = () => {
     const [totalRequests, setTotalRequests] = useState(0);
     const [loading, setLoading] = useState(true);
     const [isLoadingMore, setIsLoadingMore] = useState(false);
-    const ITEMS_PER_PAGE = 5;
+    const ITEMS_PER_PAGE = 10;
+
+    const loadRentalRequests = async (page: number) => {
+        try {
+            console.log(`Loading page ${page}...`);
+            if (page === 0) setLoading(true);
+            else setIsLoadingMore(true);
+
+            const skip = page * ITEMS_PER_PAGE;
+            console.log(`Fetching data with skip: ${skip}`);
+            const response = await fetchRentalRequestsForOwner(ITEMS_PER_PAGE, skip);
+            console.log('API response:', response); // Ghi log toàn bộ dữ liệu trả về từ API
+
+            const { data, pageInfo } = response;
+            console.log('Fetched data:', data); // Ghi log dữ liệu nhận được
+            console.log('Total requests:', pageInfo.total); // Ghi log tổng số yêu cầu
+
+            if (pageInfo.total !== undefined) {
+                setRentalRequests((prevRequests) => [...prevRequests, ...data]);
+                setTotalRequests(pageInfo.total);
+            } else {
+                console.error('Total requests is undefined');
+                Alert.alert('Error', 'Total requests is undefined.');
+            }
+        } catch (error) {
+            console.error('Error fetching rental requests:', error);
+            Alert.alert('Error', 'Có lỗi xảy ra khi tải dữ liệu.'); // Hiển thị thông báo lỗi
+        } finally {
+            setLoading(false);
+            setIsLoadingMore(false);
+            console.log('Loading state:', loading, 'Is loading more:', isLoadingMore);
+        }
+    };
 
     useEffect(() => {
-        const loadRentalRequests = async () => {
-            try {
-                const { data, total } = await fetchRentalRequestsForOwner(currentPage, ITEMS_PER_PAGE);
-                console.log('Rental requests:', data);
-                setRentalRequests((prevRequests) => [...prevRequests, ...data]);
-                setTotalRequests(total); // Lưu tổng số yêu cầu
-            } catch (error) {
-                console.error('Error fetching rental requests:', error);
-            } finally {
-                setLoading(false);
-                setIsLoadingMore(false);
-            }
-        };
+        loadRentalRequests(0);  // Load trang đầu tiên khi component được mount
+    }, []);
 
-        loadRentalRequests();
-    }, [currentPage]);
-
-    const handleLoadMore = () => {
-        if (!isLoadingMore && (currentPage + 1) * ITEMS_PER_PAGE < totalRequests) {
-            setIsLoadingMore(true);
-            setCurrentPage((prevPage) => prevPage + 1);
+    const loadMoreRequests = () => {
+        console.log('Attempting to load more requests...');
+        if (!isLoadingMore && rentalRequests.length < totalRequests) {
+            console.log('Loading more requests...');
+            const nextPage = currentPage + 1;
+            setCurrentPage(nextPage);
+            loadRentalRequests(nextPage);  // Load trang tiếp theo
+        } else {
+            console.log('No more requests to load or already loading.');
         }
     };
 
-    const handleScroll = (event: any) => {
-        const { layoutMeasurement, contentOffset, contentSize } = event.nativeEvent;
-        const isCloseToBottom = layoutMeasurement.height + contentOffset.y >= contentSize.height - 20;
-        if (isCloseToBottom) {
-            handleLoadMore();
-        }
-    };
+    const renderRentalRequest = ({ item }: { item: RentalRequest }) => (
+        <View key={item.requestId} style={styles.requestCard}>
+            <View style={styles.containerRequest}>
+                <View>
+                    <Image source={{ uri: item.property.images[0] }} style={styles.image} />
+                </View>
+                <View style={styles.details}>
+                    <Text style={styles.propertyTitle}>{item.property.title}</Text>
+                    <Text style={styles.price}>Giá thuê: {item.rentalPrice.toLocaleString()} đ</Text>
+                    <Text style={styles.deposit}>Tiền cọc: {item.rentalDeposit.toLocaleString()} đ</Text>
+                    <Text style={styles.dates}>
+                        Từ: {format(new Date(item.rentalStartDate), 'dd/MM/yyyy')} - Đến: {format(new Date(item.rentalEndDate), 'dd/MM/yyyy')}
+                    </Text>
+                </View>
+            </View>
+            <View>
+                <View style={styles.buttonContainer}>
+                    <Text style={styles.status}>{getStatusInVietnamese(item.status)}</Text>
+                    {item.status === 'PENDING' ? (
+                        <>
+                            <TouchableOpacity style={[styles.button, styles.rejectButton]} >
+                                <Text style={styles.buttonText}>Từ chối</Text>
+                            </TouchableOpacity>
+                            <TouchableOpacity style={styles.button} >
+                                <Text style={styles.buttonText}>Chấp nhận</Text>
+                            </TouchableOpacity>
+                        </>
+                    ) : (
+                        <>
+                            <TouchableOpacity style={[styles.button, styles.disabledButton]} disabled>
+                                <Text style={styles.buttonText}>Từ chối</Text>
+                            </TouchableOpacity>
+                            <TouchableOpacity style={[styles.button, styles.disabledButton]} disabled>
+                                <Text style={styles.buttonText}>Chấp nhận</Text>
+                            </TouchableOpacity>
+                        </>
+                    )}
+                </View>
+            </View>
+        </View>
+    );
 
-    const handleCancelRequest = (requestId: string) => {
-        console.log(`Cancel request with ID: ${requestId}`);
-    };
-
-    const handleEReceipt = (requestId: string) => {
-        console.log(`Generate e-receipt for request ID: ${requestId}`);
-    };
-
-    if (loading) {
+    if (loading && currentPage === 0) {
         return (
             <View style={[commonStyles.container, { justifyContent: 'center', alignItems: 'center', flex: 1 }]}>
                 <ActivityIndicator size="large" color="#0000ff" />
@@ -328,55 +392,19 @@ const ManageRequestRental = () => {
 
     return (
         <View style={commonStyles.container}>
-            <ScrollView onScroll={handleScroll} scrollEventThrottle={16}>
-                {Array.isArray(rentalRequests) && rentalRequests.length > 0 ? (
-                    rentalRequests.map((request) => (
-                        <View key={request.requestId} style={styles.requestCard}>
-                            <View style={styles.containerRequest}>
-                                <View>
-                                    <Image source={{ uri: request.property.images[0] }} style={styles.image} />
-                                </View>
-                                <View style={styles.details}>
-                                    <Text style={styles.propertyTitle}>{request.property.title}</Text>
-                                    <Text style={styles.price}>Giá thuê: {request.rentalPrice.toLocaleString()} đ</Text>
-                                    <Text style={styles.deposit}>Tiền cọc: {request.rentalDeposit.toLocaleString()} đ</Text>
-                                    <Text style={styles.dates}>
-                                        Từ: {format(new Date(request.rentalStartDate), 'dd/MM/yyyy')} -
-                                        Đến: {format(new Date(request.rentalEndDate), 'dd/MM/yyyy')}
-                                    </Text>
-                                </View>
-                            </View>
-                            <View>
-                                <View style={styles.buttonContainer}>
-                                    <Text style={styles.status}>{getStatusInVietnamese(request.status)}</Text>
-                                    {request.status === 'PENDING' ? (
-                                        <>
-                                            <TouchableOpacity style={[styles.button, styles.rejectButton]} onPress={() => handleCancelRequest(request.requestId)}>
-                                                <Text style={styles.buttonText}>Từ chối</Text>
-                                            </TouchableOpacity>
-                                            <TouchableOpacity style={styles.button} onPress={() => handleEReceipt(request.requestId)}>
-                                                <Text style={styles.buttonText}>Chấp nhận</Text>
-                                            </TouchableOpacity>
-                                        </>
-                                    ) : (
-                                        <>
-                                            <TouchableOpacity style={[styles.button, styles.disabledButton]} disabled>
-                                                <Text style={styles.buttonText}>Từ chối</Text>
-                                            </TouchableOpacity>
-                                            <TouchableOpacity style={[styles.button, styles.disabledButton]} disabled>
-                                                <Text style={styles.buttonText}>Chấp nhận</Text>
-                                            </TouchableOpacity>
-                                        </>
-                                    )}
-                                </View>
-                            </View>
-                        </View>
-                    ))
-                ) : (
-                    <Text>Không có yêu cầu thuê nào.</Text>
-                )}
-                {isLoadingMore && <Text style={styles.loadingText}>Đang tải...</Text>}
-            </ScrollView>
+            <FlatList
+                data={rentalRequests}
+                renderItem={renderRentalRequest}
+                keyExtractor={(item) => item.requestId}
+                onEndReached={loadMoreRequests}  // Khi cuộn đến cuối sẽ tự động tải thêm dữ liệu
+                onEndReachedThreshold={0.5}  // Khi còn 50% nữa đến cuối danh sách, bắt đầu tải thêm
+                ListFooterComponent={isLoadingMore ? (
+                    <View style={styles.loadingContainer}>
+                        <ActivityIndicator size="small" color="#0000ff" />
+                        <Text style={styles.loadingText}>Đang tải thêm...</Text>
+                    </View>
+                ) : null}
+            />
         </View>
     );
 };
@@ -440,7 +468,7 @@ const styles = StyleSheet.create({
         alignItems: 'center',
     },
     rejectButton: {
-        backgroundColor: '#FF0000', // Màu đỏ cho nút "Từ chối"
+        backgroundColor: '#FF0000',
     },
     buttonText: {
         color: '#fff',
@@ -449,12 +477,17 @@ const styles = StyleSheet.create({
     disabledButton: {
         backgroundColor: '#B0BEC5',
     },
+    loadingContainer: {
+        paddingVertical: 10,
+        justifyContent: 'center',
+        alignItems: 'center',
+    },
     loadingText: {
-        textAlign: 'center',
-        marginVertical: 10,
-        fontSize: 16,
+        marginTop: 5,
         color: 'gray',
+        fontSize: 16,
     },
 });
 
 export default ManageRequestRental;
+

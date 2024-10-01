@@ -110,7 +110,7 @@ export const sendRentalRequest = async (rentalRequestData: {
 
 
 // Hàm mới để lấy thông báo theo phân trang
-export const fetchNotifications = async (page: number, pageSize: number) => {
+export const fetchNotifications = async (take: number, skip: number) => {
     try {
         // Lấy token xác thực từ AsyncStorage
         const token = await AsyncStorage.getItem('accessToken');
@@ -123,8 +123,8 @@ export const fetchNotifications = async (page: number, pageSize: number) => {
 
         const response = await axios.get(`${API_BASE_URL}/notifications`, {
             params: {
-                page,
-                pageSize,
+                take,
+                skip,
             },
             headers: {
                 Authorization: `Bearer ${token}`,
@@ -145,7 +145,7 @@ export const fetchNotifications = async (page: number, pageSize: number) => {
     }
 };
 
-export const fetchRentalRequestsForOwner = async (page: number, pageSize: number) => {
+export const fetchRentalRequestsForOwner = async (take: number, skip: number) => {
     try {
         const token = await AsyncStorage.getItem('accessToken');
         if (!token) {
@@ -153,8 +153,8 @@ export const fetchRentalRequestsForOwner = async (page: number, pageSize: number
         }
         const response = await axios.get(`${API_BASE_URL}/rental-requests/owner`, {
             params: {
-                page,
-                pageSize,
+                take,
+                skip,
             },
             headers: {
                 Authorization: `Bearer ${token}`,
