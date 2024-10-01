@@ -56,6 +56,10 @@ const DashboardOwner: React.FC = () => {
         navigation.navigate('ManageProperty');
     };
 
+    const handleViewRequestRental = () => {
+        navigation.navigate('ManageRequestRental');
+    };
+
     const avatar = user?.avatar || 'https://res.cloudinary.com/dxvrdtaky/image/upload/v1727451808/avatar_iirzeq.jpg'; // Replace with actual avatar URL
 
     return (
@@ -81,7 +85,7 @@ const DashboardOwner: React.FC = () => {
                         <Text style={styles.cardText}>11</Text>
                         <Text style={styles.cardLabel}>Hợp Đồng Thuê</Text>
                     </TouchableOpacity>
-                    <TouchableOpacity style={styles.card}>
+                    <TouchableOpacity style={styles.card} onPress={handleViewRequestRental}>
                         <Text style={styles.cardText}>88</Text>
                         <Text style={styles.cardLabel}>Yêu Cầu thuê nhà</Text>
                     </TouchableOpacity>

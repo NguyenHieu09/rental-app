@@ -108,12 +108,56 @@ export const sendRentalRequest = async (rentalRequestData: {
     }
 };
 
-export const fetchRentalRequestsForOwner = async (accessToken: string) => {
+
+// Hàm mới để lấy thông báo theo phân trang
+export const fetchNotifications = async (page: number, pageSize: number) => {
     try {
-        console.log('Fetching rental requests with access token:', accessToken);
-        const response = await axios.get(`${API_BASE_URL}/rental-requests/owner`, {
+        // Lấy token xác thực từ AsyncStorage
+        const token = await AsyncStorage.getItem('accessToken');
+
+        if (!token) {
+            throw new Error('No token provided');
+        }
+
+        // console.log(`Fetching notifications for page ${page} with page size ${pageSize}`);
+
+        const response = await axios.get(`${API_BASE_URL}/notifications`, {
+            params: {
+                page,
+                pageSize,
+            },
             headers: {
-                Authorization: `Bearer ${accessToken}`,
+                Authorization: `Bearer ${token}`,
+            },
+        });
+
+        // console.log('Notifications response:', response.data);
+        return response.data;
+    } catch (error: any) {
+        if (error.response && error.response.data && error.response.data.message) {
+            console.error('Error message:', error.response.data.message);
+            throw new Error(error.response.data.message);
+        } else {
+            // Handle other errors
+            console.error('Error fetching notifications:', error);
+            throw error;
+        }
+    }
+};
+
+export const fetchRentalRequestsForOwner = async (page: number, pageSize: number) => {
+    try {
+        const token = await AsyncStorage.getItem('accessToken');
+        if (!token) {
+            throw new Error('No token found');
+        }
+        const response = await axios.get(`${API_BASE_URL}/rental-requests/owner`, {
+            params: {
+                page,
+                pageSize,
+            },
+            headers: {
+                Authorization: `Bearer ${token}`,
             },
         });
         console.log('Rental requests response:', response.data);
@@ -123,3 +167,4 @@ export const fetchRentalRequestsForOwner = async (accessToken: string) => {
         throw error;
     }
 };
+

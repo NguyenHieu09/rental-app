@@ -13,6 +13,7 @@ export type RentalCondition = {
     value: string;
 };
 
+
 export type Property = {
     propertyId: string;
     slug: string;
@@ -53,10 +54,11 @@ export type RootStackParamList = {
     OwnerTabs: undefined;
     PropertyScreen: { property: Property };
     ManageProperty: undefined;
+    ManageRequestRental: undefined;
 };
 
 type PropertyDetailRouteProp = RouteProp<RootStackParamList, 'PropertyScreen'>;
-type PropertyDetailNavigationProp = StackNavigationProp<RootStackParamList, 'PropertyScreen'>;
+// type PropertyDetailNavigationProp = StackNavigationProp<RootStackParamList, 'PropertyScreen'>;
 
 export type PropertyDetailProps = {
     route: PropertyDetailRouteProp;
