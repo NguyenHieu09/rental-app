@@ -266,11 +266,12 @@ const AddProperty: React.FC = () => {
     const [minDuration, setMinDuration] = useState('');
     const [attributeIds, setAttributeIds] = useState<string[]>([]);
     const [images, setImages] = useState<string[]>([]);
-    const [city, setCity] = useState('');
-    const [district, setDistrict] = useState('');
-    const [ward, setWard] = useState('');
     const [street, setStreet] = useState('');
     const [termsAccepted, setTermsAccepted] = useState(false);
+
+    const [selectedCity, setSelectedCity] = useState<string | undefined>(undefined);
+    const [selectedDistrict, setSelectedDistrict] = useState<string | undefined>(undefined);
+    const [selectedWard, setSelectedWard] = useState<string | undefined>(undefined);
 
     const handleSubmit = () => {
         console.log({
@@ -289,9 +290,9 @@ const AddProperty: React.FC = () => {
             attributeIds,
             images,
             address: {
-                city,
-                district,
-                ward,
+                city: selectedCity,
+                district: selectedDistrict,
+                ward: selectedWard,
                 street,
             },
             termsAccepted,
@@ -384,15 +385,16 @@ const AddProperty: React.FC = () => {
                     keyboardType="numeric"
                 />
                 <AddressInput
-                    city={city}
-                    setCity={setCity}
-                    district={district}
-                    setDistrict={setDistrict}
-                    ward={ward}
-                    setWard={setWard}
+                    selectedCity={selectedCity}
+                    setSelectedCity={setSelectedCity}
+                    selectedDistrict={selectedDistrict}
+                    setSelectedDistrict={setSelectedDistrict}
+                    selectedWard={selectedWard}
+                    setSelectedWard={setSelectedWard}
                     street={street}
                     setStreet={setStreet}
                 />
+
                 <TouchableOpacity style={styles.uploadButton} onPress={() => {/* handle image upload */ }}>
                     <Text style={styles.uploadButtonText}>Tải lên hình ảnh tài sản</Text>
                 </TouchableOpacity>

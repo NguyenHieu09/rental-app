@@ -3,20 +3,20 @@ import axios from 'axios';
 const BASE_URL = 'https://vietnam-addresses.vercel.app/api/v1';
 
 export interface City {
-    id: string;
+    _id: string;
     name: string;
 }
 
 export interface District {
-    id: string;
+    _id: string;
     name: string;
-    cityId: string;
+    parent_id: string;
 }
 
 export interface Ward {
-    id: string;
+    _id: string;
     name: string;
-    districtId: string;
+    parent_id: string;
 }
 
 export const getCities = async (): Promise<City[]> => {
