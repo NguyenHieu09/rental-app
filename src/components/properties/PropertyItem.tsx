@@ -55,7 +55,7 @@ const styles = StyleSheet.create({
         overflow: 'hidden',
         backgroundColor: '#F5F4F8',
         elevation: 2,
-        margin: 10,
+        // margin: 10,
     },
     imageContainer: {
         justifyContent: 'center',
@@ -93,7 +93,7 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
         alignItems: 'center',
         width: 70,
-        height: '85%',
+        height: '90%',
         borderRadius: 20,
     },
     buttonContainer: {

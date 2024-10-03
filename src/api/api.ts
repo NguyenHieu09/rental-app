@@ -174,10 +174,12 @@ export const fetchPropertiesWithFilters = async (filters: IFilterProperty) => {
             },
         });
 
-        console.log('Properties with filters response:', response.data.data);
+        console.log('Properties with filters response:', response.data);
 
+        const properties = response.data.data;
+        const total = response.data.pageInfo.total;
 
-        return response.data.data;
+        return { properties, total };
     } catch (error: any) {
         if (error.response && error.response.data && error.response.data.message) {
             console.error('Error message:', error.response.data.message);

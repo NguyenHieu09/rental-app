@@ -54,7 +54,7 @@ export type RootStackParamList = {
     RenterTabs: undefined;
     OwnerTabs: undefined;
     PropertyScreen: { property: IProperty };
-    ManageProperty: undefined;
+    ManageProperty: { properties: IProperty[] };
     ManageRequestRental: undefined;
 };
 
