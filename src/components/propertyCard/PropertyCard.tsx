@@ -89,11 +89,12 @@ import { IconOutline, IconFill } from '@ant-design/icons-react-native';
 import { truncate } from '../../utils/truncate';
 import { formatPrice } from '../../utils/formattedPrice';
 import { NavigationProp, useNavigation } from '@react-navigation/native';
-import { RootStackParamList, Property } from '../../types/navigation';
+import { RootStackParamList, } from '../../types/navigation';
+import { IProperty } from '../../types/property';
 
 
 interface PropertyCardProps {
-    property: Property;
+    property: IProperty;
     onPress: () => void;
 }
 

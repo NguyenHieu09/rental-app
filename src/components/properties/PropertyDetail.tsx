@@ -429,7 +429,7 @@
 
 import React, { useState } from 'react';
 import { View, Text, Image, StyleSheet, TouchableOpacity, Dimensions, FlatList } from 'react-native';
-import { Property } from '../../types/navigation';
+// import { Property } from '../../types/navigation';
 import { AntDesign } from '@expo/vector-icons';
 import { formatPrice } from '../../utils/formattedPrice';
 import { IconOutline } from '@ant-design/icons-react-native';
@@ -437,9 +437,10 @@ import Icon from 'react-native-vector-icons/MaterialIcons';
 import { useSelector } from 'react-redux';
 import { RootState } from '../../redux-toolkit/store';
 import RentalRequestModal from '../modal/RentalRequestModal';
+import { IProperty } from '../../types/property';
 
 interface PropertyDetailProps {
-    property: Property;
+    property: IProperty;
 }
 
 const { width: screenWidth } = Dimensions.get('window');

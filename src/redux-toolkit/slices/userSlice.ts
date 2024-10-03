@@ -1,27 +1,12 @@
 import axios from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
-import { Role } from '../../types/role';
-import { UserStatus } from '../../types/userStatus';
-import { API_URL } from '@env';
 import { fetchUserData, loginUser, registerUser } from '../../api/api';
+import { IUser } from '../../types/user';
 
-export interface userInfoInterfaceDetailI {
-    userId: string;
-    email: string;
-    name: string;
-    userTypes: Role[];
-    status: UserStatus;
-    avatar: string | null;
-    phoneNumber: string | null;
-    walletAddress: `0x${string}` | null;
-    isVerified: boolean;
-    createdAt: string;
-    updatedAt: string;
-}
 
 export interface userInfoInterfaceI {
-    user: userInfoInterfaceDetailI | undefined;
+    user: IUser | undefined;
     accessToken?: string | undefined;
     refreshToken?: string | undefined;
     loading: boolean;

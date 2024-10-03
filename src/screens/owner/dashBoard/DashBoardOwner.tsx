@@ -7,7 +7,6 @@ import { logoutUserAsync } from '../../../redux-toolkit/slices/userSlice';
 import { useNavigation, NavigationProp } from '@react-navigation/native';
 import { RootStackParamList } from '../../../types/navigation'; // Import the type
 import HomeHeader from '../../../components/homeHeader/HomeHeader'; // Import HomeHeader
-import { Card } from 'react-native-paper';
 import { commonStyles } from '../../../styles/theme';
 
 const DashboardOwner: React.FC = () => {

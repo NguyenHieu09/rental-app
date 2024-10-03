@@ -1,6 +1,7 @@
 import axios from 'axios';
 import { API_URL } from '@env';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { IFilterProperty } from '../types/property';
 
 
 const API_BASE_URL = `${API_URL}/estate-manager-service`;
@@ -31,8 +32,6 @@ export const fetchUserData = async (token: string, email: string) => {
         throw error;
     }
 };
-
-
 
 export const loginUser = async (credentials: { email: string; password: string }) => {
     try {
@@ -108,19 +107,14 @@ export const sendRentalRequest = async (rentalRequestData: {
     }
 };
 
-
 // Hàm mới để lấy thông báo theo phân trang
 export const fetchNotifications = async (take: number, skip: number) => {
     try {
-        // Lấy token xác thực từ AsyncStorage
         const token = await AsyncStorage.getItem('accessToken');
 
         if (!token) {
             throw new Error('No token provided');
         }
-
-        // console.log(`Fetching notifications for page ${page} with page size ${pageSize}`);
-
         const response = await axios.get(`${API_BASE_URL}/notifications`, {
             params: {
                 take,
@@ -130,15 +124,12 @@ export const fetchNotifications = async (take: number, skip: number) => {
                 Authorization: `Bearer ${token}`,
             },
         });
-
-        // console.log('Notifications response:', response.data);
         return response.data;
     } catch (error: any) {
         if (error.response && error.response.data && error.response.data.message) {
             console.error('Error message:', error.response.data.message);
             throw new Error(error.response.data.message);
         } else {
-            // Handle other errors
             console.error('Error fetching notifications:', error);
             throw error;
         }
@@ -167,4 +158,36 @@ export const fetchRentalRequestsForOwner = async (take: number, skip: number) =>
         throw error;
     }
 };
+
+export const fetchPropertiesWithFilters = async (filters: IFilterProperty) => {
+    try {
+        const token = await AsyncStorage.getItem('accessToken');
+
+        if (!token) {
+            throw new Error('No token provided');
+        }
+
+        const response = await axios.get(`${API_BASE_URL}/properties/owner`, {
+            params: filters,
+            headers: {
+                Authorization: `Bearer ${token}`,
+            },
+        });
+
+        console.log('Properties with filters response:', response.data.data);
+
+
+        return response.data.data;
+    } catch (error: any) {
+        if (error.response && error.response.data && error.response.data.message) {
+            console.error('Error message:', error.response.data.message);
+            throw new Error(error.response.data.message);
+        } else {
+            console.error('Error fetching properties with filters:', error);
+            throw error;
+        }
+    }
+};
+
+
 

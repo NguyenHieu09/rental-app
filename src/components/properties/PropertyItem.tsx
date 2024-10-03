@@ -1,88 +1,104 @@
+
 import React from 'react';
-import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
-import { MaterialIcons } from '@expo/vector-icons';
-import { Property } from '../../types/navigation';
+import { View, Text, Image, StyleSheet, TouchableOpacity } from 'react-native';
+import { IProperty } from '../../types/property';
+import { AntDesign } from '@expo/vector-icons';
+import { Swipeable } from 'react-native-gesture-handler';
 
 interface PropertyItemProps {
-    item: Property;
+    item: IProperty;
+    onDelete: (id: string) => void;
 }
 
-const PropertyItem: React.FC<PropertyItemProps> = ({ item }) => {
-    const { address, title, price, propertyId } = item;
+const PropertyItem: React.FC<PropertyItemProps> = ({ item, onDelete }) => {
+    const { address, title, price, images, propertyId } = item;
     const location = `${address.street}, ${address.ward}, ${address.district}, ${address.city}`;
 
-    return (
-        <View style={styles.card}>
-            <View style={styles.textContainer}>
-                <Text style={styles.propertyName}>{title}</Text>
-                <Text style={styles.propertyLocation}>{location}</Text>
-                <TouchableOpacity style={styles.infoButton}>
-                    <Text style={styles.infoButtonText}>Xem chi tiết</Text>
+    const renderRightActions = () => {
+        return (
+            <View style={styles.buttonContainer}>
+                <TouchableOpacity
+                    style={styles.deleteButton}
+                    onPress={() => onDelete(propertyId)} // Wrap onDelete with the propertyId
+                >
+                    <AntDesign name="delete" size={24} color="white" />
                 </TouchableOpacity>
             </View>
-            <View style={styles.iconContainer}>
-                <View style={styles.iconRow}>
-                    <TouchableOpacity>
-                        <MaterialIcons name="edit" size={24} color="blue" />
-                    </TouchableOpacity>
-                    <TouchableOpacity>
-                        <MaterialIcons name="delete" size={24} color="red" />
-                    </TouchableOpacity>
+
+        );
+    };
+
+    return (
+        <Swipeable renderRightActions={renderRightActions}>
+            <View style={styles.container}>
+                <View style={styles.imageContainer}>
+                    <Image source={{ uri: images[0] }} style={styles.image} />
                 </View>
-                <Text style={styles.activePrice}>Active Price:</Text>
-                <Text style={styles.activePrice}>${item.price}</Text>
+                <View style={styles.details}>
+                    <Text style={styles.title}>{title}</Text>
+                    <View style={styles.row}>
+                        <Text style={styles.location}>{location}</Text>
+                    </View>
+                    <View style={styles.row}>
+                        <Text style={styles.price}>{price}/month</Text>
+                    </View>
+                </View>
             </View>
-        </View>
+        </Swipeable>
     );
 };
 
 const styles = StyleSheet.create({
-    card: {
-        backgroundColor: '#fff',
-        borderRadius: 10,
-        padding: 15,
-        marginBottom: 15,
-        elevation: 2,
+    container: {
         flexDirection: 'row',
-        justifyContent: 'space-between',
+        borderRadius: 30,
+        overflow: 'hidden',
+        backgroundColor: '#F5F4F8',
+        elevation: 2,
+        margin: 10,
+    },
+    imageContainer: {
+        justifyContent: 'center',
         alignItems: 'center',
+        padding: 10,
     },
-    textContainer: {
+    image: {
+        width: 150,
+        height: 150,
+        resizeMode: 'cover',
+        borderRadius: 15,
+    },
+    details: {
         flex: 1,
-        marginRight: 10,
+        padding: 10,
     },
-    propertyName: {
+    title: {
         fontSize: 18,
         fontWeight: 'bold',
     },
-    propertyLocation: {
-        fontSize: 16,
-        color: '#555',
-    },
-    activePrice: {
+    location: {
         fontSize: 14,
+        color: '#888',
+    },
+    price: {
+        fontSize: 16,
         fontWeight: 'bold',
-        marginTop: 5,
+        color: '#2e7d32',
     },
-    infoButton: {
-        borderRadius: 5,
-        padding: 10,
-        marginTop: 5,
-        borderColor: '#6a5acd',
-        borderWidth: 1,
-        alignSelf: 'flex-start',
-    },
-    infoButtonText: {
-        fontWeight: 'bold',
-    },
-    iconContainer: {
-        flexDirection: 'column',
-        alignItems: 'center',
-    },
-    iconRow: {
+    row: {
         flexDirection: 'row',
-        justifyContent: 'space-between',
     },
+    deleteButton: {
+        backgroundColor: '#d9534f',
+        justifyContent: 'center',
+        alignItems: 'center',
+        width: 70,
+        height: '85%',
+        borderRadius: 20,
+    },
+    buttonContainer: {
+        justifyContent: 'center',
+    }
 });
 
 export default PropertyItem;
