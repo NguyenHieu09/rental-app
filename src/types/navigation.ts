@@ -1,6 +1,7 @@
 import { RouteProp } from '@react-navigation/native';
 import { StackNavigationProp } from '@react-navigation/stack';
 import { IProperty } from './property';
+import { IRentalRequest } from './rentalRequest';
 
 // export type Address = {
 //     street: string;
@@ -56,6 +57,7 @@ export type RootStackParamList = {
     PropertyScreen: { property: IProperty };
     ManageProperty: { properties: IProperty[] };
     ManageRequestRental: undefined;
+    ContractScreen: { contractData: any }
 };
 
 type PropertyDetailRouteProp = RouteProp<RootStackParamList, 'PropertyScreen'>;

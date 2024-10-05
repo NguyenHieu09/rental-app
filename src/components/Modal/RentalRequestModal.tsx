@@ -163,14 +163,15 @@ import { View, Text, StyleSheet, TextInput, TouchableOpacity, Alert } from 'reac
 import Modal from 'react-native-modal';
 import DateTimePickerModal from 'react-native-modal-datetime-picker';
 import { sendRentalRequest } from '../../api/api';
-import { Property } from '../../types/navigation';
+// import { Property } from '../../types/navigation';
 import { format } from 'date-fns';
+import { IProperty } from '../../types/property';
 // import { format } from 'date-fns';
 
 interface RentalRequestModalProps {
     isVisible: boolean;
     onClose: () => void;
-    property: Property; // Ensure property is included in the props
+    property: IProperty; // Ensure property is included in the props
     ownerId: string;
     userId: string;
 }

@@ -2,6 +2,7 @@ import axios from 'axios';
 import { API_URL } from '@env';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { IFilterProperty } from '../types/property';
+import { IGenerateContractRequest } from '../types/rentalRequest';
 
 
 const API_BASE_URL = `${API_URL}/estate-manager-service`;
@@ -85,7 +86,7 @@ export const sendRentalRequest = async (rentalRequestData: {
             throw new Error('No token provided');
         }
 
-        console.log('Sending rental request with data:', rentalRequestData);
+        // console.log('Sending rental request with data:', rentalRequestData);
 
         const response = await axios.post(`${API_BASE_URL}/rental-requests`, rentalRequestData, {
             headers: {
@@ -107,7 +108,6 @@ export const sendRentalRequest = async (rentalRequestData: {
     }
 };
 
-// Hàm mới để lấy thông báo theo phân trang
 export const fetchNotifications = async (take: number, skip: number) => {
     try {
         const token = await AsyncStorage.getItem('accessToken');
@@ -151,7 +151,7 @@ export const fetchRentalRequestsForOwner = async (take: number, skip: number) =>
                 Authorization: `Bearer ${token}`,
             },
         });
-        console.log('Rental requests response:', response.data);
+        // console.log('Rental requests response:', response.data);
         return response.data;
     } catch (error) {
         console.error('Error fetching rental requests:', error);
@@ -159,7 +159,7 @@ export const fetchRentalRequestsForOwner = async (take: number, skip: number) =>
     }
 };
 
-export const fetchPropertiesWithFilters = async (filters: IFilterProperty) => {
+export const fetchPropertiesWithFilters = async (filters: IFilterProperty, take: number, skip: number) => {
     try {
         const token = await AsyncStorage.getItem('accessToken');
 
@@ -168,13 +168,13 @@ export const fetchPropertiesWithFilters = async (filters: IFilterProperty) => {
         }
 
         const response = await axios.get(`${API_BASE_URL}/properties/owner`, {
-            params: filters,
+            params: { ...filters, take, skip },
             headers: {
                 Authorization: `Bearer ${token}`,
             },
         });
 
-        console.log('Properties with filters response:', response.data);
+        // console.log('Properties with filters response:', response.data);
 
         const properties = response.data.data;
         const total = response.data.pageInfo.total;
@@ -191,5 +191,56 @@ export const fetchPropertiesWithFilters = async (filters: IFilterProperty) => {
     }
 };
 
+// Function to fetch rental requests based on slug
+export const fetchRentalRequestsBySlug = async (slug: string) => {
+    try {
+        const token = await AsyncStorage.getItem('accessToken');
 
+        if (!token) {
+            throw new Error('No token provided');
+        }
 
+        const response = await axios.get(`${API_BASE_URL}/rental-requests/owner/${slug}`, {
+            headers: {
+                Authorization: `Bearer ${token}`,
+            },
+        });
+
+        return response.data;
+    } catch (error: any) {
+        if (error.response && error.response.data && error.response.data.message) {
+            console.error('Error message:', error.response.data.message);
+            throw new Error(error.response.data.message);
+        } else {
+            console.error('Error fetching rental requests by slug:', error);
+            throw error;
+        }
+    }
+};
+
+// Function to generate a contract for a rental request
+export const generateRentalContract = async (contractRequest: IGenerateContractRequest) => {
+    try {
+        const token = await AsyncStorage.getItem('accessToken');
+
+        if (!token) {
+            throw new Error('No token provided');
+        }
+
+        const response = await axios.post(`${API_BASE_URL}/rental-requests/generate-contract`, contractRequest, {
+            headers: {
+                Authorization: `Bearer ${token}`,
+            },
+        });
+
+        return response.data;
+    } catch (error: any) {
+        if (error.response && error.response.data && error.response.data.message) {
+            console.error('Error message:', error.response.data.message);
+            throw new Error(error.response.data.message);
+        } else {
+            console.error('Error generating rental contract:', error);
+            throw error;
+        }
+    }
+};

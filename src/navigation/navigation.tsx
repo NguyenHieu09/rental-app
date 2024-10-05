@@ -18,6 +18,7 @@ import FontAwesome from 'react-native-vector-icons/FontAwesome';
 import OwnerTabs from './OwnerTabs';
 import ManageProperty from '../screens/owner/property/ManageProperty';
 import ManageRequestRental from '../screens/owner/ManageRequestRental/ManageRequestRental';
+import ContractScreen from '../screens/owner/Contract/ContractScreen ';
 // import PropertyDetail from '../screens/renter/PropertyScreen/PropertyDetail';
 
 const Stack = createStackNavigator();
@@ -102,6 +103,9 @@ const Navigation: React.FC = () => {
                 />
                 <Stack.Screen name="ManageRequestRental" component={ManageRequestRental}
                     options={{ title: 'Yêu cầu thuê nhà' }}
+                />
+                <Stack.Screen name="ContractScreen" component={ContractScreen}
+                    options={{ title: 'Tạo hợp đồng' }}
                 />
 
             </Stack.Navigator>

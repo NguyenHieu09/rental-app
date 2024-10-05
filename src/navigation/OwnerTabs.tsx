@@ -8,6 +8,7 @@ import ProfileScreen from '../screens/profileScreen/ProfileScreen';
 import ExploreScreen from '../screens/owner/explore/ExploreScreen';
 import SavedScreen from '../screens/owner/addProperty/AddPropertyScreen';
 import AuthenticationScreen from '../screens/Authentication/AuthenticationScreen';
+import ContractScreen from '../screens/owner/Contract/ContractScreen ';
 
 const Tab = createBottomTabNavigator();
 
@@ -61,7 +62,7 @@ const OwnerTabs: React.FC = () => {
 
             < Tab.Screen
                 name="ChatScreen"
-                component={ChatScreen}
+                component={ContractScreen}
                 options={{
                     headerShown: false,
                     tabBarIcon: ({ color, size }) => (

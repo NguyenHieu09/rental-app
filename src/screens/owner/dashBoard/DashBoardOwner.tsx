@@ -403,6 +403,8 @@ const DashboardOwner: React.FC = () => {
     const [loadingProperties, setLoadingProperties] = useState<boolean>(true);
     const [loadingRequests, setLoadingRequests] = useState<boolean>(true);
     const [error, setError] = useState<string | null>(null);
+    const [totalRequests, setTotalRequests] = useState(0);
+    const [totalProperties, setTotalProperties] = useState(0);
 
     const handleLogout = async () => {
         await dispatch(logoutUserAsync()).unwrap();
@@ -449,8 +451,9 @@ const DashboardOwner: React.FC = () => {
             };
 
             try {
-                const { properties, total } = await fetchPropertiesWithFilters(filters);
+                const { properties, total } = await fetchPropertiesWithFilters(filters, 10, 0);
                 setProperties(properties);
+                setTotalProperties(total);
                 console.log('Total properties:', total);
             } catch (err: any) {
                 setError(err.message);
@@ -471,6 +474,7 @@ const DashboardOwner: React.FC = () => {
                 const response = await fetchRentalRequestsForOwner(10, 0);
                 const { data, pageInfo } = response;
                 setRentalRequests(data);
+                setTotalRequests(pageInfo.total);
                 console.log('Total rental requests:', pageInfo.total);
             } catch (err: any) {
                 setError(err.message);
@@ -508,7 +512,7 @@ const DashboardOwner: React.FC = () => {
                 <Text style={styles.summaryTitle}>Tóm Tắt</Text>
                 <View style={styles.summaryContainer}>
                     <TouchableOpacity style={styles.card} onPress={handleViewProperties}>
-                        <Text style={styles.cardText}>{properties.length}</Text>
+                        <Text style={styles.cardText}>{totalProperties}</Text>
                         <Text style={styles.cardLabel}>Tài Sản</Text>
                     </TouchableOpacity>
                     <TouchableOpacity style={styles.card}>
@@ -516,7 +520,7 @@ const DashboardOwner: React.FC = () => {
                         <Text style={styles.cardLabel}>Hợp Đồng Thuê</Text>
                     </TouchableOpacity>
                     <TouchableOpacity style={styles.card} onPress={handleViewRequestRental}>
-                        <Text style={styles.cardText}>{rentalRequests.length}</Text>
+                        <Text style={styles.cardText}>{totalRequests}</Text>
                         <Text style={styles.cardLabel}>Yêu Cầu thuê nhà</Text>
                     </TouchableOpacity>
                     <TouchableOpacity style={styles.card}>

@@ -2,30 +2,33 @@ import { format } from 'date-fns';
 import React, { useEffect, useState } from 'react';
 import { View, Text, StyleSheet, Image, FlatList, TouchableOpacity, ActivityIndicator, Alert } from 'react-native';
 import { commonStyles } from '../../../styles/theme';
-import { fetchRentalRequestsForOwner } from '../../../api/api';
+import { fetchRentalRequestsBySlug, fetchRentalRequestsForOwner, generateRentalContract } from '../../../api/api';
 import { RootState } from '../../../redux-toolkit/store';
 import { useSelector } from 'react-redux';
+import { IGenerateContractRequest, IRentalRequest } from '../../../types/rentalRequest';
+import { NavigationProp, useNavigation } from '@react-navigation/native';
+import { RootStackParamList } from '../../../types/navigation';
 
 export type RentalRequestStatus = 'PENDING' | 'APPROVED' | 'REJECTED' | 'CANCELLED';
 
-interface RentalRequest {
-    property: {
-        propertyId: string;
-        title: string;
-        images: string[];
-        slug: string;
-    };
-    requestId: string;
-    renterId: string;
-    ownerId: string;
-    status: RentalRequestStatus;
-    rentalPrice: number;
-    rentalDeposit: number;
-    rentalStartDate: string;
-    rentalEndDate: string;
-    createdAt: string;
-    updatedAt: string;
-}
+// interface RentalRequest {
+//     property: {
+//         propertyId: string;
+//         title: string;
+//         images: string[];
+//         slug: string;
+//     };
+//     requestId: string;
+//     renterId: string;
+//     ownerId: string;
+//     status: RentalRequestStatus;
+//     rentalPrice: number;
+//     rentalDeposit: number;
+//     rentalStartDate: string;
+//     rentalEndDate: string;
+//     createdAt: string;
+//     updatedAt: string;
+// }
 
 const getStatusInVietnamese = (status: RentalRequestStatus): string => {
     switch (status) {
@@ -43,13 +46,14 @@ const getStatusInVietnamese = (status: RentalRequestStatus): string => {
 };
 
 const ManageRequestRental = () => {
-    const [rentalRequests, setRentalRequests] = useState<RentalRequest[]>([]);
+    const [rentalRequests, setRentalRequests] = useState<IRentalRequest[]>([]);
     const [currentPage, setCurrentPage] = useState(0);
     const [totalRequests, setTotalRequests] = useState(0);
     const [loading, setLoading] = useState(true);
     const [isLoadingMore, setIsLoadingMore] = useState(false);
     const ITEMS_PER_PAGE = 10;
 
+    const navigation = useNavigation<NavigationProp<RootStackParamList>>();
     const user = useSelector((state: RootState) => state.user.user);
 
     const loadRentalRequests = async (page: number) => {
@@ -64,7 +68,7 @@ const ManageRequestRental = () => {
             console.log('API response:', response);
 
             const { data, pageInfo } = response;
-            console.log('Fetched data:', data);
+            // console.log('Fetched data:', data);
             console.log('Total requests:', pageInfo.total);
 
             if (pageInfo.total !== undefined) {
@@ -102,16 +106,31 @@ const ManageRequestRental = () => {
 
 
 
-    const handleAcceptPress = (item: RentalRequest) => {
+    const handleAcceptPress = async (item: IRentalRequest) => {
         if (!user?.isVerified) {
             Alert.alert('Error', 'Người dùng chưa được xác thực.');
             return;
         }
+        try {
+            const contractRequest: IGenerateContractRequest = {
+                propertyId: item.property.propertyId,
+                renterId: item.renterId,
+                requestId: item.requestId
+            };
+            console.log('Contract Request:', contractRequest);
+
+            const contractData = await generateRentalContract(contractRequest);
+            navigation.navigate('ContractScreen', { contractData });
+            // console.log('Contract generated successfully:', contractData);
+
+        } catch (error) {
+            console.error('Error fetching rental request details:', error);
+            Alert.alert('Error', 'Có lỗi xảy ra khi lấy thông tin chi tiết yêu cầu thuê.');
+        }
         // Handle the accept logic here
-        console.log('Accepted rental request:', item.requestId);
     };
 
-    const renderRentalRequest = ({ item }: { item: RentalRequest }) => (
+    const renderRentalRequest = ({ item }: { item: IRentalRequest }) => (
         <View key={item.requestId} style={styles.requestCard}>
             <View style={styles.containerRequest}>
                 <View>
@@ -122,7 +141,10 @@ const ManageRequestRental = () => {
                     <Text style={styles.price}>Giá thuê: {item.rentalPrice.toLocaleString()} đ</Text>
                     <Text style={styles.deposit}>Tiền cọc: {item.rentalDeposit.toLocaleString()} đ</Text>
                     <Text style={styles.dates}>
-                        Từ: {format(new Date(item.rentalStartDate), 'dd/MM/yyyy')} - Đến: {format(new Date(item.rentalEndDate), 'dd/MM/yyyy')}
+                        Từ: {format(new Date(item.rentalStartDate), 'dd/MM/yyyy')}
+                    </Text>
+                    <Text style={styles.dates}>
+                        Đến: {format(new Date(item.rentalEndDate), 'dd/MM/yyyy')}
                     </Text>
                 </View>
             </View>

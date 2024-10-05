@@ -55,7 +55,7 @@ const styles = StyleSheet.create({
         overflow: 'hidden',
         backgroundColor: '#F5F4F8',
         elevation: 2,
-        // margin: 10,
+        marginBottom: 10,
     },
     imageContainer: {
         justifyContent: 'center',
