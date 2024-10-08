@@ -214,10 +214,10 @@ const RentalRequestModal: React.FC<RentalRequestModalProps> = ({ isVisible, onCl
 
         try {
             const response = await sendRentalRequest(rentalRequestData);
-            Alert.alert('Success', 'Rental request sent successfully!');
+            Alert.alert('Success', 'Yêu cầu thuê nhà đã được gửi!');
             onClose();
         } catch (error: any) {
-            const errorMessage = error.message || 'Failed to send rental request.';
+            const errorMessage = error.message || 'Yêu cầu thuê nhà bị lỗi.';
             Alert.alert('Error', errorMessage);
         }
     };

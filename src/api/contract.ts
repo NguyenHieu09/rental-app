@@ -31,3 +31,38 @@ export const createContract = async (contractRequest: ICreateContractRequest): P
         }
     }
 };
+
+export const fetchTransactions = async (userId: string, type: string, take: number, skip: number) => {
+    try {
+        const token = await AsyncStorage.getItem('accessToken');
+
+        if (!token) {
+            throw new Error('No token provided');
+        }
+
+        const response = await axios.get(`${API_CONTRACT_URL}/transactions`, {
+            params: {
+                userId,
+                type,
+                take,
+                skip,
+            },
+            headers: {
+                Authorization: `Bearer ${token}`,
+            },
+        });
+
+        const transactions = response.data.data;
+        const total = response.data.pageInfo.total;
+
+        return { transactions, total };
+    } catch (error: any) {
+        if (error.response && error.response.data && error.response.data.message) {
+            console.error('Error message:', error.response.data.message);
+            throw new Error(error.response.data.message);
+        } else {
+            console.error('Error fetching transactions:', error);
+            throw error;
+        }
+    }
+};

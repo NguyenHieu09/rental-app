@@ -191,7 +191,6 @@ export const fetchPropertiesWithFilters = async (filters: IFilterProperty, take:
     }
 };
 
-// Function to fetch rental requests based on slug
 export const fetchRentalRequestsBySlug = async (slug: string) => {
     try {
         const token = await AsyncStorage.getItem('accessToken');
@@ -218,7 +217,6 @@ export const fetchRentalRequestsBySlug = async (slug: string) => {
     }
 };
 
-// Function to generate a contract for a rental request
 export const generateRentalContract = async (contractRequest: IGenerateContractRequest) => {
     try {
         const token = await AsyncStorage.getItem('accessToken');
@@ -244,3 +242,104 @@ export const generateRentalContract = async (contractRequest: IGenerateContractR
         }
     }
 };
+
+export const updateWalletAddress = async (userId: string, walletAddress: string) => {
+    try {
+        const token = await AsyncStorage.getItem('accessToken');
+
+        if (!token) {
+            throw new Error('No token provided');
+        }
+
+        const response = await axios.post(`${API_BASE_URL}/users/wallet`, { userId, wallet_address: walletAddress }, {
+            headers: {
+                Authorization: `Bearer ${token}`,
+            },
+        });
+
+        return response.data;
+    } catch (error: any) {
+        if (error.response && error.response.data && error.response.data.message) {
+            console.error('Error message:', error.response.data.message);
+            throw new Error(error.response.data.message);
+        } else {
+            console.error('Error updating wallet address:', error);
+            throw error;
+        }
+    }
+};
+
+
+const uriToBlob = async (uri: string): Promise<Blob> => {
+    const response = await fetch(uri);
+    const blob = await response.blob();
+    return blob;
+};
+
+export const verifyUserWithImages = async (frontImageUri: string, backImageUri: string) => {
+    try {
+        const token = await AsyncStorage.getItem('accessToken');
+
+        if (!token) {
+            throw new Error('No token provided');
+        }
+
+        const frontBlob = await uriToBlob(frontImageUri);
+        const backBlob = await uriToBlob(backImageUri);
+
+        const formData = new FormData();
+        formData.append('front', frontBlob, 'front.jpg');
+        formData.append('back', backBlob, 'back.jpg');
+
+        console.log('FormData:', formData);
+
+        const response = await axios.post(`${API_BASE_URL}/users/verify`, formData, {
+            headers: {
+                'Content-Type': 'multipart/form-data',
+                Authorization: `Bearer ${token}`,
+            },
+        });
+
+        console.log('Response:', response.data);
+        return response.data;
+    } catch (error: any) {
+        if (error.response && error.response.data && error.response.data.message) {
+            console.error('Error message:', error.response.data.message);
+            throw new Error(error.response.data.message);
+        } else {
+            console.error('Error verifying user with images:', error);
+            throw error;
+        }
+    }
+};
+
+// export const verifyUserWithImages = async (front: File, back: File) => {
+//     try {
+//         const token = await AsyncStorage.getItem('accessToken');
+
+//         if (!token) {
+//             throw new Error('No token provided');
+//         }
+
+//         const formData = new FormData();
+//         formData.append('front', front);
+//         formData.append('back', back);
+
+//         const response = await axios.post(`${API_BASE_URL}/users/verify`, formData, {
+//             headers: {
+//                 'Content-Type': 'multipart/form-data',
+//                 Authorization: `Bearer ${token}`,
+//             },
+//         });
+
+//         return response.data;
+//     } catch (error: any) {
+//         if (error.response && error.response.data && error.response.data.message) {
+//             console.error('Error message:', error.response.data.message);
+//             throw new Error(error.response.data.message);
+//         } else {
+//             console.error('Error verifying user with images:', error);
+//             throw error;
+//         }
+//     }
+// };

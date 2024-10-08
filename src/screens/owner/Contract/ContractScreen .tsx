@@ -465,7 +465,7 @@ const ContractScreen = () => {
                 <TouchableOpacity style={[styles.button, { backgroundColor: 'red' }]}>
                     <Text style={commonStyles.buttonText}>Hủy</Text>
                 </TouchableOpacity>
-                <TouchableOpacity style={[styles.button, { backgroundColor: 'green' }]} onPress={handleCreateContract}>
+                <TouchableOpacity style={[styles.button, { backgroundColor: '#007BFF' }]} onPress={handleCreateContract}>
                     <Text style={commonStyles.buttonText}>Tạo hợp đồng</Text>
                 </TouchableOpacity>
             </View>
@@ -484,14 +484,14 @@ const styles = StyleSheet.create({
     },
     buttonContainer: {
         flexDirection: 'row',
-        justifyContent: 'space-around',
-        padding: 10,
+        justifyContent: 'space-between',
+        padding: 5,
         borderTopWidth: 1,
         borderTopColor: '#ccc',
     },
     button: {
         flex: 1,
-        padding: 15,
+        padding: 10,
         margin: 5,
         borderRadius: 5,
         alignItems: 'center',

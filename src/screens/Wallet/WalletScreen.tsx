@@ -1,6 +1,7 @@
 import React from 'react';
 import { View, Text, FlatList, StyleSheet } from 'react-native';
 import { Card } from 'react-native-paper';
+import { commonStyles } from '../../styles/theme';
 
 interface Transaction {
     id: string;
@@ -17,25 +18,30 @@ const transactions: Transaction[] = [
 ];
 
 const WalletScreen: React.FC = () => {
-    const balance = 0.0; // Replace with actual balance  
+    const balance = 0.0;
     const walletAddress = '0xBF1cE2BbdF85189697C3C05ae971c44aFA360852'; // Replace with actual address  
 
     const renderItem = ({ item }: { item: Transaction }) => (
         <Card style={styles.transactionCard}>
+            <Text style={styles.transactionDescription}>{item.description}</Text>
+
             <View style={styles.transactionContent}>
-                <Text style={styles.transactionDescription}>{item.description}</Text>
+                <Text>Số tiền:21.500.000 ₫</Text>
                 <Text style={item.amount >= 0 ? styles.transactionAmountPositive : styles.transactionAmountNegative}>
                     {item.amount >= 0 ? `+ ${item.amount} ETH` : `${item.amount} ETH`}
                 </Text>
             </View>
+
             <Text style={styles.transactionDate}>{item.date}</Text>
         </Card>
     );
 
     return (
-        <View style={styles.container}>
-            <Text style={styles.balance}>{balance} ETH</Text>
-            <Text style={styles.walletAddress}>Địa chỉ ví: {walletAddress}</Text>
+        <View style={commonStyles.container}>
+            <View style={{ alignItems: 'center', justifyContent: 'center' }}>
+                <Text style={styles.balance}>{balance} ETH</Text>
+                <Text style={styles.walletAddress}>Địa chỉ ví: {walletAddress}</Text>
+            </View>
             <Text style={styles.historyTitle}>Lịch sử giao dịch</Text>
             <FlatList
                 data={transactions}
@@ -78,6 +84,7 @@ const styles = StyleSheet.create({
     },
     transactionDescription: {
         fontSize: 16,
+        flex: 1
     },
     transactionAmountPositive: {
         color: 'green',

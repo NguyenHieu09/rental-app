@@ -28,13 +28,26 @@ const ProfileScreen = () => {
         await dispatch(logoutUserAsync());
         navigation.navigate('Login');
     };
-
-    const renderItem = ({ item }: { item: { title: string, icon: string } }) => (
-        <TouchableOpacity style={styles.option}>
+    const renderItem = ({ item }: { item: { id: string, title: string, icon: string } }) => (
+        <TouchableOpacity
+            style={styles.option}
+            onPress={() => {
+                if (item.id === '1') {
+                    navigation.navigate('WalletManagement');
+                }
+            }}
+        >
             <IconOutline name={item.icon as any} size={20} style={styles.optionIcon} />
             <Text style={styles.optionText}>{item.title}</Text>
         </TouchableOpacity>
     );
+
+    // const renderItem = ({ item }: { item: { title: string, icon: string } }) => (
+    //     <TouchableOpacity style={styles.option}>
+    //         <IconOutline name={item.icon as any} size={20} style={styles.optionIcon} />
+    //         <Text style={styles.optionText}>{item.title}</Text>
+    //     </TouchableOpacity>
+    // );
 
     if (loading) {
         return (

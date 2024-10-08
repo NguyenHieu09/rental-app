@@ -391,6 +391,7 @@ import HomeHeader from '../../../components/homeHeader/HomeHeader'; // Import Ho
 import { commonStyles } from '../../../styles/theme';
 import { fetchPropertiesWithFilters, fetchRentalRequestsForOwner } from '../../../api/api'; // Import fetchPropertiesWithFilters and fetchRentalRequestsForOwner
 import { IProperty, IFilterProperty } from '../../../types/property';
+import { W3mButton } from '@web3modal/wagmi-react-native';
 
 const DashboardOwner: React.FC = () => {
     const dispatch = useDispatch<AppDispatch>();
@@ -527,6 +528,7 @@ const DashboardOwner: React.FC = () => {
                         <Text style={styles.cardText}>31</Text>
                         <Text style={styles.cardLabel}>Kiểm Tra Nhà</Text>
                     </TouchableOpacity>
+                    {/* <W3mButton /> */}
                 </View>
             </View>
         </View>
@@ -539,7 +541,7 @@ const styles = StyleSheet.create({
     },
     owner: {
         marginTop: 20,
-        backgroundColor: '#6a5acd',
+        backgroundColor: '#1463b8',
         borderRadius: 10,
         padding: 20,
         marginBottom: 20,

@@ -2,6 +2,7 @@ import { RouteProp } from '@react-navigation/native';
 import { StackNavigationProp } from '@react-navigation/stack';
 import { IProperty } from './property';
 import { IRentalRequest } from './rentalRequest';
+import { IUser } from './user';
 
 // export type Address = {
 //     street: string;
@@ -57,7 +58,9 @@ export type RootStackParamList = {
     PropertyScreen: { property: IProperty };
     ManageProperty: { properties: IProperty[] };
     ManageRequestRental: undefined;
-    ContractScreen: { contractData: any }
+    ContractScreen: { contractData: any };
+    WalletManagement: undefined;
+    Transactions: { user: IUser };
 };
 
 type PropertyDetailRouteProp = RouteProp<RootStackParamList, 'PropertyScreen'>;
