@@ -2,6 +2,7 @@ import axios from 'axios';
 import { IContract, ICreateContractRequest } from '../types/contract';
 import { API_URL } from '@env';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { IDepositTransaction, ITransaction } from '../types/transaction';
 
 const API_CONTRACT_URL = `${API_URL}/contract-service`;
 
@@ -122,6 +123,57 @@ export const fetchRentalContractsForRenter = async (take: number, skip: number) 
             throw new Error(error.response.data.message);
         } else {
             console.error('Error fetching rental contracts:', error);
+            throw error;
+        }
+    }
+};
+
+export const fetchAllTransactionsForRenter = async (): Promise<ITransaction[]> => {
+    try {
+        const token = await AsyncStorage.getItem('accessToken');
+
+        if (!token) {
+            throw new Error('No token provided');
+        }
+
+        const response = await axios.get(`${API_CONTRACT_URL}/transactions/renter`, {
+            headers: {
+                Authorization: `Bearer ${token}`,
+            },
+        });
+
+        return response.data;
+    } catch (error: any) {
+        if (error.response && error.response.data && error.response.data.message) {
+            console.error('Error message:', error.response.data.message);
+            throw new Error(error.response.data.message);
+        } else {
+            console.error('Error fetching transactions for renter:', error);
+            throw error;
+        }
+    }
+};
+
+
+export const makePayment = async (depositTransaction: IDepositTransaction): Promise<void> => {
+    try {
+        const token = await AsyncStorage.getItem('accessToken');
+
+        if (!token) {
+            throw new Error('No token provided');
+        }
+
+        await axios.post(`${API_CONTRACT_URL}/contracts/deposit`, depositTransaction, {
+            headers: {
+                Authorization: `Bearer ${token}`,
+            },
+        });
+    } catch (error: any) {
+        if (error.response && error.response.data && error.response.data.message) {
+            console.error('Error message:', error.response.data.message);
+            throw new Error(error.response.data.message);
+        } else {
+            console.error('Error making payment:', error);
             throw error;
         }
     }

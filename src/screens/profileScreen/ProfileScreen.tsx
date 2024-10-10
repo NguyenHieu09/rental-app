@@ -38,6 +38,8 @@ const ProfileScreen = () => {
                     navigation.navigate('ManageRequestRental');
                 } else if (item.id === '4') {
                     navigation.navigate('ManageContract');
+                } else if (item.id === '5') {
+                    navigation.navigate('PaymentScreen');
                 }
 
             }}
