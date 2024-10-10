@@ -6,6 +6,8 @@ import { IGenerateContractRequest } from '../types/rentalRequest';
 
 
 const API_BASE_URL = `${API_URL}/estate-manager-service`;
+console.log(API_BASE_URL);
+
 
 export const fetchProperties = async () => {
     try {
@@ -308,6 +310,32 @@ export const verifyUserWithImages = async (frontImageUri: string, backImageUri: 
             throw new Error(error.response.data.message);
         } else {
             console.error('Error verifying user with images:', error);
+            throw error;
+        }
+    }
+};
+
+export const updateRentalRequestStatus = async (requestId: string, status: string) => {
+    try {
+        const token = await AsyncStorage.getItem('accessToken');
+
+        if (!token) {
+            throw new Error('No token provided');
+        }
+
+        const response = await axios.patch(`${API_BASE_URL}/rental-requests/owner/status`, { requestId, status }, {
+            headers: {
+                Authorization: `Bearer ${token}`,
+            },
+        });
+
+        return response.data;
+    } catch (error: any) {
+        if (error.response && error.response.data && error.response.data.message) {
+            console.error('Error message:', error.response.data.message);
+            throw new Error(error.response.data.message);
+        } else {
+            console.error('Error updating rental request status:', error);
             throw error;
         }
     }

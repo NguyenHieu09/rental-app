@@ -5,4 +5,5 @@ declare module '@env' {
     export const EXPO_PUBLIC_WAGMI_DESCRIPTION: string;
     export const EXPO_PUBLIC_WAGMI_URL: string;
     export const EXPO_PUBLIC_WAGMI_ICONS: string;
+    export const NODE_ENV: string;
 }

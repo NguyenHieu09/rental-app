@@ -28,6 +28,7 @@
       "favicon": "./assets/favicon.png"
     },
     "plugins": [
+      "./queries.js",
       "expo-font",
       [
         "expo-camera",

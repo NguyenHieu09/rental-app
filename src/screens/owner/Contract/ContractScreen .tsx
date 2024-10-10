@@ -391,12 +391,13 @@
 
 import React, { useState, useEffect } from 'react';
 import { View, StyleSheet, ScrollView, Dimensions, ActivityIndicator, Text, TouchableOpacity, Alert } from 'react-native';
-import { useRoute, RouteProp } from '@react-navigation/native';
+import { useRoute, RouteProp, NavigationProp, useNavigation } from '@react-navigation/native';
 import RenderHtml from 'react-native-render-html';
 import { RootStackParamList } from '../../../types/navigation';
 import { commonStyles } from '../../../styles/theme';
 import { ICreateContractRequest } from '../../../types/contract';
 import { createContract } from '../../../api/contract';
+import { updateRentalRequestStatus } from '../../../api/api';
 
 
 type ContractScreenRouteProp = RouteProp<RootStackParamList, 'ContractScreen'>;
@@ -404,9 +405,9 @@ type ContractScreenRouteProp = RouteProp<RootStackParamList, 'ContractScreen'>;
 const ContractScreen = () => {
     const [loading, setLoading] = useState(true);
     const route = useRoute<ContractScreenRouteProp>();
-    const { contractData } = route.params;
+    const { contractData, requestId } = route.params;
     const { contractContent, ownerId, renterId, propertyId, startDate, endDate, monthlyRent, depositAmount } = contractData;
-
+    const navigation = useNavigation<NavigationProp<RootStackParamList>>();
     // Simulate data fetching
     useEffect(() => {
         // Simulate a delay to fetch data
@@ -435,11 +436,14 @@ const ContractScreen = () => {
 
         try {
             const response = await createContract(contractRequest);
-            console.log(response);
+            console.log(ownerId, requestId);
+
+            await updateRentalRequestStatus(requestId, 'APPROVED');
 
             Alert.alert('Success', 'Contract created successfully');
+            navigation.navigate('ManageRequestRental');
         } catch (error) {
-            Alert.alert('Error', 'Failed to create contract');
+            Alert.alert('Error', 'Có lỗi xảy ra khi tạo hợp đồng hoặc cập nhật trạng thái yêu cầu thuê.');
         }
     };
 

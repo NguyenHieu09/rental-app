@@ -58,9 +58,11 @@ export type RootStackParamList = {
     PropertyScreen: { property: IProperty };
     ManageProperty: { properties: IProperty[] };
     ManageRequestRental: undefined;
-    ContractScreen: { contractData: any };
+    ContractScreen: { contractData: any, requestId: string };
     WalletManagement: undefined;
     Transactions: { user: IUser };
+    Wallet: { user: IUser };
+    ManageContract: undefined;
 };
 
 type PropertyDetailRouteProp = RouteProp<RootStackParamList, 'PropertyScreen'>;

@@ -24,6 +24,14 @@ export interface IContract {
     depositAmount: number;
     contractTerms: string;
     transactionHashContract: string;
+    property: {
+        title: string;
+    }
+    renter: {
+        avatar: string | 'https://res.cloudinary.com/dxvrdtaky/image/upload/v1727451808/avatar_iirzeq.jpg';
+        name: string,
+        userId: string,
+    },
 }
 
 export type ContractStatus =

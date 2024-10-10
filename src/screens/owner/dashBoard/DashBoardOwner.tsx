@@ -392,6 +392,7 @@ import { commonStyles } from '../../../styles/theme';
 import { fetchPropertiesWithFilters, fetchRentalRequestsForOwner } from '../../../api/api'; // Import fetchPropertiesWithFilters and fetchRentalRequestsForOwner
 import { IProperty, IFilterProperty } from '../../../types/property';
 import { W3mButton } from '@web3modal/wagmi-react-native';
+import { fetchRentalContractsForOwner } from '../../../api/contract';
 
 const DashboardOwner: React.FC = () => {
     const dispatch = useDispatch<AppDispatch>();
@@ -406,6 +407,7 @@ const DashboardOwner: React.FC = () => {
     const [error, setError] = useState<string | null>(null);
     const [totalRequests, setTotalRequests] = useState(0);
     const [totalProperties, setTotalProperties] = useState(0);
+    const [totalContracts, setTotalContracts] = useState<number>(0);
 
     const handleLogout = async () => {
         await dispatch(logoutUserAsync()).unwrap();
@@ -487,12 +489,30 @@ const DashboardOwner: React.FC = () => {
         loadRentalRequests();
     }, []);
 
+    useEffect(() => {
+        const fetchContracts = async () => {
+            try {
+                const { total } = await fetchRentalContractsForOwner(10, 0); // Fetch total contracts
+                setTotalContracts(total); // Set total contracts
+            } catch (error) {
+                console.error('Error fetching contracts:', error);
+                setError('Có lỗi xảy ra khi tải dữ liệu hợp đồng.');
+            }
+        };
+
+        fetchContracts();
+    }, []);
+
     const handleViewProperties = () => {
         navigation.navigate('ManageProperty', { properties });
     };
 
     const handleViewRequestRental = () => {
         navigation.navigate('ManageRequestRental');
+    };
+
+    const handleViewContracts = () => {
+        navigation.navigate('ManageContract');
     };
 
     const avatar = user?.avatar || 'https://res.cloudinary.com/dxvrdtaky/image/upload/v1727451808/avatar_iirzeq.jpg'; // Replace with actual avatar URL
@@ -516,8 +536,8 @@ const DashboardOwner: React.FC = () => {
                         <Text style={styles.cardText}>{totalProperties}</Text>
                         <Text style={styles.cardLabel}>Tài Sản</Text>
                     </TouchableOpacity>
-                    <TouchableOpacity style={styles.card}>
-                        <Text style={styles.cardText}>11</Text>
+                    <TouchableOpacity style={styles.card} onPress={handleViewContracts}>
+                        <Text style={styles.cardText}>{totalContracts}</Text>
                         <Text style={styles.cardLabel}>Hợp Đồng Thuê</Text>
                     </TouchableOpacity>
                     <TouchableOpacity style={styles.card} onPress={handleViewRequestRental}>
@@ -528,7 +548,7 @@ const DashboardOwner: React.FC = () => {
                         <Text style={styles.cardText}>31</Text>
                         <Text style={styles.cardLabel}>Kiểm Tra Nhà</Text>
                     </TouchableOpacity>
-                    {/* <W3mButton /> */}
+                    <W3mButton />
                 </View>
             </View>
         </View>

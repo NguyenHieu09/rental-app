@@ -35,3 +35,9 @@ export interface IGenerateContractResponse {
     monthlyRent: number;
     depositAmount: number;
 }
+
+// types.ts
+export interface RequestRental {
+    contractData: any;
+    requestId: string;
+}
