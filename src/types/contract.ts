@@ -32,6 +32,11 @@ export interface IContract {
         name: string,
         userId: string,
     },
+    owner: {
+        avatar: string | 'https://res.cloudinary.com/dxvrdtaky/image/upload/v1727451808/avatar_iirzeq.jpg';
+        name: string,
+        userId: string,
+    },
 }
 
 export type ContractStatus =

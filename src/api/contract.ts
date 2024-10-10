@@ -96,3 +96,33 @@ export const fetchRentalContractsForOwner = async (take: number, skip: number) =
         }
     }
 };
+
+export const fetchRentalContractsForRenter = async (take: number, skip: number) => {
+    try {
+        const token = await AsyncStorage.getItem('accessToken');
+
+        if (!token) {
+            throw new Error('No token provided');
+        }
+
+        const response = await axios.get(`${API_CONTRACT_URL}/contracts/renter`, {
+            params: { take, skip },
+            headers: {
+                Authorization: `Bearer ${token}`,
+            },
+        });
+
+        const contracts = response.data.data;
+        const total = response.data.pageInfo.total;
+
+        return { contracts, total };
+    } catch (error: any) {
+        if (error.response && error.response.data && error.response.data.message) {
+            console.error('Error message:', error.response.data.message);
+            throw new Error(error.response.data.message);
+        } else {
+            console.error('Error fetching rental contracts:', error);
+            throw error;
+        }
+    }
+};

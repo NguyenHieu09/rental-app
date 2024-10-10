@@ -34,7 +34,12 @@ const ProfileScreen = () => {
             onPress={() => {
                 if (item.id === '1') {
                     navigation.navigate('WalletManagement');
+                } else if (item.id === '3') {
+                    navigation.navigate('ManageRequestRental');
+                } else if (item.id === '4') {
+                    navigation.navigate('ManageContract');
                 }
+
             }}
         >
             <IconOutline name={item.icon as any} size={20} style={styles.optionIcon} />

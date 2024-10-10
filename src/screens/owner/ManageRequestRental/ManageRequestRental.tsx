@@ -1,34 +1,15 @@
 // import { format } from 'date-fns';
-// import React, { useCallback, useEffect, useState } from 'react';
+// import React, { useEffect, useState, useCallback } from 'react';
 // import { View, Text, StyleSheet, Image, FlatList, TouchableOpacity, ActivityIndicator, Alert } from 'react-native';
 // import { commonStyles } from '../../../styles/theme';
 // import { fetchRentalRequestsBySlug, fetchRentalRequestsForOwner, generateRentalContract } from '../../../api/api';
 // import { RootState } from '../../../redux-toolkit/store';
 // import { useSelector } from 'react-redux';
 // import { IGenerateContractRequest, IRentalRequest } from '../../../types/rentalRequest';
-// import { NavigationProp, useFocusEffect, useNavigation } from '@react-navigation/native';
+// import { useFocusEffect, NavigationProp, useNavigation } from '@react-navigation/native';
 // import { RootStackParamList } from '../../../types/navigation';
 
 // export type RentalRequestStatus = 'PENDING' | 'APPROVED' | 'REJECTED' | 'CANCELLED';
-
-// // interface RentalRequest {
-// //     property: {
-// //         propertyId: string;
-// //         title: string;
-// //         images: string[];
-// //         slug: string;
-// //     };
-// //     requestId: string;
-// //     renterId: string;
-// //     ownerId: string;
-// //     status: RentalRequestStatus;
-// //     rentalPrice: number;
-// //     rentalDeposit: number;
-// //     rentalStartDate: string;
-// //     rentalEndDate: string;
-// //     createdAt: string;
-// //     updatedAt: string;
-// // }
 
 // const getStatusInVietnamese = (status: RentalRequestStatus): string => {
 //     switch (status) {
@@ -68,11 +49,14 @@
 //             console.log('API response:', response);
 
 //             const { data, pageInfo } = response;
-//             // console.log('Fetched data:', data);
 //             console.log('Total requests:', pageInfo.total);
 
 //             if (pageInfo.total !== undefined) {
-//                 setRentalRequests((prevRequests) => [...prevRequests, ...data]);
+//                 if (page === 0) {
+//                     setRentalRequests(data);
+//                 } else {
+//                     setRentalRequests((prevRequests) => [...prevRequests, ...data]);
+//                 }
 //                 setTotalRequests(pageInfo.total);
 //             } else {
 //                 console.error('Total requests is undefined');
@@ -94,6 +78,8 @@
 
 //     useFocusEffect(
 //         useCallback(() => {
+//             setRentalRequests([]);
+//             setCurrentPage(0);
 //             loadRentalRequests(0);
 //         }, [])
 //     );
@@ -109,8 +95,6 @@
 //             console.log('No more requests to load or already loading.');
 //         }
 //     };
-
-
 
 //     const handleAcceptPress = async (item: IRentalRequest) => {
 //         if (!user?.isVerified) {
@@ -132,7 +116,6 @@
 //             console.error('Error fetching rental request details:', error);
 //             Alert.alert('Error', 'Có lỗi xảy ra khi lấy thông tin chi tiết yêu cầu thuê.');
 //         }
-//         // Handle the accept logic here
 //     };
 
 //     const renderRentalRequest = ({ item }: { item: IRentalRequest }) => (
@@ -289,16 +272,17 @@
 
 // export default ManageRequestRental;
 
-import { format } from 'date-fns';
+
 import React, { useEffect, useState, useCallback } from 'react';
 import { View, Text, StyleSheet, Image, FlatList, TouchableOpacity, ActivityIndicator, Alert } from 'react-native';
 import { commonStyles } from '../../../styles/theme';
-import { fetchRentalRequestsBySlug, fetchRentalRequestsForOwner, generateRentalContract } from '../../../api/api';
+import { fetchRentalRequestsForOwner, fetchRentalRequestsForRenter, generateRentalContract } from '../../../api/api';
 import { RootState } from '../../../redux-toolkit/store';
 import { useSelector } from 'react-redux';
 import { IGenerateContractRequest, IRentalRequest } from '../../../types/rentalRequest';
 import { useFocusEffect, NavigationProp, useNavigation } from '@react-navigation/native';
 import { RootStackParamList } from '../../../types/navigation';
+import { format } from 'date-fns';
 
 export type RentalRequestStatus = 'PENDING' | 'APPROVED' | 'REJECTED' | 'CANCELLED';
 
@@ -336,7 +320,14 @@ const ManageRequestRental = () => {
 
             const skip = page * ITEMS_PER_PAGE;
             console.log(`Fetching data with skip: ${skip}`);
-            const response = await fetchRentalRequestsForOwner(ITEMS_PER_PAGE, skip);
+
+            let response;
+            if (user?.userTypes.includes('renter')) {
+                response = await fetchRentalRequestsForRenter(ITEMS_PER_PAGE, skip);
+            } else {
+                response = await fetchRentalRequestsForOwner(ITEMS_PER_PAGE, skip);
+            }
+
             console.log('API response:', response);
 
             const { data, pageInfo } = response;
@@ -409,6 +400,11 @@ const ManageRequestRental = () => {
         }
     };
 
+    const handleCancelPress = (item: IRentalRequest) => {
+        // Logic to handle cancel request
+        Alert.alert('Cancel', `Yêu cầu thuê ${item.requestId} đã bị hủy.`);
+    };
+
     const renderRentalRequest = ({ item }: { item: IRentalRequest }) => (
         <View key={item.requestId} style={styles.requestCard}>
             <View style={styles.containerRequest}>
@@ -432,12 +428,54 @@ const ManageRequestRental = () => {
                     <Text style={styles.status}>{getStatusInVietnamese(item.status)}</Text>
                     {item.status === 'PENDING' ? (
                         <>
-                            <TouchableOpacity style={[styles.button, styles.rejectButton]} >
-                                <Text style={styles.buttonText}>Từ chối</Text>
-                            </TouchableOpacity>
-                            <TouchableOpacity style={styles.button} onPress={() => handleAcceptPress(item)}>
-                                <Text style={styles.buttonText}>Chấp nhận</Text>
-                            </TouchableOpacity>
+                            {user?.userTypes.includes('renter') ? (
+                                <TouchableOpacity style={[styles.button]} >
+                                    <Text style={styles.buttonText}>Hủy</Text>
+                                </TouchableOpacity>
+                            ) : (
+                                <>
+                                    <TouchableOpacity style={[styles.button, styles.rejectButton]} >
+                                        <Text style={styles.buttonText}>Từ chối</Text>
+                                    </TouchableOpacity>
+                                    <TouchableOpacity style={[styles.button]} >
+                                        <Text style={styles.buttonText}>Chấp nhận</Text>
+                                    </TouchableOpacity>
+                                </>
+                            )}
+                        </>
+                    ) : (
+                        <>
+                            {user?.userTypes.includes('renter') ? (
+                                <TouchableOpacity style={[styles.button, styles.disabledButton]} disabled>
+                                    <Text style={styles.buttonText}>Hủy</Text>
+                                </TouchableOpacity>
+                            ) : (
+                                <>
+                                    <TouchableOpacity style={[styles.button, styles.disabledButton]} disabled>
+                                        <Text style={styles.buttonText}>Từ chối</Text>
+                                    </TouchableOpacity>
+                                    <TouchableOpacity style={[styles.button, styles.disabledButton]} disabled>
+                                        <Text style={styles.buttonText}>Chấp nhận</Text>
+                                    </TouchableOpacity>
+                                </>
+                            )}
+
+                        </>
+                    )}
+                </View>
+                {/* <View style={styles.buttonContainer}>
+                    <Text style={styles.status}>{getStatusInVietnamese(item.status)}</Text>
+                    {item.status === 'PENDING' ? (
+                        <>
+                            {user?.userTypes.includes('renter') ? (
+                                <TouchableOpacity style={styles.button} onPress={() => handleCancelPress(item)}>
+                                    <Text style={styles.buttonText}>Hủy</Text>
+                                </TouchableOpacity>
+                            ) : (
+                                <TouchableOpacity style={[styles.button, styles.disabledButton]} disabled>
+                                    <Text style={styles.buttonText}>Hủy</Text>
+                                </TouchableOpacity>
+                            )}
                         </>
                     ) : (
                         <>
@@ -447,9 +485,13 @@ const ManageRequestRental = () => {
                             <TouchableOpacity style={[styles.button, styles.disabledButton]} disabled>
                                 <Text style={styles.buttonText}>Chấp nhận</Text>
                             </TouchableOpacity>
+
+                            <TouchableOpacity style={[styles.button, styles.disabledButton]} disabled>
+                                <Text style={styles.buttonText}>Hủy</Text>
+                            </TouchableOpacity>
                         </>
                     )}
-                </View>
+                </View> */}
             </View>
         </View>
     );
@@ -497,10 +539,10 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
     },
     image: {
-        width: 100,
-        height: 100,
+        flex: 1,
         borderRadius: 8,
         marginRight: 10,
+        width: 100,
     },
     details: {
         flex: 1,
@@ -511,6 +553,9 @@ const styles = StyleSheet.create({
         fontWeight: 'bold',
     },
     status: {
+        // flex: 1,
+        width: 110,
+        // backgroundColor: 'red',
         marginTop: 10,
         color: 'red',
         fontSize: 14,
@@ -527,6 +572,7 @@ const styles = StyleSheet.create({
         color: 'gray',
     },
     buttonContainer: {
+
         flexDirection: 'row',
         justifyContent: 'space-between',
         marginTop: 10,

@@ -161,6 +161,28 @@ export const fetchRentalRequestsForOwner = async (take: number, skip: number) =>
     }
 };
 
+export const fetchRentalRequestsForRenter = async (take: number, skip: number) => {
+    try {
+        const token = await AsyncStorage.getItem('accessToken');
+        if (!token) {
+            throw new Error('No token found');
+        }
+        const response = await axios.get(`${API_BASE_URL}/rental-requests/renter`, {
+            params: {
+                take,
+                skip,
+            },
+            headers: {
+                Authorization: `Bearer ${token}`,
+            },
+        });
+        return response.data;
+    } catch (error) {
+        console.error('Error fetching rental requests for renter:', error);
+        throw error;
+    }
+};
+
 export const fetchPropertiesWithFilters = async (filters: IFilterProperty, take: number, skip: number) => {
     try {
         const token = await AsyncStorage.getItem('accessToken');
@@ -340,6 +362,9 @@ export const updateRentalRequestStatus = async (requestId: string, status: strin
         }
     }
 };
+
+
+
 
 // export const verifyUserWithImages = async (front: File, back: File) => {
 //     try {
