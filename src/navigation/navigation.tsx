@@ -144,6 +144,7 @@ import ContractScreen from '../screens/owner/Contract/ContractScreen ';
 import WalletManagement from './WalletManagement';
 import ManageContract from '../screens/owner/manageContract/ManageContract';
 import PaymentScreen from '../screens/renter/payment/PaymentScreen';
+import ContractDetails from '../screens/contractDetails/ContractDetails';
 // import PropertyDetail from '../screens/renter/PropertyScreen/PropertyDetail';
 
 const Stack = createStackNavigator();
@@ -249,6 +250,9 @@ const Navigation: React.FC = () => {
 
                 <Stack.Screen name="PaymentScreen" component={PaymentScreen}
                     options={{ title: 'Thanh toán hóa đơn' }}
+                />
+                <Stack.Screen name="ContractDetails" component={ContractDetails}
+                    options={{ title: 'Chi tiết hợp đồng' }}
                 />
 
             </Stack.Navigator>

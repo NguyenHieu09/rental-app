@@ -64,6 +64,7 @@ export type RootStackParamList = {
     Wallet: { user: IUser };
     ManageContract: undefined;
     PaymentScreen: undefined;
+    ContractDetails: { contractId: string };
 };
 
 type PropertyDetailRouteProp = RouteProp<RootStackParamList, 'PropertyScreen'>;

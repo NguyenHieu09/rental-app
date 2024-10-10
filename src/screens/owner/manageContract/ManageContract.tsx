@@ -367,34 +367,64 @@ const ManageContract = () => {
     };
 
     const renderContract = ({ item }: { item: IContract }) => (
-        <View key={item.contractId} style={styles.contractCard}>
-            <View style={styles.containerContract}>
+        // <View key={item.contractId} style={styles.contractCard}>
+        //     <View style={styles.containerContract}>
+        //         <View>
+        //             {/* <Image source={{ uri: item.property.images[0] }} style={styles.image} /> */}
+        //         </View>
+        //         <View style={styles.details}>
+        //             <Text style={styles.propertyTitle}>{item.property.title}</Text>
+        //             <Text style={styles.price}>Giá thuê: {item.monthlyRent.toLocaleString()} đ</Text>
+        //             <Text style={styles.deposit}>Tiền cọc: {item.depositAmount.toLocaleString()} đ</Text>
+        //             {user && user.userTypes.includes('owner') ? (
+        //                 <Text>Người thuê: {item.renter.name}</Text>
+        //             ) : (
+        //                 <Text>Chủ nhà: {item.owner.name}</Text>
+        //             )}
+        //             <Text style={styles.dates}>
+        //                 Từ: {format(new Date(item.startDate), 'dd/MM/yyyy')}
+        //             </Text>
+        //             <Text style={styles.dates}>
+        //                 Đến: {format(new Date(item.endDate), 'dd/MM/yyyy')}
+        //             </Text>
+        //             <Text style={styles.status}>Trạng thái: {getStatusInVietnamese(item.status)}</Text>
+        //         </View>
+        //     </View>
+        //     <View>
+        //         <View style={styles.buttonContainer}>
+        //         </View>
+        //     </View>
+        // </View>
+        <TouchableOpacity onPress={() => navigation.navigate('ContractDetails', { contractId: item.contractId })}>
+            <View key={item.contractId} style={styles.contractCard}>
+                <View style={styles.containerContract}>
+                    <View>
+                        {/* <Image source={{ uri: item.property.images[0] }} style={styles.image} /> */}
+                    </View>
+                    <View style={styles.details}>
+                        <Text style={styles.propertyTitle}>{item.property.title}</Text>
+                        <Text style={styles.price}>Giá thuê: {item.monthlyRent.toLocaleString()} đ</Text>
+                        <Text style={styles.deposit}>Tiền cọc: {item.depositAmount.toLocaleString()} đ</Text>
+                        {user && user.userTypes.includes('owner') ? (
+                            <Text>Người thuê: {item.renter.name}</Text>
+                        ) : (
+                            <Text>Chủ nhà: {item.owner.name}</Text>
+                        )}
+                        <Text style={styles.dates}>
+                            Từ: {format(new Date(item.startDate), 'dd/MM/yyyy')}
+                        </Text>
+                        <Text style={styles.dates}>
+                            Đến: {format(new Date(item.endDate), 'dd/MM/yyyy')}
+                        </Text>
+                        <Text style={styles.status}>Trạng thái: {getStatusInVietnamese(item.status)}</Text>
+                    </View>
+                </View>
                 <View>
-                    {/* <Image source={{ uri: item.property.images[0] }} style={styles.image} /> */}
-                </View>
-                <View style={styles.details}>
-                    <Text style={styles.propertyTitle}>{item.property.title}</Text>
-                    <Text style={styles.price}>Giá thuê: {item.monthlyRent.toLocaleString()} đ</Text>
-                    <Text style={styles.deposit}>Tiền cọc: {item.depositAmount.toLocaleString()} đ</Text>
-                    {user && user.userTypes.includes('owner') ? (
-                        <Text>Người thuê: {item.renter.name}</Text>
-                    ) : (
-                        <Text>Chủ nhà: {item.owner.name}</Text>
-                    )}
-                    <Text style={styles.dates}>
-                        Từ: {format(new Date(item.startDate), 'dd/MM/yyyy')}
-                    </Text>
-                    <Text style={styles.dates}>
-                        Đến: {format(new Date(item.endDate), 'dd/MM/yyyy')}
-                    </Text>
-                    <Text style={styles.status}>Trạng thái: {getStatusInVietnamese(item.status)}</Text>
+                    <View style={styles.buttonContainer}>
+                    </View>
                 </View>
             </View>
-            <View>
-                <View style={styles.buttonContainer}>
-                </View>
-            </View>
-        </View>
+        </TouchableOpacity>
     );
 
     if (loading && currentPage === 0) {
@@ -463,7 +493,7 @@ const styles = StyleSheet.create({
         marginTop: 5,
     },
     deposit: {
-        marginTop: 5,
+
     },
     dates: {
         marginTop: 5,

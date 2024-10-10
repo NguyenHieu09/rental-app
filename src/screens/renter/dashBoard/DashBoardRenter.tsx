@@ -10,7 +10,8 @@ import { fetchProperties } from '../../../api/api';
 import { useSelector } from 'react-redux';
 import { RootState } from '../../../redux-toolkit/store';
 import { NavigationProp, useNavigation } from '@react-navigation/native';
-import { Property, RootStackParamList } from '../../../types/navigation';
+import { RootStackParamList } from '../../../types/navigation';
+import { IProperty } from '../../../types/property';
 
 const HomeScreen: React.FC = () => {
 
@@ -60,7 +61,7 @@ const HomeScreen: React.FC = () => {
         getProperties();
     }, []);
 
-    const handlePressProperty = (property: Property) => {
+    const handlePressProperty = (property: IProperty) => {
         // Điều hướng đến màn hình PropertyDetail với thông tin property
         navigation.navigate('PropertyScreen', { property });
     };
@@ -76,7 +77,7 @@ const HomeScreen: React.FC = () => {
 
     return (
         <View style={commonStyles.container}>
-            <HomeHeader location={location} avatar={avatar} />
+            <HomeHeader avatar={avatar} />
 
             <TextInput
                 style={commonStyles.input} // Using common input style

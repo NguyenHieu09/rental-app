@@ -3,6 +3,7 @@ import { IContract, ICreateContractRequest } from '../types/contract';
 import { API_URL } from '@env';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { IDepositTransaction, ITransaction } from '../types/transaction';
+import { IContractDetail } from '../types/contractDetail';
 
 const API_CONTRACT_URL = `${API_URL}/contract-service`;
 
@@ -174,6 +175,33 @@ export const makePayment = async (depositTransaction: IDepositTransaction): Prom
             throw new Error(error.response.data.message);
         } else {
             console.error('Error making payment:', error);
+            throw error;
+        }
+    }
+};
+
+
+export const fetchContractDetails = async (contractId: string): Promise<IContractDetail> => {
+    try {
+        const token = await AsyncStorage.getItem('accessToken');
+
+        if (!token) {
+            throw new Error('No token provided');
+        }
+
+        const response = await axios.get<IContractDetail>(`${API_CONTRACT_URL}/contracts/${contractId}`, {
+            headers: {
+                Authorization: `Bearer ${token}`,
+            },
+        });
+
+        return response.data;
+    } catch (error: any) {
+        if (error.response && error.response.data && error.response.data.message) {
+            console.error('Error message:', error.response.data.message);
+            throw new Error(error.response.data.message);
+        } else {
+            console.error('Error fetching contract details:', error);
             throw error;
         }
     }
