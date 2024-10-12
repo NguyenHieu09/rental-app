@@ -5,11 +5,12 @@ import DashboardOwner from '../screens/owner/dashBoard/DashBoardOwner';
 import ChatScreen from '../screens/owner/chat/ChatScreen';
 import { Text, View, TouchableOpacity } from 'react-native';
 import ProfileScreen from '../screens/profileScreen/ProfileScreen';
-import ExploreScreen from '../screens/owner/explore/ExploreScreen';
+// import ExploreScreen from '../screens/owner/explore/ExploreScreen';
 import SavedScreen from '../screens/owner/addProperty/AddPropertyScreen';
-import AuthenticationScreen from '../screens/Authentication/AuthenticationScreen';
-import ContractScreen from '../screens/owner/Contract/ContractScreen ';
-import WalletScreen from '../screens/Wallet/WalletScreen';
+import AuthenticationScreen from '../screens/authentication/AuthenticationScreen';
+// import AuthenticationScreen from '../screens/Authentication/AuthenticationScreen';
+// import ContractScreen from '../screens/owner/Contract/ContractScreen ';
+// import WalletScreen from '../screens/Wallet/WalletScreen';
 
 const Tab = createBottomTabNavigator();
 
@@ -63,7 +64,7 @@ const OwnerTabs: React.FC = () => {
 
             < Tab.Screen
                 name="ChatScreen"
-                component={WalletScreen}
+                component={ChatScreen}
                 options={{
                     headerShown: false,
                     tabBarIcon: ({ color, size }) => (

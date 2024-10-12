@@ -13,7 +13,11 @@ export interface ITransaction {
     createdAt: string;
     updatedAt: string;
     endDate: string | null;
+    type: TransactionType;
+
 }
+export type TransactionType = 'RENT' | 'DEPOSIT' | 'WITHDRAW' | 'REFUND' | 'CREATE_CONTRACT' | 'CANCEL_CONTRACT' | 'COMPENSATION';
+
 
 export type TransactionStatus = 'PENDING' | 'COMPLETED' | 'FAILED' | 'OVERDUE' | 'CANCELLED';
 

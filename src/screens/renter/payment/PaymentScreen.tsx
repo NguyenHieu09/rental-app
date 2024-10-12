@@ -3,7 +3,7 @@ import { View, Text, StyleSheet, FlatList, ListRenderItem, TouchableOpacity, Act
 import { commonStyles } from '../../../styles/theme';
 import * as Clipboard from 'expo-clipboard';
 import Icon from 'react-native-vector-icons/MaterialIcons';
-import { fetchAllTransactionsForRenter, makePayment } from '../../../api/contract';
+import { fetchAllTransactionsForRenter, deposit, payMonthlyRent } from '../../../api/contract';
 import { IDepositTransaction, ITransaction, TransactionStatus } from '../../../types/transaction';
 
 const getStatusInVietnamese = (status: TransactionStatus): string => {
@@ -43,11 +43,23 @@ const PaymentScreen: React.FC = () => {
         loadTransactions();
     }, []);
 
-    const handlePayment = async (transactionId: number, contractId: string) => {
+    const handlePayment = async (transaction: ITransaction) => {
         try {
-            const depositTransaction: IDepositTransaction = { transactionId, contractId };
-            await makePayment(depositTransaction);
-            Alert.alert('Thanh toán thành công');
+            const depositTransaction: IDepositTransaction = { transactionId: transaction.id, contractId: transaction.contractId };
+
+            if (transaction.type === 'RENT') {
+                console.log(depositTransaction);
+
+                await payMonthlyRent(depositTransaction);
+                Alert.alert('Thanh toán tiền thuê tháng thành công');
+            } else if (transaction.type === 'DEPOSIT') {
+                await deposit(depositTransaction);
+                Alert.alert('Thanh toán tiền cọc thành công');
+            } else {
+                Alert.alert('Không thể thanh toán', 'Chỉ có thể thanh toán các giao dịch loại "RENT" hoặc "DEPOSIT".');
+                return;
+            }
+
             // Cập nhật lại danh sách giao dịch sau khi thanh toán thành công
             const data = await fetchAllTransactionsForRenter();
             setTransactions(data);
@@ -59,6 +71,22 @@ const PaymentScreen: React.FC = () => {
             }
         }
     };
+    // const handlePayment = async (transactionId: number, contractId: string) => {
+    //     try {
+    //         const depositTransaction: IDepositTransaction = { transactionId, contractId };
+    //         await deposit(depositTransaction);
+    //         Alert.alert('Thanh toán thành công');
+    //         // Cập nhật lại danh sách giao dịch sau khi thanh toán thành công
+    //         const data = await fetchAllTransactionsForRenter();
+    //         setTransactions(data);
+    //     } catch (error) {
+    //         if (error instanceof Error) {
+    //             Alert.alert('Thanh toán thất bại', error.message);
+    //         } else {
+    //             Alert.alert('Thanh toán thất bại', 'Đã xảy ra lỗi không xác định');
+    //         }
+    //     }
+    // };
 
     const copyToClipboard = (transactionHash: string | null) => {
         if (transactionHash) {
@@ -94,7 +122,7 @@ const PaymentScreen: React.FC = () => {
                 </View>
                 <TouchableOpacity
                     style={[styles.button, item.status !== 'PENDING' && styles.buttonDisabled]}
-                    onPress={() => handlePayment(item.id, item.contractId)}
+                    onPress={() => handlePayment(item)}
                     disabled={item.status !== 'PENDING'}
                 >
                     <Text style={styles.buttonText}>Thanh toán</Text>

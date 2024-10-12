@@ -156,29 +156,7 @@ export const fetchAllTransactionsForRenter = async (): Promise<ITransaction[]> =
 };
 
 
-export const makePayment = async (depositTransaction: IDepositTransaction): Promise<void> => {
-    try {
-        const token = await AsyncStorage.getItem('accessToken');
 
-        if (!token) {
-            throw new Error('No token provided');
-        }
-
-        await axios.post(`${API_CONTRACT_URL}/contracts/deposit`, depositTransaction, {
-            headers: {
-                Authorization: `Bearer ${token}`,
-            },
-        });
-    } catch (error: any) {
-        if (error.response && error.response.data && error.response.data.message) {
-            console.error('Error message:', error.response.data.message);
-            throw new Error(error.response.data.message);
-        } else {
-            console.error('Error making payment:', error);
-            throw error;
-        }
-    }
-};
 
 
 export const fetchContractDetails = async (contractId: string): Promise<IContractDetail> => {
@@ -202,6 +180,80 @@ export const fetchContractDetails = async (contractId: string): Promise<IContrac
             throw new Error(error.response.data.message);
         } else {
             console.error('Error fetching contract details:', error);
+            throw error;
+        }
+    }
+};
+
+export const fetchWalletBalance = async (): Promise<number> => {
+    try {
+        const token = await AsyncStorage.getItem('accessToken');
+
+        if (!token) {
+            throw new Error('No token provided');
+        }
+
+        const response = await axios.get(`${API_CONTRACT_URL}/contracts/wallet-balance`, {
+            headers: {
+                Authorization: `Bearer ${token}`,
+            },
+        });
+
+        return response.data;
+    } catch (error: any) {
+        if (error.response && error.response.data && error.response.data.message) {
+            console.error('Error message:', error.response.data.message);
+            throw new Error(error.response.data.message);
+        } else {
+            console.error('Error fetching wallet balance:', error);
+            throw error;
+        }
+    }
+};
+
+export const payMonthlyRent = async (rentTransaction: IDepositTransaction): Promise<void> => {
+    try {
+        const token = await AsyncStorage.getItem('accessToken');
+
+        if (!token) {
+            throw new Error('No token provided');
+        }
+
+        await axios.post(`${API_CONTRACT_URL}/contract-service/contracts/pay`, rentTransaction, {
+            headers: {
+                Authorization: `Bearer ${token}`,
+            },
+        });
+    } catch (error: any) {
+        if (error.response && error.response.data && error.response.data.message) {
+            console.error('Error message:', error.response.data.message);
+            throw new Error(error.response.data.message);
+        } else {
+            console.error('Error making payment:', error);
+            throw error;
+        }
+    }
+};
+
+export const deposit = async (depositTransaction: IDepositTransaction): Promise<void> => {
+    try {
+        const token = await AsyncStorage.getItem('accessToken');
+
+        if (!token) {
+            throw new Error('No token provided');
+        }
+
+        await axios.post(`${API_CONTRACT_URL}/contracts/deposit`, depositTransaction, {
+            headers: {
+                Authorization: `Bearer ${token}`,
+            },
+        });
+    } catch (error: any) {
+        if (error.response && error.response.data && error.response.data.message) {
+            console.error('Error message:', error.response.data.message);
+            throw new Error(error.response.data.message);
+        } else {
+            console.error('Error making payment:', error);
             throw error;
         }
     }
