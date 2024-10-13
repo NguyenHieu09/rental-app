@@ -437,7 +437,7 @@ const ManageRequestRental = () => {
                                     <TouchableOpacity style={[styles.button, styles.rejectButton]} >
                                         <Text style={styles.buttonText}>Từ chối</Text>
                                     </TouchableOpacity>
-                                    <TouchableOpacity style={[styles.button]} >
+                                    <TouchableOpacity style={[styles.button]} onPress={() => handleAcceptPress(item)}>
                                         <Text style={styles.buttonText}>Chấp nhận</Text>
                                     </TouchableOpacity>
                                 </>

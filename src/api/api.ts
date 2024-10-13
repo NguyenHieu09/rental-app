@@ -3,6 +3,7 @@ import { API_URL } from '@env';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { IFilterProperty } from '../types/property';
 import { IGenerateContractRequest } from '../types/rentalRequest';
+import { IUser } from '../types/user';
 
 
 const API_BASE_URL = `${API_URL}/estate-manager-service`;
@@ -294,49 +295,6 @@ export const updateWalletAddress = async (userId: string, walletAddress: string)
 };
 
 
-const uriToBlob = async (uri: string): Promise<Blob> => {
-    const response = await fetch(uri);
-    const blob = await response.blob();
-    return blob;
-};
-
-export const verifyUserWithImages = async (frontImageUri: string, backImageUri: string) => {
-    try {
-        const token = await AsyncStorage.getItem('accessToken');
-
-        if (!token) {
-            throw new Error('No token provided');
-        }
-
-        const frontBlob = await uriToBlob(frontImageUri);
-        const backBlob = await uriToBlob(backImageUri);
-
-        const formData = new FormData();
-        formData.append('front', frontBlob, 'front.jpg');
-        formData.append('back', backBlob, 'back.jpg');
-
-        console.log('FormData:', formData);
-
-        const response = await axios.post(`${API_BASE_URL}/users/verify`, formData, {
-            headers: {
-                'Content-Type': 'multipart/form-data',
-                Authorization: `Bearer ${token}`,
-            },
-        });
-
-        console.log('Response:', response.data);
-        return response.data;
-    } catch (error: any) {
-        if (error.response && error.response.data && error.response.data.message) {
-            console.error('Error message:', error.response.data.message);
-            throw new Error(error.response.data.message);
-        } else {
-            console.error('Error verifying user with images:', error);
-            throw error;
-        }
-    }
-};
-
 export const updateRentalRequestStatus = async (requestId: string, status: string) => {
     try {
         const token = await AsyncStorage.getItem('accessToken');
@@ -363,10 +321,92 @@ export const updateRentalRequestStatus = async (requestId: string, status: strin
     }
 };
 
+export const verifyUser = async (formData: FormData): Promise<IUser> => {
+    try {
+        const token = await AsyncStorage.getItem('accessToken');
 
+        if (!token) {
+            throw new Error('No token provided');
+        }
 
+        const response = await axios.post(`${API_BASE_URL}/users/verify`, formData, {
+            headers: {
+                Authorization: `Bearer ${token}`,
+                'Content-Type': 'multipart/form-data',
+            },
+        });
 
-// export const verifyUserWithImages = async (front: File, back: File) => {
+        const userData: IUser = response.data;
+        return userData;
+    } catch (error: any) {
+        if (error.response) {
+            // Server responded with a status other than 200 range
+            console.error('Error response:', error.response.data);
+            throw new Error(error.response.data.message || 'Xác thực thất bại');
+        } else if (error.request) {
+            // Request was made but no response was received
+            console.error('Error request:', error.request);
+            throw new Error('No response received from server');
+        } else {
+            // Something happened in setting up the request
+            console.error('Error message:', error.message);
+            throw new Error(error.message);
+        }
+    }
+};
+
+export const fetchPropertyAttributes = async () => {
+    try {
+        const token = await AsyncStorage.getItem('accessToken');
+
+        if (!token) {
+            throw new Error('No token provided');
+        }
+
+        const response = await axios.get(`${API_BASE_URL}/attributes/cbb`, {
+            headers: {
+                Authorization: `Bearer ${token}`,
+            },
+        });
+
+        return response.data;
+    } catch (error: any) {
+        if (error.response && error.response.data && error.response.data.message) {
+            console.error('Error message:', error.response.data.message);
+            throw new Error(error.response.data.message);
+        } else {
+            console.error('Error fetching property attributes:', error);
+            throw error;
+        }
+    }
+};
+
+export const fetchPropertyTypes = async () => {
+    try {
+        const token = await AsyncStorage.getItem('accessToken');
+
+        if (!token) {
+            throw new Error('No token provided');
+        }
+
+        const response = await axios.get(`${API_BASE_URL}/property-types`, {
+            headers: {
+                Authorization: `Bearer ${token}`,
+            },
+        });
+
+        return response.data;
+    } catch (error: any) {
+        if (error.response && error.response.data && error.response.data.message) {
+            console.error('Error message:', error.response.data.message);
+            throw new Error(error.response.data.message);
+        } else {
+            console.error('Error fetching property types:', error);
+            throw error;
+        }
+    }
+};
+// export const verifyUser = async (frontImage: string, backImage: string) => {
 //     try {
 //         const token = await AsyncStorage.getItem('accessToken');
 
@@ -374,25 +414,34 @@ export const updateRentalRequestStatus = async (requestId: string, status: strin
 //             throw new Error('No token provided');
 //         }
 
+//         const frontBlob = await (await fetch(frontImage)).blob();
+//         const backBlob = await (await fetch(backImage)).blob();
+
 //         const formData = new FormData();
-//         formData.append('front', front);
-//         formData.append('back', back);
+//         formData.append('front', frontBlob, 'front.jpg');
+//         formData.append('back', backBlob, 'back.jpg');
 
 //         const response = await axios.post(`${API_BASE_URL}/users/verify`, formData, {
 //             headers: {
-//                 'Content-Type': 'multipart/form-data',
 //                 Authorization: `Bearer ${token}`,
+//                 'Content-Type': 'multipart/form-data',
 //             },
 //         });
 
 //         return response.data;
 //     } catch (error: any) {
-//         if (error.response && error.response.data && error.response.data.message) {
-//             console.error('Error message:', error.response.data.message);
-//             throw new Error(error.response.data.message);
+//         if (error.response) {
+//             // Server responded with a status other than 200 range
+//             console.error('Error response:', error.response.data);
+//             throw new Error(error.response.data.message || 'Xác thực thất bại');
+//         } else if (error.request) {
+//             // Request was made but no response was received
+//             console.error('Error request:', error.request);
+//             throw new Error('No response received from server');
 //         } else {
-//             console.error('Error verifying user with images:', error);
-//             throw error;
+//             // Something happened in setting up the request
+//             console.error('Error message:', error.message);
+//             throw new Error(error.message);
 //         }
 //     }
 // };

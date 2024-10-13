@@ -97,7 +97,7 @@ const AddressInput: React.FC<AddressSelectorProps> = ({
                     onValueChange={(value) => setSelectedCity(value)}
                     style={styles.picker}
                 >
-                    <Picker.Item label="Select a city" value={undefined} />
+                    <Picker.Item label="Chọn tỉnh/thành phố" value={undefined} />
                     {cities.map((city) => (
                         <Picker.Item key={city._id} label={city.name} value={city._id} />
                     ))}
@@ -114,7 +114,7 @@ const AddressInput: React.FC<AddressSelectorProps> = ({
                     enabled={!!selectedCity}
                     style={styles.picker}
                 >
-                    <Picker.Item label="Select a district" value={undefined} />
+                    <Picker.Item label="Chọn quận/huyện" value={undefined} />
                     {districts.map((district) => (
                         <Picker.Item key={district._id} label={district.name} value={district._id} />
                     ))}
@@ -131,7 +131,7 @@ const AddressInput: React.FC<AddressSelectorProps> = ({
                     enabled={!!selectedDistrict}
                     style={styles.picker}
                 >
-                    <Picker.Item label="Select a ward" value={undefined} />
+                    <Picker.Item label="Chọn phường/xã" value={undefined} />
                     {wards.map((ward) => (
                         <Picker.Item key={ward._id} label={ward.name} value={ward._id} />
                     ))}
@@ -151,7 +151,7 @@ const AddressInput: React.FC<AddressSelectorProps> = ({
 
 const styles = StyleSheet.create({
     container: {
-        // padding: 10,
+
     },
     label: {
         fontSize: 16,

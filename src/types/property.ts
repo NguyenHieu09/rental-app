@@ -10,8 +10,8 @@ export interface ICondition {
 }
 
 export interface IAttribute {
+    id: string;
     name: string;
-    type: string;
 }
 
 export interface IProperty {

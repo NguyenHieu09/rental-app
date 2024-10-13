@@ -6,8 +6,8 @@ import ChatScreen from '../screens/owner/chat/ChatScreen';
 import { Text, View, TouchableOpacity } from 'react-native';
 import ProfileScreen from '../screens/profileScreen/ProfileScreen';
 // import ExploreScreen from '../screens/owner/explore/ExploreScreen';
-import SavedScreen from '../screens/owner/addProperty/AddPropertyScreen';
 import AuthenticationScreen from '../screens/authentication/AuthenticationScreen';
+import AddProperty from '../screens/owner/addProperty/AddPropertyScreen';
 // import AuthenticationScreen from '../screens/Authentication/AuthenticationScreen';
 // import ContractScreen from '../screens/owner/Contract/ContractScreen ';
 // import WalletScreen from '../screens/Wallet/WalletScreen';
@@ -49,9 +49,11 @@ const OwnerTabs: React.FC = () => {
 
             <Tab.Screen
                 name="Add"
-                component={SavedScreen}
+                component={AddProperty}
                 options={{
-                    headerShown: false,
+                    // headerShown: false,
+                    title: 'Đăng tin',
+                    headerTitleAlign: 'center',
                     tabBarButton: (props) => (
                         <TouchableOpacity {...props} style={{ justifyContent: 'center', alignItems: 'center' }}>
                             <View style={{ top: -10, width: 50, height: 50, borderRadius: 30, backgroundColor: '#D3D3D3', justifyContent: 'center', alignItems: 'center' }}>
