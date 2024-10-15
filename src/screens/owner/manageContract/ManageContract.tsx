@@ -238,7 +238,7 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import { View, Text, StyleSheet, Image, FlatList, TouchableOpacity, ActivityIndicator, Alert } from 'react-native';
 import { commonStyles } from '../../../styles/theme';
-import { fetchRentalContractsForOwner, fetchRentalContractsForRenter } from '../../../api/contract';
+import { fetchContractsForOwner, fetchRentalContractsForRenter } from '../../../api/contract';
 import { RootState } from '../../../redux-toolkit/store';
 import { useSelector } from 'react-redux';
 import { NavigationProp, useFocusEffect, useNavigation } from '@react-navigation/native';
@@ -280,6 +280,8 @@ const ManageContract = () => {
     const [loading, setLoading] = useState(true);
     const [isLoadingMore, setIsLoadingMore] = useState(false);
     const ITEMS_PER_PAGE = 10;
+    let debounceTimeout: NodeJS.Timeout | null = null;
+
 
     const navigation = useNavigation<NavigationProp<RootStackParamList>>();
     const user = useSelector((state: RootState) => state.user.user);
@@ -303,7 +305,7 @@ const ManageContract = () => {
 
             let response;
             if (user.userTypes.includes('owner')) {
-                response = await fetchRentalContractsForOwner(ITEMS_PER_PAGE, skip);
+                response = await fetchContractsForOwner(ITEMS_PER_PAGE, skip);
             } else if (user.userTypes.includes('renter')) {
                 response = await fetchRentalContractsForRenter(ITEMS_PER_PAGE, skip);
             } else {
@@ -357,14 +359,31 @@ const ManageContract = () => {
     const loadMoreContracts = () => {
         console.log('Attempting to load more contracts...');
         if (!isLoadingMore && contracts.length < totalContracts) {
-            console.log('Loading more contracts...');
-            const nextPage = currentPage + 1;
-            setCurrentPage(nextPage);
-            loadContracts(nextPage);
+            if (debounceTimeout) {
+                clearTimeout(debounceTimeout);
+            }
+            debounceTimeout = setTimeout(() => {
+                console.log('Loading more contracts...');
+                const nextPage = currentPage + 1;
+                setCurrentPage(nextPage);
+                loadContracts(nextPage);
+            }, 300); // 300ms debounce time
         } else {
             console.log('No more contracts to load or already loading.');
         }
     };
+
+    // const loadMoreContracts = () => {
+    //     console.log('Attempting to load more contracts...');
+    //     if (!isLoadingMore && contracts.length < totalContracts) {
+    //         console.log('Loading more contracts...');
+    //         const nextPage = currentPage + 1;
+    //         setCurrentPage(nextPage);
+    //         loadContracts(nextPage);
+    //     } else {
+    //         console.log('No more contracts to load or already loading.');
+    //     }
+    // };
 
     const renderContract = ({ item }: { item: IContract }) => (
         // <View key={item.contractId} style={styles.contractCard}>

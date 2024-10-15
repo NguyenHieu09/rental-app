@@ -10,10 +10,10 @@ import { useNavigation, NavigationProp } from '@react-navigation/native';
 import { RootStackParamList } from '../../../types/navigation'; // Import the type
 import HomeHeader from '../../../components/homeHeader/HomeHeader'; // Import HomeHeader
 import { commonStyles } from '../../../styles/theme';
-import { fetchPropertiesWithFilters, fetchRentalRequestsForOwner } from '../../../api/api'; // Import fetchPropertiesWithFilters and fetchRentalRequestsForOwner
+import { fetchPropertiesWithFilters } from '../../../api/api'; // Import fetchPropertiesWithFilters and fetchRentalRequestsForOwner
 import { IProperty, IFilterProperty } from '../../../types/property';
 import { W3mButton } from '@web3modal/wagmi-react-native';
-import { fetchRentalContractsForOwner } from '../../../api/contract';
+import { fetchContractsForOwner, fetchRentalRequestsForOwner } from '../../../api/contract';
 
 const DashboardOwner: React.FC = () => {
     const dispatch = useDispatch<AppDispatch>();
@@ -89,7 +89,7 @@ const DashboardOwner: React.FC = () => {
     useEffect(() => {
         const fetchContracts = async () => {
             try {
-                const { total } = await fetchRentalContractsForOwner(10, 0); // Fetch total contracts
+                const { total } = await fetchContractsForOwner(10, 0); // Fetch total contracts
                 setTotalContracts(total); // Set total contracts
             } catch (error) {
                 console.error('Error fetching contracts:', error);

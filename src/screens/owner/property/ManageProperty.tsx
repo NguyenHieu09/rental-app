@@ -161,7 +161,7 @@ const ManageProperty: React.FC = () => {
                 // Add any filters you need here
             };
             const response = await fetchPropertiesWithFilters(filters, ITEMS_PER_PAGE, skip);
-            console.log('API response:', response);
+            // console.log('API response:', response);
 
             const { properties, total } = response;
             // console.log('Fetched properties:', properties);

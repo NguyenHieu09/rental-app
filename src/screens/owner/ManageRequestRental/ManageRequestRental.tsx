@@ -276,13 +276,14 @@
 import React, { useEffect, useState, useCallback } from 'react';
 import { View, Text, StyleSheet, Image, FlatList, TouchableOpacity, ActivityIndicator, Alert } from 'react-native';
 import { commonStyles } from '../../../styles/theme';
-import { fetchRentalRequestsForOwner, fetchRentalRequestsForRenter, generateRentalContract } from '../../../api/api';
+import { fetchRentalRequestsForRenter, generateRentalContract } from '../../../api/api';
 import { RootState } from '../../../redux-toolkit/store';
 import { useSelector } from 'react-redux';
 import { IGenerateContractRequest, IRentalRequest } from '../../../types/rentalRequest';
 import { useFocusEffect, NavigationProp, useNavigation } from '@react-navigation/native';
 import { RootStackParamList } from '../../../types/navigation';
 import { format } from 'date-fns';
+import { fetchRentalRequestsForOwner } from '../../../api/contract';
 
 export type RentalRequestStatus = 'PENDING' | 'APPROVED' | 'REJECTED' | 'CANCELLED';
 
@@ -328,7 +329,7 @@ const ManageRequestRental = () => {
                 response = await fetchRentalRequestsForOwner(ITEMS_PER_PAGE, skip);
             }
 
-            console.log('API response:', response);
+            // console.log('API response:', response);
 
             const { data, pageInfo } = response;
             console.log('Total requests:', pageInfo.total);

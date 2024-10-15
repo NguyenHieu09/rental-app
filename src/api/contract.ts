@@ -69,7 +69,7 @@ export const fetchTransactions = async (userId: string, type: string, take: numb
     }
 };
 
-export const fetchRentalContractsForOwner = async (take: number, skip: number) => {
+export const fetchContractsForOwner = async (take: number, skip: number) => {
     try {
         const token = await AsyncStorage.getItem('accessToken');
 
@@ -154,9 +154,6 @@ export const fetchAllTransactionsForRenter = async (): Promise<ITransaction[]> =
         }
     }
 };
-
-
-
 
 
 export const fetchContractDetails = async (contractId: string): Promise<IContractDetail> => {
@@ -256,5 +253,28 @@ export const deposit = async (depositTransaction: IDepositTransaction): Promise<
             console.error('Error making payment:', error);
             throw error;
         }
+    }
+};
+
+export const fetchRentalRequestsForOwner = async (take: number, skip: number) => {
+    try {
+        const token = await AsyncStorage.getItem('accessToken');
+        if (!token) {
+            throw new Error('No token found');
+        }
+        const response = await axios.get(`${API_CONTRACT_URL}/rental-requests/owner`, {
+            params: {
+                take,
+                skip,
+            },
+            headers: {
+                Authorization: `Bearer ${token}`,
+            },
+        });
+        // console.log('Rental requests response:', response.data);
+        return response.data;
+    } catch (error) {
+        console.error('Error fetching rental requests:', error);
+        throw error;
     }
 };

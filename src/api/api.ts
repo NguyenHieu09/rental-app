@@ -89,7 +89,7 @@ export const sendRentalRequest = async (rentalRequestData: {
             throw new Error('No token provided');
         }
 
-        // console.log('Sending rental request with data:', rentalRequestData);
+        console.log('Sending rental request with data:', rentalRequestData);
 
         const response = await axios.post(`${API_BASE_URL}/rental-requests`, rentalRequestData, {
             headers: {
@@ -139,28 +139,28 @@ export const fetchNotifications = async (take: number, skip: number) => {
     }
 };
 
-export const fetchRentalRequestsForOwner = async (take: number, skip: number) => {
-    try {
-        const token = await AsyncStorage.getItem('accessToken');
-        if (!token) {
-            throw new Error('No token found');
-        }
-        const response = await axios.get(`${API_BASE_URL}/rental-requests/owner`, {
-            params: {
-                take,
-                skip,
-            },
-            headers: {
-                Authorization: `Bearer ${token}`,
-            },
-        });
-        // console.log('Rental requests response:', response.data);
-        return response.data;
-    } catch (error) {
-        console.error('Error fetching rental requests:', error);
-        throw error;
-    }
-};
+// export const fetchRentalRequestsForOwner = async (take: number, skip: number) => {
+//     try {
+//         const token = await AsyncStorage.getItem('accessToken');
+//         if (!token) {
+//             throw new Error('No token found');
+//         }
+//         const response = await axios.get(`${API_BASE_URL}/rental-requests/owner`, {
+//             params: {
+//                 take,
+//                 skip,
+//             },
+//             headers: {
+//                 Authorization: `Bearer ${token}`,
+//             },
+//         });
+//         // console.log('Rental requests response:', response.data);
+//         return response.data;
+//     } catch (error) {
+//         console.error('Error fetching rental requests:', error);
+//         throw error;
+//     }
+// };
 
 export const fetchRentalRequestsForRenter = async (take: number, skip: number) => {
     try {
@@ -321,40 +321,6 @@ export const updateRentalRequestStatus = async (requestId: string, status: strin
     }
 };
 
-export const verifyUser = async (formData: FormData): Promise<IUser> => {
-    try {
-        const token = await AsyncStorage.getItem('accessToken');
-
-        if (!token) {
-            throw new Error('No token provided');
-        }
-
-        const response = await axios.post(`${API_BASE_URL}/users/verify`, formData, {
-            headers: {
-                Authorization: `Bearer ${token}`,
-                'Content-Type': 'multipart/form-data',
-            },
-        });
-
-        const userData: IUser = response.data;
-        return userData;
-    } catch (error: any) {
-        if (error.response) {
-            // Server responded with a status other than 200 range
-            console.error('Error response:', error.response.data);
-            throw new Error(error.response.data.message || 'Xác thực thất bại');
-        } else if (error.request) {
-            // Request was made but no response was received
-            console.error('Error request:', error.request);
-            throw new Error('No response received from server');
-        } else {
-            // Something happened in setting up the request
-            console.error('Error message:', error.message);
-            throw new Error(error.message);
-        }
-    }
-};
-
 export const fetchPropertyAttributes = async () => {
     try {
         const token = await AsyncStorage.getItem('accessToken');
@@ -406,6 +372,71 @@ export const fetchPropertyTypes = async () => {
         }
     }
 };
+
+export const createProperty = async (formData: FormData) => {
+    try {
+        const token = await AsyncStorage.getItem('accessToken');
+
+        if (!token) {
+            throw new Error('No token provided');
+        }
+
+        const response = await axios.post(`${API_BASE_URL}/properties`, formData, {
+            headers: {
+                Authorization: `Bearer ${token}`,
+                'Content-Type': 'multipart/form-data',
+            },
+        });
+
+        return response.data;
+    } catch (error: any) {
+        if (error.response && error.response.data && error.response.data.message) {
+            console.error('Error message:', error.response.data.message);
+            throw new Error(error.response.data.message);
+        } else {
+            console.error('Error creating property:', error);
+            throw error;
+        }
+    }
+};
+
+export const verifyUser = async (frontUri: string, backUri: string): Promise<IUser> => {
+    const formData = new FormData();
+    formData.append('front', {
+        uri: frontUri,
+        name: 'front.jpg',
+        type: 'image/jpeg',
+    } as any);
+    formData.append('back', {
+        uri: backUri,
+        name: 'back.jpg',
+        type: 'image/jpeg',
+    } as any);
+
+    const token = await AsyncStorage.getItem('accessToken');
+    if (!token) {
+        throw new Error('No token provided');
+    }
+
+    const response = await fetch(`${API_BASE_URL}/users/verify`, {
+        method: 'POST',
+        headers: {
+            Authorization: `Bearer ${token}`,
+            // No need to set 'Content-Type' for FormData
+        },
+        body: formData,
+    });
+
+    if (!response.ok) {
+        const errorText = await response.text();
+        console.error('Response error text:', errorText);
+        throw new Error('Failed to verify user');
+    }
+
+    return await response.json();
+};
+
+
 // export const verifyUser = async (frontImage: string, backImage: string) => {
 //     try {
 //         const token = await AsyncStorage.getItem('accessToken');
