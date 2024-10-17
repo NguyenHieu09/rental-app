@@ -142,6 +142,7 @@ const AddPropertyScreen: React.FC = () => {
             formData.append('title', title);
             formData.append('description', description);
             formData.append('price', price);
+            formData.append('deposit', deposit);
             formData.append('acreage', acreage);
             formData.append('city', selectedCityName || '');
             formData.append('district', selectedDistrictName || '');

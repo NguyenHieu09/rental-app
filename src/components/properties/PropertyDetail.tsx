@@ -17,11 +17,12 @@ interface PropertyDetailProps {
 const { width: screenWidth } = Dimensions.get('window');
 
 const PropertyDetail: React.FC<PropertyDetailProps> = ({ property }) => {
-    const { images, title, address, price, rentalConditions, owner } = property;
+    const { images, title, address, minDuration, price, deposit, rentalConditions, owner } = property;
     const [isModalVisible, setModalVisible] = useState(false);
     const user = useSelector((state: RootState) => state.user.user);
     const location = `${address.street}, ${address.ward}, ${address.district}, ${address.city}`;
     const formattedPrice = formatPrice(price);
+    const formattedDeposit = formatPrice(deposit);
     console.log(property.propertyId);
 
 
@@ -54,7 +55,18 @@ const PropertyDetail: React.FC<PropertyDetailProps> = ({ property }) => {
             />
             <View style={styles.detailsContainer}>
                 <Text style={styles.title}>{title}</Text>
-                <Text style={styles.price}>{formattedPrice}</Text>
+                <View style={styles.infoItem}>
+                    <Text style={styles.price}>Tiền thuê: </Text>
+                    <Text style={styles.price}>{formattedPrice}</Text>
+                </View>
+                <View style={styles.infoItem}>
+                    <Text style={styles.price}>Tiền cọc: </Text>
+                    <Text style={styles.price}>{formattedDeposit}</Text>
+                </View>
+                <View style={styles.infoItem}>
+                    <Text style={{ fontSize: 14, fontWeight: 500 }}>Thời gian thuê tối thiểu: </Text>
+                    <Text style={{ fontSize: 14, fontWeight: 500 }}>{minDuration} tháng</Text>
+                </View>
                 <View style={styles.locationContainer}>
                     <AntDesign name="enviromento" size={20} color="black" style={styles.icon} />
                     <Text style={styles.location}>{location}</Text>
@@ -91,17 +103,31 @@ const PropertyDetail: React.FC<PropertyDetailProps> = ({ property }) => {
                     style={styles.ownerImage}
                 />
                 <View style={styles.ownerInfo}>
-                    <Text style={styles.ownerName}>{owner.name}</Text>
+                    <Text style={[styles.ownerName]} numberOfLines={1} ellipsizeMode="tail">{owner.name}</Text>
                     <Text style={styles.ownerRole}>Chủ sở hữu</Text>
                 </View>
-                <TouchableOpacity style={styles.requestButton} onPress={toggleModal}>
-                    <View style={styles.buttonContent}>
-                        <Icon name="send" size={20} color="black" />
-                        <Text style={styles.buttonText}>Yêu cầu thuê nhà</Text>
-                    </View>
-                </TouchableOpacity>
+                <View style={[styles.ownerInfo, { marginLeft: 30 }]}>
+                    <Text style={{ fontSize: 14, fontWeight: 700 }}>Số điện thoại</Text>
+                    <Text style={styles.ownerRole}>{owner.phoneNumber}</Text>
+                </View>
+
 
             </View>
+
+            <View style={[styles.infoContainer, { justifyContent: 'space-evenly', }]}>
+                <TouchableOpacity style={[styles.requestButton, { backgroundColor: 'white', borderColor: '#007BFF', borderWidth: 1 }]}>
+                    <View style={styles.buttonContent}>
+                        <Text style={[styles.buttonText, { color: '#007BFF' }]}>Liên hệ chủ nhà</Text>
+                    </View>
+                </TouchableOpacity>
+                <TouchableOpacity style={[styles.requestButton, { backgroundColor: '#007BFF' }]} onPress={toggleModal}>
+                    <View style={styles.buttonContent}>
+                        <Text style={[styles.buttonText, { color: 'white' }]}>Gửi yêu cầu thuê</Text>
+                    </View>
+                </TouchableOpacity>
+            </View>
+
+
             <View style={styles.reviewContainer}>
                 <Text style={styles.reviewerName}>Milan Jack</Text>
                 <Text style={styles.reviewerRole}>Home Owner/Broker</Text>
@@ -141,19 +167,21 @@ const styles = StyleSheet.create({
         marginBottom: 4,
     },
     price: {
-        fontSize: 20,
+        fontSize: 16,
         fontWeight: 'bold',
-        color: '#FF6347', // Tomato color for price  
-        marginBottom: 8,
+        color: '#FF6347',
+        marginBottom: -4,
     },
     locationContainer: {
         flexDirection: 'row',
         alignItems: 'center',
         marginBottom: 8,
+
     },
     location: {
         fontSize: 16,
         color: 'gray',
+        flex: 1,
     },
     icon: {
         marginRight: 8,
@@ -219,6 +247,7 @@ const styles = StyleSheet.create({
     },
     ownerName: {
         fontWeight: 'bold',
+        width: 600,
     },
     ownerRole: {
         color: 'gray',

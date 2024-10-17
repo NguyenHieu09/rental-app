@@ -46,7 +46,6 @@ const HomeScreen: React.FC = () => {
         let { coords } = await Location.getCurrentPositionAsync({});
         const { latitude, longitude } = coords;
 
-        // Reverse geocode to get human-readable address
         let reverseGeocode = await Location.reverseGeocodeAsync({ latitude, longitude });
         if (reverseGeocode.length > 0) {
             const { formattedAddress } = reverseGeocode[0];
