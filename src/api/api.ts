@@ -373,6 +373,33 @@ export const fetchPropertyTypes = async () => {
     }
 };
 
+// export const createProperty = async (formData: FormData) => {
+//     try {
+//         const token = await AsyncStorage.getItem('accessToken');
+
+//         if (!token) {
+//             throw new Error('No token provided');
+//         }
+
+//         const response = await axios.post(`${API_BASE_URL}/properties`, formData, {
+//             headers: {
+//                 Authorization: `Bearer ${token}`,
+//                 'Content-Type': 'multipart/form-data',
+//             },
+//         });
+
+//         return response.data;
+//     } catch (error: any) {
+//         if (error.response && error.response.data && error.response.data.message) {
+//             console.error('Error message:', error.response.data.message);
+//             throw new Error(error.response.data.message);
+//         } else {
+//             console.error('Error creating property:', error);
+//             throw error;
+//         }
+//     }
+// };
+
 export const createProperty = async (formData: FormData) => {
     try {
         const token = await AsyncStorage.getItem('accessToken');
@@ -388,7 +415,12 @@ export const createProperty = async (formData: FormData) => {
             },
         });
 
-        return response.data;
+        // Kiểm tra mã trạng thái HTTP
+        if (response.status === 201) {
+            return { success: true, data: response.data };
+        } else {
+            return { success: false, message: 'Failed to create property' };
+        }
     } catch (error: any) {
         if (error.response && error.response.data && error.response.data.message) {
             console.error('Error message:', error.response.data.message);
