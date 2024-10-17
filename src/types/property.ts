@@ -36,6 +36,11 @@ export interface IProperty {
     rentalConditions: Array<ICondition>;
     price: number;
     owner: Pick<IUser, 'userId' | 'name' | 'phoneNumber' | 'avatar' | 'email'>;
+    type: {
+        id: string;
+        name: string;
+    }
+
 }
 
 export type IFilterProperty = {

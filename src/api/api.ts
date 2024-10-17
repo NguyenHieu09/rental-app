@@ -373,33 +373,6 @@ export const fetchPropertyTypes = async () => {
     }
 };
 
-// export const createProperty = async (formData: FormData) => {
-//     try {
-//         const token = await AsyncStorage.getItem('accessToken');
-
-//         if (!token) {
-//             throw new Error('No token provided');
-//         }
-
-//         const response = await axios.post(`${API_BASE_URL}/properties`, formData, {
-//             headers: {
-//                 Authorization: `Bearer ${token}`,
-//                 'Content-Type': 'multipart/form-data',
-//             },
-//         });
-
-//         return response.data;
-//     } catch (error: any) {
-//         if (error.response && error.response.data && error.response.data.message) {
-//             console.error('Error message:', error.response.data.message);
-//             throw new Error(error.response.data.message);
-//         } else {
-//             console.error('Error creating property:', error);
-//             throw error;
-//         }
-//     }
-// };
-
 export const createProperty = async (formData: FormData) => {
     try {
         const token = await AsyncStorage.getItem('accessToken');
@@ -469,7 +442,7 @@ export const verifyUser = async (frontUri: string, backUri: string): Promise<IUs
 };
 
 
-// export const verifyUser = async (frontImage: string, backImage: string) => {
+// export const fetchNewestProperties = async (take: number, skip: number) => {
 //     try {
 //         const token = await AsyncStorage.getItem('accessToken');
 
@@ -477,34 +450,69 @@ export const verifyUser = async (frontUri: string, backUri: string): Promise<IUs
 //             throw new Error('No token provided');
 //         }
 
-//         const frontBlob = await (await fetch(frontImage)).blob();
-//         const backBlob = await (await fetch(backImage)).blob();
-
-//         const formData = new FormData();
-//         formData.append('front', frontBlob, 'front.jpg');
-//         formData.append('back', backBlob, 'back.jpg');
-
-//         const response = await axios.post(`${API_BASE_URL}/users/verify`, formData, {
+//         const response = await axios.get(`${API_BASE_URL}/properties/search`, {
+//             params: {
+//                 sort: 'newest',
+//                 take,
+//                 skip,
+//             },
 //             headers: {
 //                 Authorization: `Bearer ${token}`,
-//                 'Content-Type': 'multipart/form-data',
 //             },
 //         });
+//         // console.log('Newest properties response:', response.data);
 
-//         return response.data;
+//         const properties = response.data.data;
+//         const total = response.data.pageInfo.total;
+
+//         return { properties, total };
 //     } catch (error: any) {
-//         if (error.response) {
-//             // Server responded with a status other than 200 range
-//             console.error('Error response:', error.response.data);
-//             throw new Error(error.response.data.message || 'Xác thực thất bại');
-//         } else if (error.request) {
-//             // Request was made but no response was received
-//             console.error('Error request:', error.request);
-//             throw new Error('No response received from server');
+//         if (error.response && error.response.data && error.response.data.message) {
+//             console.error('Error message:', error.response.data.message);
+//             throw new Error(error.response.data.message);
 //         } else {
-//             // Something happened in setting up the request
-//             console.error('Error message:', error.message);
-//             throw new Error(error.message);
+//             console.error('Error fetching newest properties:', error);
+//             throw error;
 //         }
 //     }
 // };
+
+export const fetchNewestProperties = async (take: number, skip: number, city?: string) => {
+    try {
+        const token = await AsyncStorage.getItem('accessToken');
+
+        if (!token) {
+            throw new Error('No token provided');
+        }
+
+        const params: any = {
+            sort: 'newest',
+            take,
+            skip,
+        };
+
+        if (city) {
+            params.city = city;
+        }
+
+        const response = await axios.get(`${API_BASE_URL}/properties/search`, {
+            params,
+            headers: {
+                Authorization: `Bearer ${token}`,
+            },
+        });
+
+        const properties = response.data.data;
+        const total = response.data.pageInfo.total;
+
+        return { properties, total };
+    } catch (error: any) {
+        if (error.response && error.response.data && error.response.data.message) {
+            console.error('Error message:', error.response.data.message);
+            throw new Error(error.response.data.message);
+        } else {
+            console.error('Error fetching newest properties:', error);
+            throw error;
+        }
+    }
+};
