@@ -50,7 +50,9 @@ const ContractDetails: React.FC = () => {
             <Text style={styles.title}>Chi tiết hợp đồng</Text>
             <Text style={styles.label}>Mã hợp đồng:</Text>
             <Text style={styles.value}>{contract.contractId}</Text>
-            <Text style={styles.label}>Tên người thuê:</Text>
+            <Text style={styles.label}>Chủ nhà:</Text>
+            <Text style={styles.value}>{contract.owner.name}</Text>
+            <Text style={styles.label}>Người thuê:</Text>
             <Text style={styles.value}>{contract.renter.name}</Text>
             <Text style={styles.label}>Ngày bắt đầu:</Text>
             <Text style={styles.value}>{new Date(contract.startDate).toLocaleDateString()}</Text>

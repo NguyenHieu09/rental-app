@@ -4,14 +4,23 @@ import { View, Text, Image, StyleSheet, TouchableOpacity } from 'react-native';
 import { IProperty } from '../../types/property';
 import { AntDesign } from '@expo/vector-icons';
 import { Swipeable } from 'react-native-gesture-handler';
+import { formatPrice } from '../../utils/formattedPrice';
 
 interface PropertyItemProps {
     item: IProperty;
     onDelete: (id: string) => void;
 }
 
+const statusMapping: { [key: string]: string } = {
+    PENDING: 'Đang chờ phê duyệt',
+    ACTIVE: 'Đã phê duyệt',
+    INACTIVE: 'Không được phê duyệt',
+    REJECTED: 'Bị từ chối bởi quản trị viên',
+    UNAVAILABLE: 'Đã cho thuê',
+};
+
 const PropertyItem: React.FC<PropertyItemProps> = ({ item, onDelete }) => {
-    const { address, title, price, images, propertyId } = item;
+    const { address, title, price, images, propertyId, status } = item;
     const location = `${address.street}, ${address.ward}, ${address.district}, ${address.city}`;
 
     const renderRightActions = () => {
@@ -40,7 +49,12 @@ const PropertyItem: React.FC<PropertyItemProps> = ({ item, onDelete }) => {
                         <Text style={styles.location}>{location}</Text>
                     </View>
                     <View style={styles.row}>
-                        <Text style={styles.price}>{price}/month</Text>
+                        <Text style={[{ color: 'red', fontWeight: '400' }]}>
+                            {statusMapping[item.status] || item.status}
+                        </Text>
+                    </View>
+                    <View style={styles.row}>
+                        <Text style={styles.price}>{formatPrice(price)}/tháng</Text>
                     </View>
                 </View>
             </View>

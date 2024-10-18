@@ -8,6 +8,8 @@ import ProfileScreen from '../screens/profileScreen/ProfileScreen';
 // import ExploreScreen from '../screens/owner/explore/ExploreScreen';
 import AuthenticationScreen from '../screens/authentication/AuthenticationScreen';
 import AddProperty from '../screens/owner/addProperty/AddPropertyScreen';
+import ExploreScreen from '../screens/owner/explore/ExploreScreen';
+// import ExploreScreen from '../screens/renter/explore/ExploreScreen';
 // import AuthenticationScreen from '../screens/Authentication/AuthenticationScreen';
 // import ContractScreen from '../screens/owner/Contract/ContractScreen ';
 // import WalletScreen from '../screens/Wallet/WalletScreen';
@@ -33,8 +35,7 @@ const OwnerTabs: React.FC = () => {
 
             <Tab.Screen
                 name="ExploreScreen"
-                // component={ExploreScreen}
-                component={AuthenticationScreen}
+                component={ExploreScreen}
 
                 options={{
                     headerShown: false,

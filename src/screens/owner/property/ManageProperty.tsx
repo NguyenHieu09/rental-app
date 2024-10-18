@@ -23,13 +23,13 @@ const ManageProperty: React.FC = () => {
             const skip = page * ITEMS_PER_PAGE;
             console.log(`Fetching data with skip: ${skip}`);
             const filters: IFilterProperty = {
-                // Add any filters you need here
+
             };
             const response = await fetchPropertiesWithFilters(filters, ITEMS_PER_PAGE, skip);
             // console.log('API response:', response);
 
             const { properties, total } = response;
-            // console.log('Fetched properties:', properties);
+
             console.log('Total properties:', total);
 
             if (total !== undefined) {

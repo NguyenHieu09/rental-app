@@ -12,10 +12,12 @@ import { RootStackParamList } from '../../types/navigation';
 const options = [
     { id: '1', title: 'Ví', icon: 'wallet' },
     { id: '2', title: 'Thông tin tài khoản', icon: 'user' },
-    { id: '3', title: 'Yêu cầu thuê nhà', icon: 'home' },
-    { id: '4', title: 'Hợp đồng thuê nhà', icon: 'file-text' },
-    { id: '5', title: 'Thanh toán hóa đơn', icon: 'dollar' },
-    { id: '6', title: 'Cài đặt', icon: 'setting' },
+    { id: '3', title: 'Xác thực tài khoản', icon: 'idcard' },
+    { id: '4', title: 'Yêu cầu thuê nhà', icon: 'home' },
+    { id: '5', title: 'Hợp đồng thuê nhà', icon: 'file-text' },
+    { id: '6', title: 'Thanh toán hóa đơn', icon: 'dollar' },
+    { id: '7', title: 'Cài đặt', icon: 'setting' },
+
 ];
 
 const ProfileScreen = () => {
@@ -35,10 +37,12 @@ const ProfileScreen = () => {
                 if (item.id === '1') {
                     navigation.navigate('WalletManagement');
                 } else if (item.id === '3') {
-                    navigation.navigate('ManageRequestRental');
+                    navigation.navigate('AuthenticationScreen');
                 } else if (item.id === '4') {
-                    navigation.navigate('ManageContract');
+                    navigation.navigate('ManageRequestRental');
                 } else if (item.id === '5') {
+                    navigation.navigate('ManageContract');
+                } else if (item.id === '6') {
                     navigation.navigate('PaymentScreen');
                 }
 

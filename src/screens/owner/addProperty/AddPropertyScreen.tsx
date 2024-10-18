@@ -207,18 +207,14 @@ const AddPropertyScreen: React.FC = () => {
                     onChangeText={setPrice}
                     keyboardType="numeric"
                 />
-                <View style={styles.pickerContainer}>
-                    <Picker
-                        selectedValue={interior}
-                        onValueChange={(itemValue) => setInterior(itemValue)}
-                        style={styles.picker}
-                    >
-                        <Picker.Item label="Chọn nội thất" value={undefined} />
-                        {interiorOptions.map((option) => (
-                            <Picker.Item key={option.value} label={option.label} value={option.value} />
-                        ))}
-                    </Picker>
-                </View>
+                <TextInput
+                    style={styles.input}
+                    placeholder="Tiền đặt cọc"
+                    value={deposit}
+                    onChangeText={setDeposit}
+                    keyboardType="numeric"
+                />
+
                 <TextInput
                     style={styles.input}
                     placeholder="Số phòng ngủ"
@@ -240,6 +236,22 @@ const AddPropertyScreen: React.FC = () => {
                     onChangeText={setLandArea}
                     keyboardType="numeric"
                 />
+
+                <TextInput
+                    style={styles.input}
+                    placeholder="Số tầng"
+                    value={floor}
+                    onChangeText={setFloor}
+                    keyboardType="numeric"
+                />
+
+                <TextInput
+                    style={styles.input}
+                    placeholder="Thời gian thuê tối thiểu"
+                    value={minDuration}
+                    onChangeText={setMinDuration}
+                    keyboardType="numeric"
+                />
                 <View style={styles.pickerContainer}>
                     <Picker
                         selectedValue={type.id}
@@ -257,44 +269,25 @@ const AddPropertyScreen: React.FC = () => {
                         ))}
                     </Picker>
                 </View>
-                <TextInput
-                    style={styles.input}
-                    placeholder="Số tầng"
-                    value={floor}
-                    onChangeText={setFloor}
-                    keyboardType="numeric"
-                />
-                <TextInput
-                    style={styles.input}
-                    placeholder="Tiền đặt cọc"
-                    value={deposit}
-                    onChangeText={setDeposit}
-                    keyboardType="numeric"
-                />
-                <TextInput
-                    style={styles.input}
-                    placeholder="Thời gian thuê tối thiểu"
-                    value={minDuration}
-                    onChangeText={setMinDuration}
-                    keyboardType="numeric"
-                />
-                {/* <View style={styles.pickerContainer}>
+
+                <View style={styles.pickerContainer}>
                     <Picker
-                        selectedValue={attributeIds}
-                        onValueChange={(itemValue) => setAttributeIds(itemValue)}
+                        selectedValue={interior}
+                        onValueChange={(itemValue) => setInterior(itemValue)}
                         style={styles.picker}
                     >
-                        <Picker.Item label="Chọn tiện ích" value={undefined} />
-                        {Array.isArray(attributes) && attributes.map((attribute) => (
-                            <Picker.Item key={attribute.id} label={attribute.name} value={attribute.id} />
+                        <Picker.Item label="Chọn nội thất" value={undefined} />
+                        {interiorOptions.map((option) => (
+                            <Picker.Item key={option.value} label={option.label} value={option.value} />
                         ))}
                     </Picker>
-                </View> */}
+                </View>
                 <View style={styles.radioContainer}>
                     <Text style={styles.label}>Chọn tiện ích:</Text>
                     {attributes.map(attribute => (
                         <View key={attribute.id} style={styles.radioButton}>
                             <RadioButton
+                                color="#007BFF"
                                 value={attribute.id}
                                 status={selectedAttributes.includes(attribute.id) ? 'checked' : 'unchecked'}
                                 onPress={() => handleAttributeChange(attribute.id)}

@@ -22,6 +22,7 @@ import WalletManagement from './WalletManagement';
 import ManageContract from '../screens/owner/manageContract/ManageContract';
 import PaymentScreen from '../screens/renter/payment/PaymentScreen';
 import ContractDetails from '../screens/contractDetails/ContractDetails';
+import AuthenticationScreen from '../screens/authentication/AuthenticationScreen';
 // import PropertyDetail from '../screens/renter/PropertyScreen/PropertyDetail';
 
 const Stack = createStackNavigator();
@@ -90,7 +91,7 @@ const Navigation: React.FC = () => {
                 <Stack.Screen name="PropertyScreen" component={PropertyScreen} options={{
                     title: 'Thông tin bất động sản',
                     headerTitleStyle: {
-                        fontWeight: 'bold',
+                        fontWeight: 500,
                         fontSize: 20,
                         color: '#333', // Custom color
                     },
@@ -130,6 +131,9 @@ const Navigation: React.FC = () => {
                 />
                 <Stack.Screen name="ContractDetails" component={ContractDetails}
                     options={{ title: 'Chi tiết hợp đồng' }}
+                />
+                <Stack.Screen name="AuthenticationScreen" component={AuthenticationScreen}
+                    options={{ title: 'Xác thực tài khoản' }}
                 />
 
             </Stack.Navigator>

@@ -168,7 +168,7 @@ const AddressInput: React.FC<AddressSelectorProps> = ({
 
 const styles = StyleSheet.create({
     container: {
-        padding: 20,
+        // padding: 20,
     },
     label: {
         fontSize: 16,

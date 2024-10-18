@@ -396,8 +396,8 @@ import RenderHtml from 'react-native-render-html';
 import { RootStackParamList } from '../../../types/navigation';
 import { commonStyles } from '../../../styles/theme';
 import { ICreateContractRequest } from '../../../types/contract';
-import { createContract } from '../../../api/contract';
-import { updateRentalRequestStatus } from '../../../api/api';
+import { createContract, updateRentalRequestStatus } from '../../../api/contract';
+// import { updateRentalRequestStatus } from '../../../api/api';
 
 
 type ContractScreenRouteProp = RouteProp<RootStackParamList, 'ContractScreen'>;
@@ -438,7 +438,7 @@ const ContractScreen = () => {
             const response = await createContract(contractRequest);
             console.log(ownerId, requestId);
 
-            await updateRentalRequestStatus(requestId, 'APPROVED');
+            // await updateRentalRequestStatus(requestId, 'APPROVED');
 
             Alert.alert('Success', 'Contract created successfully');
             navigation.navigate('ManageRequestRental');

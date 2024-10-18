@@ -276,14 +276,14 @@
 import React, { useEffect, useState, useCallback } from 'react';
 import { View, Text, StyleSheet, Image, FlatList, TouchableOpacity, ActivityIndicator, Alert } from 'react-native';
 import { commonStyles } from '../../../styles/theme';
-import { fetchRentalRequestsForRenter, generateRentalContract } from '../../../api/api';
+// import { fetchRentalRequestsForRenter } from '../../../api/api';
 import { RootState } from '../../../redux-toolkit/store';
 import { useSelector } from 'react-redux';
 import { IGenerateContractRequest, IRentalRequest } from '../../../types/rentalRequest';
 import { useFocusEffect, NavigationProp, useNavigation } from '@react-navigation/native';
 import { RootStackParamList } from '../../../types/navigation';
 import { format } from 'date-fns';
-import { fetchRentalRequestsForOwner } from '../../../api/contract';
+import { fetchRentalRequestsForOwner, fetchRentalRequestsForRenter, generateContract } from '../../../api/contract';
 
 export type RentalRequestStatus = 'PENDING' | 'APPROVED' | 'REJECTED' | 'CANCELLED';
 
@@ -392,7 +392,7 @@ const ManageRequestRental = () => {
             };
             console.log('Contract Request:', contractRequest);
 
-            const contractData = await generateRentalContract(contractRequest);
+            const contractData = await generateContract(contractRequest);
 
             navigation.navigate('ContractScreen', { contractData, requestId: item.requestId });
         } catch (error) {

@@ -72,44 +72,7 @@ export const fetchPropertyDetail = async (slug: string) => {
     }
 };
 
-export const sendRentalRequest = async (rentalRequestData: {
-    ownerId: string;
-    property: { propertyId: string; title: string; images: string[]; slug: string };
-    rentalDeposit: number;
-    rentalEndDate: string;
-    rentalPrice: number;
-    rentalStartDate: string;
-    renterId: string;
-}) => {
-    try {
-        // Lấy token xác thực từ AsyncStorage
-        const token = await AsyncStorage.getItem('accessToken');
 
-        if (!token) {
-            throw new Error('No token provided');
-        }
-
-        console.log('Sending rental request with data:', rentalRequestData);
-
-        const response = await axios.post(`${API_BASE_URL}/rental-requests`, rentalRequestData, {
-            headers: {
-                Authorization: `Bearer ${token}`
-            }
-        });
-
-        console.log('Rental request response:', response.data);
-        return response.data;
-    } catch (error: any) {
-        if (error.response && error.response.data && error.response.data.message) {
-            console.error('Error message:', error.response.data.message);
-            throw new Error(error.response.data.message);
-        } else {
-            // Handle other errors
-            console.error('Error sending rental request:', error);
-            throw error;
-        }
-    }
-};
 
 export const fetchNotifications = async (take: number, skip: number) => {
     try {
@@ -162,27 +125,7 @@ export const fetchNotifications = async (take: number, skip: number) => {
 //     }
 // };
 
-export const fetchRentalRequestsForRenter = async (take: number, skip: number) => {
-    try {
-        const token = await AsyncStorage.getItem('accessToken');
-        if (!token) {
-            throw new Error('No token found');
-        }
-        const response = await axios.get(`${API_BASE_URL}/rental-requests/renter`, {
-            params: {
-                take,
-                skip,
-            },
-            headers: {
-                Authorization: `Bearer ${token}`,
-            },
-        });
-        return response.data;
-    } catch (error) {
-        console.error('Error fetching rental requests for renter:', error);
-        throw error;
-    }
-};
+
 
 export const fetchPropertiesWithFilters = async (filters: IFilterProperty, take: number, skip: number) => {
     try {
@@ -216,57 +159,8 @@ export const fetchPropertiesWithFilters = async (filters: IFilterProperty, take:
     }
 };
 
-export const fetchRentalRequestsBySlug = async (slug: string) => {
-    try {
-        const token = await AsyncStorage.getItem('accessToken');
 
-        if (!token) {
-            throw new Error('No token provided');
-        }
 
-        const response = await axios.get(`${API_BASE_URL}/rental-requests/owner/${slug}`, {
-            headers: {
-                Authorization: `Bearer ${token}`,
-            },
-        });
-
-        return response.data;
-    } catch (error: any) {
-        if (error.response && error.response.data && error.response.data.message) {
-            console.error('Error message:', error.response.data.message);
-            throw new Error(error.response.data.message);
-        } else {
-            console.error('Error fetching rental requests by slug:', error);
-            throw error;
-        }
-    }
-};
-
-export const generateRentalContract = async (contractRequest: IGenerateContractRequest) => {
-    try {
-        const token = await AsyncStorage.getItem('accessToken');
-
-        if (!token) {
-            throw new Error('No token provided');
-        }
-
-        const response = await axios.post(`${API_BASE_URL}/rental-requests/generate-contract`, contractRequest, {
-            headers: {
-                Authorization: `Bearer ${token}`,
-            },
-        });
-
-        return response.data;
-    } catch (error: any) {
-        if (error.response && error.response.data && error.response.data.message) {
-            console.error('Error message:', error.response.data.message);
-            throw new Error(error.response.data.message);
-        } else {
-            console.error('Error generating rental contract:', error);
-            throw error;
-        }
-    }
-};
 
 export const updateWalletAddress = async (userId: string, walletAddress: string) => {
     try {
@@ -294,32 +188,6 @@ export const updateWalletAddress = async (userId: string, walletAddress: string)
     }
 };
 
-
-export const updateRentalRequestStatus = async (requestId: string, status: string) => {
-    try {
-        const token = await AsyncStorage.getItem('accessToken');
-
-        if (!token) {
-            throw new Error('No token provided');
-        }
-
-        const response = await axios.patch(`${API_BASE_URL}/rental-requests/owner/status`, { requestId, status }, {
-            headers: {
-                Authorization: `Bearer ${token}`,
-            },
-        });
-
-        return response.data;
-    } catch (error: any) {
-        if (error.response && error.response.data && error.response.data.message) {
-            console.error('Error message:', error.response.data.message);
-            throw new Error(error.response.data.message);
-        } else {
-            console.error('Error updating rental request status:', error);
-            throw error;
-        }
-    }
-};
 
 export const fetchPropertyAttributes = async () => {
     try {
@@ -435,7 +303,7 @@ export const verifyUser = async (frontUri: string, backUri: string): Promise<IUs
     if (!response.ok) {
         const errorText = await response.text();
         console.error('Response error text:', errorText);
-        throw new Error('Failed to verify user');
+        throw new Error('CCCD đã được sử dụng');
     }
 
     return await response.json();

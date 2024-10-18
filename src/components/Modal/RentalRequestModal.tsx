@@ -162,10 +162,11 @@ import React, { useState } from 'react';
 import { View, Text, StyleSheet, TextInput, TouchableOpacity, Alert } from 'react-native';
 import Modal from 'react-native-modal';
 import DateTimePickerModal from 'react-native-modal-datetime-picker';
-import { sendRentalRequest } from '../../api/api';
+// import { sendRentalRequest } from '../../api/api';
 // import { Property } from '../../types/navigation';
 import { format } from 'date-fns';
 import { IProperty } from '../../types/property';
+import { sendRentalRequest } from '../../api/contract';
 // import { format } from 'date-fns';
 
 interface RentalRequestModalProps {
@@ -204,12 +205,13 @@ const RentalRequestModal: React.FC<RentalRequestModalProps> = ({ isVisible, onCl
 
         const rentalRequestData = {
             ownerId,
-            property: { propertyId, title, images, slug },
+            propertyId,
+            // property: { propertyId },
+            rentalPrice: parseFloat(rentalPrice),
             rentalDeposit: parseFloat(deposit),
             rentalEndDate: format(endDate, 'dd/MM/yyyy'),
-            rentalPrice: parseFloat(rentalPrice),
             rentalStartDate: format(startDate, 'dd/MM/yyyy'),
-            renterId: userId,
+            // renterId: userId,
         };
 
         try {

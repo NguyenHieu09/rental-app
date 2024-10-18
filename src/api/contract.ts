@@ -4,6 +4,7 @@ import { API_URL } from '@env';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { IDepositTransaction, ITransaction } from '../types/transaction';
 import { IContractDetail } from '../types/contractDetail';
+import { IGenerateContractRequest } from '../types/rentalRequest';
 
 const API_CONTRACT_URL = `${API_URL}/contract-service`;
 
@@ -216,7 +217,7 @@ export const payMonthlyRent = async (rentTransaction: IDepositTransaction): Prom
             throw new Error('No token provided');
         }
 
-        await axios.post(`${API_CONTRACT_URL}/contract-service/contracts/pay`, rentTransaction, {
+        await axios.post(`${API_CONTRACT_URL}/contracts/pay`, rentTransaction, {
             headers: {
                 Authorization: `Bearer ${token}`,
             },
@@ -275,6 +276,146 @@ export const fetchRentalRequestsForOwner = async (take: number, skip: number) =>
         return response.data;
     } catch (error) {
         console.error('Error fetching rental requests:', error);
+        throw error;
+    }
+};
+
+export const sendRentalRequest = async (rentalRequestData: {
+    ownerId: string;
+    // property: { propertyId: string };
+    propertyId: string;
+    rentalDeposit: number;
+    rentalEndDate: string;
+    rentalPrice: number;
+    rentalStartDate: string;
+    // renterId: string;
+}) => {
+    try {
+        // Lấy token xác thực từ AsyncStorage
+        const token = await AsyncStorage.getItem('accessToken');
+
+        if (!token) {
+            throw new Error('No token provided');
+        }
+
+        console.log('Sending rental request with data:', rentalRequestData);
+
+        const response = await axios.post(`${API_CONTRACT_URL}/rental-requests`, rentalRequestData, {
+            headers: {
+                Authorization: `Bearer ${token}`
+            }
+        });
+
+        console.log('Rental request response:', response.data);
+        return response.data;
+    } catch (error: any) {
+        if (error.response && error.response.data && error.response.data.message) {
+            console.error('Error message:', error.response.data.message);
+            throw new Error(error.response.data.message);
+        } else {
+            // Handle other errors
+            console.error('Error sending rental request:', error);
+            throw error;
+        }
+    }
+};
+
+export const updateRentalRequestStatus = async (requestId: string, status: string) => {
+    try {
+        const token = await AsyncStorage.getItem('accessToken');
+
+        if (!token) {
+            throw new Error('No token provided');
+        }
+
+        const response = await axios.patch(`${API_CONTRACT_URL}/rental-requests/owner/status`, { requestId, status }, {
+            headers: {
+                Authorization: `Bearer ${token}`,
+            },
+        });
+
+        return response.data;
+    } catch (error: any) {
+        if (error.response && error.response.data && error.response.data.message) {
+            console.error('Error message:', error.response.data.message);
+            throw new Error(error.response.data.message);
+        } else {
+            console.error('Error updating rental request status:', error);
+            throw error;
+        }
+    }
+};
+
+export const generateContract = async (contractRequest: IGenerateContractRequest) => {
+    try {
+        const token = await AsyncStorage.getItem('accessToken');
+
+        if (!token) {
+            throw new Error('No token provided');
+        }
+
+        const response = await axios.post(`${API_CONTRACT_URL}/rental-requests/generate-contract`, contractRequest, {
+            headers: {
+                Authorization: `Bearer ${token}`,
+            },
+        });
+
+        return response.data;
+    } catch (error: any) {
+        if (error.response && error.response.data && error.response.data.message) {
+            console.error('Error message:', error.response.data.message);
+            throw new Error(error.response.data.message);
+        } else {
+            console.error('Error generating rental contract:', error);
+            throw error;
+        }
+    }
+};
+
+export const fetchRentalRequestsBySlug = async (slug: string) => {
+    try {
+        const token = await AsyncStorage.getItem('accessToken');
+
+        if (!token) {
+            throw new Error('No token provided');
+        }
+
+        const response = await axios.get(`${API_CONTRACT_URL}/rental-requests/owner/${slug}`, {
+            headers: {
+                Authorization: `Bearer ${token}`,
+            },
+        });
+
+        return response.data;
+    } catch (error: any) {
+        if (error.response && error.response.data && error.response.data.message) {
+            console.error('Error message:', error.response.data.message);
+            throw new Error(error.response.data.message);
+        } else {
+            console.error('Error fetching rental requests by slug:', error);
+            throw error;
+        }
+    }
+};
+
+export const fetchRentalRequestsForRenter = async (take: number, skip: number) => {
+    try {
+        const token = await AsyncStorage.getItem('accessToken');
+        if (!token) {
+            throw new Error('No token found');
+        }
+        const response = await axios.get(`${API_CONTRACT_URL}/rental-requests/renter`, {
+            params: {
+                take,
+                skip,
+            },
+            headers: {
+                Authorization: `Bearer ${token}`,
+            },
+        });
+        return response.data;
+    } catch (error) {
+        console.error('Error fetching rental requests for renter:', error);
         throw error;
     }
 };
