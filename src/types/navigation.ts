@@ -66,6 +66,7 @@ export type RootStackParamList = {
     PaymentScreen: undefined;
     ContractDetails: { contractId: string };
     AuthenticationScreen: undefined;
+    ManageCancelContract: undefined;
 };
 
 type PropertyDetailRouteProp = RouteProp<RootStackParamList, 'PropertyScreen'>;

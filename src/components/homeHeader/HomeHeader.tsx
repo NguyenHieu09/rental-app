@@ -1,9 +1,10 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { View, Text, Image, StyleSheet, TouchableOpacity, FlatList, ActivityIndicator } from 'react-native';
 import { IconOutline } from '@ant-design/icons-react-native';
 import { fetchNotifications } from '../../api/api';
 import { truncate } from '../../utils/truncate';
 import * as Location from 'expo-location';
+import { useFocusEffect } from '@react-navigation/native';
 
 interface HomeHeaderProps {
     avatar: string;
@@ -36,6 +37,12 @@ const HomeHeader: React.FC<HomeHeaderProps> = ({ avatar }) => {
 
         loadTotalNotifications();
     }, []);
+
+    useFocusEffect(
+        useCallback(() => {
+            loadNotifications(0);
+        }, [])
+    );
 
     useEffect(() => {
         loadNotifications(currentPage);

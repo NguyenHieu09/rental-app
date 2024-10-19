@@ -5,6 +5,8 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { IDepositTransaction, ITransaction } from '../types/transaction';
 import { IContractDetail } from '../types/contractDetail';
 import { IGenerateContractRequest } from '../types/rentalRequest';
+import { ICancelContractRequest, ICancelContractResponse } from '../types/cancelContract';
+
 
 const API_CONTRACT_URL = `${API_URL}/contract-service`;
 
@@ -417,5 +419,89 @@ export const fetchRentalRequestsForRenter = async (take: number, skip: number) =
     } catch (error) {
         console.error('Error fetching rental requests for renter:', error);
         throw error;
+    }
+};
+
+
+export const createCancelContractRequest = async (cancelRequest: ICancelContractRequest): Promise<void> => {
+    try {
+        const token = await AsyncStorage.getItem('accessToken');
+
+        if (!token) {
+            throw new Error('No token provided');
+        }
+
+        const response = await axios.post(`${API_CONTRACT_URL}/contract-cancellation-requests`, cancelRequest, {
+            headers: {
+                Authorization: `Bearer ${token}`,
+            },
+        });
+
+        if (response.status === 201) {
+            console.log('Cancel contract request successful:');
+        } else {
+            throw new Error('Failed to create cancel contract request');
+        }
+    } catch (error: any) {
+        if (error.response && error.response.data && error.response.data.message) {
+            console.error('Error message:', error.response.data.message);
+            throw new Error(error.response.data.message);
+        } else {
+            console.error('Error creating cancel contract request:', error);
+            throw error;
+        }
+    }
+};
+
+
+export const fetchNotHandledCancelContractRequest = async (contractId: string): Promise<ICancelContractResponse> => {
+    try {
+        const token = await AsyncStorage.getItem('accessToken');
+
+        if (!token) {
+            throw new Error('No token provided');
+        }
+
+        const response = await axios.get(`${API_CONTRACT_URL}/contract-cancellation-requests/not-handled/${contractId}`, {
+            headers: {
+                Authorization: `Bearer ${token}`,
+            },
+        });
+
+        return response.data;
+    } catch (error: any) {
+        if (error.response && error.response.data && error.response.data.message) {
+            console.error('Error message:', error.response.data.message);
+            throw new Error(error.response.data.message);
+        } else {
+            console.error('Error fetching cancel contract request:', error);
+            throw error;
+        }
+    }
+};
+
+export const fetchHandledCancelContractRequest = async (contractId: string): Promise<ICancelContractResponse> => {
+    try {
+        const token = await AsyncStorage.getItem('accessToken');
+
+        if (!token) {
+            throw new Error('No token provided');
+        }
+
+        const response = await axios.get(`${API_CONTRACT_URL}/contract-cancellation-requests/handled/${contractId}`, {
+            headers: {
+                Authorization: `Bearer ${token}`,
+            },
+        });
+
+        return response.data;
+    } catch (error: any) {
+        if (error.response && error.response.data && error.response.data.message) {
+            console.error('Error message:', error.response.data.message);
+            throw new Error(error.response.data.message);
+        } else {
+            console.error('Error fetching handled cancel contract request:', error);
+            throw error;
+        }
     }
 };

@@ -160,8 +160,6 @@ export const fetchPropertiesWithFilters = async (filters: IFilterProperty, take:
 };
 
 
-
-
 export const updateWalletAddress = async (userId: string, walletAddress: string) => {
     try {
         const token = await AsyncStorage.getItem('accessToken');
@@ -187,7 +185,6 @@ export const updateWalletAddress = async (userId: string, walletAddress: string)
         }
     }
 };
-
 
 export const fetchPropertyAttributes = async () => {
     try {
@@ -310,41 +307,6 @@ export const verifyUser = async (frontUri: string, backUri: string): Promise<IUs
 };
 
 
-// export const fetchNewestProperties = async (take: number, skip: number) => {
-//     try {
-//         const token = await AsyncStorage.getItem('accessToken');
-
-//         if (!token) {
-//             throw new Error('No token provided');
-//         }
-
-//         const response = await axios.get(`${API_BASE_URL}/properties/search`, {
-//             params: {
-//                 sort: 'newest',
-//                 take,
-//                 skip,
-//             },
-//             headers: {
-//                 Authorization: `Bearer ${token}`,
-//             },
-//         });
-//         // console.log('Newest properties response:', response.data);
-
-//         const properties = response.data.data;
-//         const total = response.data.pageInfo.total;
-
-//         return { properties, total };
-//     } catch (error: any) {
-//         if (error.response && error.response.data && error.response.data.message) {
-//             console.error('Error message:', error.response.data.message);
-//             throw new Error(error.response.data.message);
-//         } else {
-//             console.error('Error fetching newest properties:', error);
-//             throw error;
-//         }
-//     }
-// };
-
 export const fetchNewestProperties = async (take: number, skip: number, city?: string) => {
     try {
         const token = await AsyncStorage.getItem('accessToken');
@@ -380,6 +342,36 @@ export const fetchNewestProperties = async (take: number, skip: number, city?: s
             throw new Error(error.response.data.message);
         } else {
             console.error('Error fetching newest properties:', error);
+            throw error;
+        }
+    }
+};
+
+export const deleteProperty = async (propertyId: string) => {
+    try {
+        const token = await AsyncStorage.getItem('accessToken');
+
+        if (!token) {
+            throw new Error('No token provided');
+        }
+
+        const response = await axios.delete(`${API_BASE_URL}/properties/${propertyId}`, {
+            headers: {
+                Authorization: `Bearer ${token}`,
+            },
+        });
+
+        if (response.status === 200) {
+            return { success: true, message: 'Property deleted successfully' };
+        } else {
+            return { success: false, message: 'Failed to delete property' };
+        }
+    } catch (error: any) {
+        if (error.response && error.response.data && error.response.data.message) {
+            console.error('Error message:', error.response.data.message);
+            throw new Error(error.response.data.message);
+        } else {
+            console.error('Error deleting property:', error);
             throw error;
         }
     }

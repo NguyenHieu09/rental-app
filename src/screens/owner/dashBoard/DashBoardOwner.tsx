@@ -1,12 +1,12 @@
 
 
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import * as Location from 'expo-location';
 import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 import { useDispatch, useSelector } from 'react-redux';
 import { AppDispatch, RootState } from '../../../redux-toolkit/store';
 import { logoutUserAsync } from '../../../redux-toolkit/slices/userSlice';
-import { useNavigation, NavigationProp } from '@react-navigation/native';
+import { useNavigation, NavigationProp, useFocusEffect } from '@react-navigation/native';
 import { RootStackParamList } from '../../../types/navigation'; // Import the type
 import HomeHeader from '../../../components/homeHeader/HomeHeader'; // Import HomeHeader
 import { commonStyles } from '../../../styles/theme';
@@ -41,64 +41,60 @@ const DashboardOwner: React.FC = () => {
         }
     }, [user, loading, navigation]);
 
-    useEffect(() => {
-        const loadProperties = async () => {
-            setLoadingProperties(true);
-            setError(null);
+    const loadProperties = async () => {
+        setLoadingProperties(true);
+        setError(null);
 
-            const filters: IFilterProperty = {
-                // status: 'ACTIVE',
-            };
-
-            try {
-                const { properties, total } = await fetchPropertiesWithFilters(filters, 10, 0);
-                setProperties(properties);
-                setTotalProperties(total);
-                console.log('Total properties:', total);
-            } catch (err: any) {
-                setError(err.message);
-            } finally {
-                setLoadingProperties(false);
-            }
+        const filters: IFilterProperty = {
+            // status: 'ACTIVE',
         };
 
-        loadProperties();
-    }, []);
+        try {
+            const { properties, total } = await fetchPropertiesWithFilters(filters, 10, 0);
+            setProperties(properties);
+            setTotalProperties(total);
+            console.log('Total properties:', total);
+        } catch (err: any) {
+            setError(err.message);
+        } finally {
+            setLoadingProperties(false);
+        }
+    };
 
-    useEffect(() => {
-        const loadRentalRequests = async () => {
-            setLoadingRequests(true);
-            setError(null);
+    const loadRentalRequests = async () => {
+        setLoadingRequests(true);
+        setError(null);
 
-            try {
-                const response = await fetchRentalRequestsForOwner(10, 0);
-                const { data, pageInfo } = response;
-                setRentalRequests(data);
-                setTotalRequests(pageInfo.total);
-                console.log('Total rental requests:', pageInfo.total);
-            } catch (err: any) {
-                setError(err.message);
-            } finally {
-                setLoadingRequests(false);
-            }
-        };
+        try {
+            const response = await fetchRentalRequestsForOwner(10, 0);
+            const { data, pageInfo } = response;
+            setRentalRequests(data);
+            setTotalRequests(pageInfo.total);
+            console.log('Total rental requests:', pageInfo.total);
+        } catch (err: any) {
+            setError(err.message);
+        } finally {
+            setLoadingRequests(false);
+        }
+    };
 
-        loadRentalRequests();
-    }, []);
+    const fetchContracts = async () => {
+        try {
+            const { total } = await fetchContractsForOwner(10, 0); // Fetch total contracts
+            setTotalContracts(total); // Set total contracts
+        } catch (error) {
+            console.error('Error fetching contracts:', error);
+            setError('Có lỗi xảy ra khi tải dữ liệu hợp đồng.');
+        }
+    };
 
-    useEffect(() => {
-        const fetchContracts = async () => {
-            try {
-                const { total } = await fetchContractsForOwner(10, 0); // Fetch total contracts
-                setTotalContracts(total); // Set total contracts
-            } catch (error) {
-                console.error('Error fetching contracts:', error);
-                setError('Có lỗi xảy ra khi tải dữ liệu hợp đồng.');
-            }
-        };
-
-        fetchContracts();
-    }, []);
+    useFocusEffect(
+        useCallback(() => {
+            loadProperties();
+            loadRentalRequests();
+            fetchContracts();
+        }, [])
+    );
 
     const handleViewProperties = () => {
         navigation.navigate('ManageProperty', { properties });
@@ -110,6 +106,10 @@ const DashboardOwner: React.FC = () => {
 
     const handleViewContracts = () => {
         navigation.navigate('ManageContract');
+    };
+
+    const handleViewCancelContracts = () => {
+        navigation.navigate('ManageCancelContract');
     };
 
     const avatar = user?.avatar || 'https://res.cloudinary.com/dxvrdtaky/image/upload/v1727451808/avatar_iirzeq.jpg'; // Replace with actual avatar URL
@@ -141,9 +141,9 @@ const DashboardOwner: React.FC = () => {
                         <Text style={styles.cardText}>{totalRequests}</Text>
                         <Text style={styles.cardLabel}>Yêu Cầu thuê nhà</Text>
                     </TouchableOpacity>
-                    <TouchableOpacity style={styles.card}>
+                    <TouchableOpacity style={styles.card} >
                         <Text style={styles.cardText}>31</Text>
-                        <Text style={styles.cardLabel}>Kiểm Tra Nhà</Text>
+                        <Text style={styles.cardLabel}>Hủy hợp đồng</Text>
                     </TouchableOpacity>
                     <W3mButton />
                 </View>

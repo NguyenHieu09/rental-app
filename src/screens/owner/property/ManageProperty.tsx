@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { View, StyleSheet, FlatList, Text, ActivityIndicator, Alert } from 'react-native';
 import PropertyItem from '../../../components/properties/PropertyItem';
-import { fetchPropertiesWithFilters } from '../../../api/api';
+import { deleteProperty, fetchPropertiesWithFilters } from '../../../api/api';
 import { IProperty, IFilterProperty } from '../../../types/property';
 import { commonStyles } from '../../../styles/theme';
 
@@ -66,11 +66,27 @@ const ManageProperty: React.FC = () => {
         }
     };
 
-    const handleDelete = (id: string) => {
+    const handleDelete = async (id: string) => {
         console.log(`Delete property with id: ${id}`);
-        // Add your delete logic here
-        setProperties((prevProperties) => prevProperties.filter((property) => property.propertyId !== id));
+        try {
+            const response = await deleteProperty(id);
+            if (response.success) {
+                Alert.alert('Thành công', 'Xóa bất động sản thành công.');
+                setProperties((prevProperties) => prevProperties.filter((property) => property.propertyId !== id));
+            } else {
+                Alert.alert('Lỗi', response.message);
+            }
+        } catch (error: any) {
+            console.error('Error deleting property:', error);
+            Alert.alert('Error', 'Có lỗi xảy ra khi xóa bất động sản.');
+        }
     };
+
+    // const handleDelete = (id: string) => {
+    //     console.log(`Delete property with id: ${id}`);
+    //     // Add your delete logic here
+    //     setProperties((prevProperties) => prevProperties.filter((property) => property.propertyId !== id));
+    // };
 
     if (loading && currentPage === 0) {
         return (

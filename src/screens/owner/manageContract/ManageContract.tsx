@@ -238,13 +238,14 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import { View, Text, StyleSheet, Image, FlatList, TouchableOpacity, ActivityIndicator, Alert } from 'react-native';
 import { commonStyles } from '../../../styles/theme';
-import { fetchContractsForOwner, fetchRentalContractsForRenter } from '../../../api/contract';
+import { createCancelContractRequest, fetchContractsForOwner, fetchRentalContractsForRenter } from '../../../api/contract';
 import { RootState } from '../../../redux-toolkit/store';
 import { useSelector } from 'react-redux';
 import { NavigationProp, useFocusEffect, useNavigation } from '@react-navigation/native';
 import { RootStackParamList } from '../../../types/navigation';
 import { format } from 'date-fns';
 import { IContract, ContractStatus } from '../../../types/contract';
+import CancelContractModal from '../../../components/modal/CancelContractModal';
 
 const getStatusInVietnamese = (status: ContractStatus): string => {
     switch (status) {
@@ -279,6 +280,8 @@ const ManageContract = () => {
     const [totalContracts, setTotalContracts] = useState(0);
     const [loading, setLoading] = useState(true);
     const [isLoadingMore, setIsLoadingMore] = useState(false);
+    const [modalVisible, setModalVisible] = useState(false);
+    const [selectedContract, setSelectedContract] = useState<IContract | null>(null);
     const ITEMS_PER_PAGE = 10;
     let debounceTimeout: NodeJS.Timeout | null = null;
 
@@ -373,17 +376,30 @@ const ManageContract = () => {
         }
     };
 
-    // const loadMoreContracts = () => {
-    //     console.log('Attempting to load more contracts...');
-    //     if (!isLoadingMore && contracts.length < totalContracts) {
-    //         console.log('Loading more contracts...');
-    //         const nextPage = currentPage + 1;
-    //         setCurrentPage(nextPage);
-    //         loadContracts(nextPage);
-    //     } else {
-    //         console.log('No more contracts to load or already loading.');
-    //     }
-    // };
+    const handleCancelContract = (contract: IContract) => {
+        setSelectedContract(contract);
+        setModalVisible(true);
+    };
+
+    const confirmCancelContract = async (cancelDate: Date, reason: string) => {
+        if (selectedContract) {
+            try {
+                await createCancelContractRequest({
+                    contractId: selectedContract.contractId,
+                    cancelDate: format(cancelDate, 'yyyy-MM-dd'),
+                    reason,
+                });
+                Alert.alert('Thành công', 'Đã gửi yêu cầu hủy hợp đồng thành công');
+                setContracts((prevContracts) => prevContracts.filter((contract) => contract.contractId !== selectedContract.contractId));
+            } catch (error) {
+                Alert.alert('Lỗi', 'Có lỗi xảy ra khi gửi yêu cầu hủy hợp đồng');
+            } finally {
+                setModalVisible(false);
+                setSelectedContract(null);
+            }
+        }
+    };
+
 
     const renderContract = ({ item }: { item: IContract }) => (
         // <View key={item.contractId} style={styles.contractCard}>
@@ -414,8 +430,9 @@ const ManageContract = () => {
         //         </View>
         //     </View>
         // </View>
-        <TouchableOpacity onPress={() => navigation.navigate('ContractDetails', { contractId: item.contractId })}>
-            <View key={item.contractId} style={styles.contractCard}>
+        <View key={item.contractId} style={styles.contractCard}>
+            <TouchableOpacity onPress={() => navigation.navigate('ContractDetails', { contractId: item.contractId })}>
+
                 <View style={styles.containerContract}>
                     <View>
                         {/* <Image source={{ uri: item.property.images[0] }} style={styles.image} /> */}
@@ -436,14 +453,19 @@ const ManageContract = () => {
                             Đến: {format(new Date(item.endDate), 'dd/MM/yyyy')}
                         </Text>
                         <Text style={styles.status}>Trạng thái: {getStatusInVietnamese(item.status)}</Text>
+
+
+
                     </View>
+
                 </View>
-                <View>
-                    <View style={styles.buttonContainer}>
-                    </View>
-                </View>
-            </View>
-        </TouchableOpacity>
+            </TouchableOpacity >
+            <TouchableOpacity style={[commonStyles.button, { paddingVertical: 10, marginTop: 10 }]} onPress={() => handleCancelContract(item)}>
+                <Text style={commonStyles.buttonText}>Hủy hợp đồng</Text>
+            </TouchableOpacity>
+
+        </View>
+
     );
 
     if (loading && currentPage === 0) {
@@ -469,6 +491,19 @@ const ManageContract = () => {
                     </View>
                 ) : null}
             />
+
+            {selectedContract && (
+                <CancelContractModal
+                    visible={modalVisible}
+                    onClose={() => setModalVisible(false)}
+                    onConfirm={confirmCancelContract}
+                    contractId={selectedContract.contractId}
+                    startDate={selectedContract.startDate}
+                    endDate={selectedContract.endDate}
+                    price={selectedContract.monthlyRent}
+                    deposit={selectedContract.depositAmount}
+                />
+            )}
         </View>
     );
 };
@@ -519,8 +554,8 @@ const styles = StyleSheet.create({
         color: 'gray',
     },
     buttonContainer: {
-        flexDirection: 'row',
-        justifyContent: 'space-between',
+        // flexDirection: 'row',
+        // justifyContent: 'space-between',
         marginTop: 10,
     },
     loadingContainer: {
