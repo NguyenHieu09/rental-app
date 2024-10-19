@@ -401,72 +401,93 @@ const ManageContract = () => {
     };
 
 
-    const renderContract = ({ item }: { item: IContract }) => (
-        // <View key={item.contractId} style={styles.contractCard}>
-        //     <View style={styles.containerContract}>
-        //         <View>
-        //             {/* <Image source={{ uri: item.property.images[0] }} style={styles.image} /> */}
-        //         </View>
-        //         <View style={styles.details}>
-        //             <Text style={styles.propertyTitle}>{item.property.title}</Text>
-        //             <Text style={styles.price}>Giá thuê: {item.monthlyRent.toLocaleString()} đ</Text>
-        //             <Text style={styles.deposit}>Tiền cọc: {item.depositAmount.toLocaleString()} đ</Text>
-        //             {user && user.userTypes.includes('owner') ? (
-        //                 <Text>Người thuê: {item.renter.name}</Text>
-        //             ) : (
-        //                 <Text>Chủ nhà: {item.owner.name}</Text>
-        //             )}
-        //             <Text style={styles.dates}>
-        //                 Từ: {format(new Date(item.startDate), 'dd/MM/yyyy')}
-        //             </Text>
-        //             <Text style={styles.dates}>
-        //                 Đến: {format(new Date(item.endDate), 'dd/MM/yyyy')}
-        //             </Text>
-        //             <Text style={styles.status}>Trạng thái: {getStatusInVietnamese(item.status)}</Text>
-        //         </View>
-        //     </View>
-        //     <View>
-        //         <View style={styles.buttonContainer}>
-        //         </View>
-        //     </View>
-        // </View>
-        <View key={item.contractId} style={styles.contractCard}>
-            <TouchableOpacity onPress={() => navigation.navigate('ContractDetails', { contractId: item.contractId })}>
+    // const renderContract = ({ item }: { item: IContract }) => (
+    //     <View key={item.contractId} style={styles.contractCard}>
+    //         <TouchableOpacity onPress={() => navigation.navigate('ContractDetails', { contractId: item.contractId })}>
 
-                <View style={styles.containerContract}>
-                    <View>
-                        {/* <Image source={{ uri: item.property.images[0] }} style={styles.image} /> */}
+    //             <View style={styles.containerContract}>
+    //                 <View>
+    //                     {/* <Image source={{ uri: item.property.images[0] }} style={styles.image} /> */}
+    //                 </View>
+    //                 <View style={styles.details}>
+    //                     <Text style={styles.propertyTitle}>{item.property.title}</Text>
+    //                     <Text style={styles.price}>Giá thuê: {item.monthlyRent.toLocaleString()} đ</Text>
+    //                     <Text style={styles.deposit}>Tiền cọc: {item.depositAmount.toLocaleString()} đ</Text>
+    //                     {user && user.userTypes.includes('owner') ? (
+    //                         <Text>Người thuê: {item.renter.name}</Text>
+    //                     ) : (
+    //                         <Text>Chủ nhà: {item.owner.name}</Text>
+    //                     )}
+    //                     <Text style={styles.dates}>
+    //                         Từ: {format(new Date(item.startDate), 'dd/MM/yyyy')}
+    //                     </Text>
+    //                     <Text style={styles.dates}>
+    //                         Đến: {format(new Date(item.endDate), 'dd/MM/yyyy')}
+    //                     </Text>
+    //                     <Text style={styles.status}>Trạng thái: {getStatusInVietnamese(item.status)}</Text>
+
+
+
+    //                 </View>
+
+    //             </View>
+    //         </TouchableOpacity >
+    //         {(item.status === 'WAITING' || item.status === 'DEPOSITED' || item.status === 'ONGOING') && (
+    //             <TouchableOpacity style={[commonStyles.button, { paddingVertical: 10, marginTop: 10 }]} onPress={() => handleCancelContract(item)}>
+    //                 <Text style={commonStyles.buttonText}>Hủy hợp đồng</Text>
+    //             </TouchableOpacity>
+    //         )}
+
+    //     </View>
+
+    // );
+
+    const renderContract = ({ item }: { item: IContract }) => {
+        const isCancellable = item.status === 'WAITING' || item.status === 'DEPOSITED' || item.status === 'ONGOING';
+
+        return (
+            <View key={item.contractId} style={styles.contractCard}>
+                <TouchableOpacity onPress={() => navigation.navigate('ContractDetails', { contractId: item.contractId })}>
+                    <View style={styles.containerContract}>
+                        <View>
+                            {/* <Image source={{ uri: item.property.images[0] }} style={styles.image} /> */}
+                        </View>
+                        <View style={styles.details}>
+                            <Text style={styles.propertyTitle}>{item.property.title}</Text>
+                            <Text style={styles.price}>Giá thuê: {item.monthlyRent.toLocaleString()} đ</Text>
+                            <Text style={styles.deposit}>Tiền cọc: {item.depositAmount.toLocaleString()} đ</Text>
+                            {user && user.userTypes.includes('owner') ? (
+                                <Text>Người thuê: {item.renter.name}</Text>
+                            ) : (
+                                <Text>Chủ nhà: {item.owner.name}</Text>
+                            )}
+                            <Text style={styles.dates}>
+                                Từ: {format(new Date(item.startDate), 'dd/MM/yyyy')}
+                            </Text>
+                            <Text style={styles.dates}>
+                                Đến: {format(new Date(item.endDate), 'dd/MM/yyyy')}
+                            </Text>
+                            <Text style={styles.status}>Trạng thái: {getStatusInVietnamese(item.status)}</Text>
+                        </View>
                     </View>
-                    <View style={styles.details}>
-                        <Text style={styles.propertyTitle}>{item.property.title}</Text>
-                        <Text style={styles.price}>Giá thuê: {item.monthlyRent.toLocaleString()} đ</Text>
-                        <Text style={styles.deposit}>Tiền cọc: {item.depositAmount.toLocaleString()} đ</Text>
-                        {user && user.userTypes.includes('owner') ? (
-                            <Text>Người thuê: {item.renter.name}</Text>
-                        ) : (
-                            <Text>Chủ nhà: {item.owner.name}</Text>
-                        )}
-                        <Text style={styles.dates}>
-                            Từ: {format(new Date(item.startDate), 'dd/MM/yyyy')}
-                        </Text>
-                        <Text style={styles.dates}>
-                            Đến: {format(new Date(item.endDate), 'dd/MM/yyyy')}
-                        </Text>
-                        <Text style={styles.status}>Trạng thái: {getStatusInVietnamese(item.status)}</Text>
+                </TouchableOpacity>
 
-
-
-                    </View>
-
-                </View>
-            </TouchableOpacity >
-            <TouchableOpacity style={[commonStyles.button, { paddingVertical: 10, marginTop: 10 }]} onPress={() => handleCancelContract(item)}>
-                <Text style={commonStyles.buttonText}>Hủy hợp đồng</Text>
-            </TouchableOpacity>
-
-        </View>
-
-    );
+                <TouchableOpacity
+                    style={[
+                        commonStyles.button,
+                        { paddingVertical: 10, marginTop: 10 },
+                        !isCancellable && styles.disabledButton, // Thêm kiểu cho nút bị vô hiệu hóa
+                    ]}
+                    onPress={() => isCancellable && handleCancelContract(item)} // Chỉ xử lý hủy khi nút không bị vô hiệu
+                    disabled={!isCancellable} // Vô hiệu hóa nút khi không thể hủy
+                >
+                    <Text style={[commonStyles.buttonText]}>
+                        Hủy hợp đồng
+                    </Text>
+                </TouchableOpacity>
+            </View>
+        );
+    };
 
     if (loading && currentPage === 0) {
         return (
@@ -568,6 +589,10 @@ const styles = StyleSheet.create({
         color: 'gray',
         fontSize: 16,
     },
+    disabledButton: {
+        backgroundColor: '#B0BEC5',
+    },
+
 });
 
 export default ManageContract;

@@ -464,35 +464,7 @@ const ManageRequestRental = () => {
                         </>
                     )}
                 </View>
-                {/* <View style={styles.buttonContainer}>
-                    <Text style={styles.status}>{getStatusInVietnamese(item.status)}</Text>
-                    {item.status === 'PENDING' ? (
-                        <>
-                            {user?.userTypes.includes('renter') ? (
-                                <TouchableOpacity style={styles.button} onPress={() => handleCancelPress(item)}>
-                                    <Text style={styles.buttonText}>Hủy</Text>
-                                </TouchableOpacity>
-                            ) : (
-                                <TouchableOpacity style={[styles.button, styles.disabledButton]} disabled>
-                                    <Text style={styles.buttonText}>Hủy</Text>
-                                </TouchableOpacity>
-                            )}
-                        </>
-                    ) : (
-                        <>
-                            <TouchableOpacity style={[styles.button, styles.disabledButton]} disabled>
-                                <Text style={styles.buttonText}>Từ chối</Text>
-                            </TouchableOpacity>
-                            <TouchableOpacity style={[styles.button, styles.disabledButton]} disabled>
-                                <Text style={styles.buttonText}>Chấp nhận</Text>
-                            </TouchableOpacity>
 
-                            <TouchableOpacity style={[styles.button, styles.disabledButton]} disabled>
-                                <Text style={styles.buttonText}>Hủy</Text>
-                            </TouchableOpacity>
-                        </>
-                    )}
-                </View> */}
             </View>
         </View>
     );

@@ -494,6 +494,8 @@ export const fetchHandledCancelContractRequest = async (contractId: string): Pro
             },
         });
 
+        // console.log(response.data);
+
         return response.data;
     } catch (error: any) {
         if (error.response && error.response.data && error.response.data.message) {
@@ -501,6 +503,36 @@ export const fetchHandledCancelContractRequest = async (contractId: string): Pro
             throw new Error(error.response.data.message);
         } else {
             console.error('Error fetching handled cancel contract request:', error);
+            throw error;
+        }
+    }
+};
+
+export const updateCancelContractRequestStatus = async (requestId: number, status: string): Promise<void> => {
+    try {
+        const token = await AsyncStorage.getItem('accessToken');
+
+        if (!token) {
+            throw new Error('No token provided');
+        }
+
+        const response = await axios.patch(`${API_CONTRACT_URL}/contract-cancellation-requests/${requestId}`, { status }, {
+            headers: {
+                Authorization: `Bearer ${token}`,
+            },
+        });
+
+        if (response.status === 200) {
+            console.log('Cancel contract request status updated successfully');
+        } else {
+            throw new Error('Failed to update cancel contract request status');
+        }
+    } catch (error: any) {
+        if (error.response && error.response.data && error.response.data.message) {
+            console.error('Error message:', error.response.data.message);
+            throw new Error(error.response.data.message);
+        } else {
+            console.error('Error updating cancel contract request status:', error);
             throw error;
         }
     }
