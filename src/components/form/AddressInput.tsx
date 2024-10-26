@@ -12,6 +12,7 @@ interface AddressSelectorProps {
     setSelectedWard: (value: string | undefined, name: string | undefined) => void;
     street: string;
     setStreet: (value: string) => void;
+    showStreetInput?: boolean;
 }
 
 const AddressInput: React.FC<AddressSelectorProps> = ({
@@ -23,6 +24,7 @@ const AddressInput: React.FC<AddressSelectorProps> = ({
     setSelectedWard,
     street,
     setStreet,
+    showStreetInput = true, // Default to true if not provided
 }) => {
     const [cities, setCities] = useState<City[]>([]);
     const [districts, setDistricts] = useState<District[]>([]);
@@ -100,68 +102,78 @@ const AddressInput: React.FC<AddressSelectorProps> = ({
             {loadingCities ? (
                 <ActivityIndicator />
             ) : (
-                <Picker
-                    selectedValue={selectedCity}
-                    onValueChange={(value) => {
-                        const selectedCityData = cities.find(city => city._id === value);
-                        setSelectedCity(value, selectedCityData ? selectedCityData.name : undefined);
-                    }}
-                    style={styles.picker}
-                >
-                    <Picker.Item label="Chọn tỉnh/thành phố" value={undefined} />
-                    {cities.map((city) => (
-                        <Picker.Item key={city._id} label={city.name} value={city._id} />
-                    ))}
-                </Picker>
+                <View style={styles.pickerContainer}>
+                    <Picker
+                        selectedValue={selectedCity}
+                        onValueChange={(value) => {
+                            const selectedCityData = cities.find(city => city._id === value);
+                            setSelectedCity(value, selectedCityData ? selectedCityData.name : undefined);
+                        }}
+                        style={styles.picker}
+                    >
+                        <Picker.Item label="Chọn tỉnh/thành phố" value={undefined} />
+                        {cities.map((city) => (
+                            <Picker.Item key={city._id} label={city.name} value={city._id} />
+                        ))}
+                    </Picker>
+                </View>
             )}
 
             <Text style={styles.label}>Quận/huyện:</Text>
             {loadingDistricts ? (
                 <ActivityIndicator />
             ) : (
-                <Picker
-                    selectedValue={selectedDistrict}
-                    onValueChange={(value) => {
-                        const selectedDistrictData = districts.find(district => district._id === value);
-                        setSelectedDistrict(value, selectedDistrictData ? selectedDistrictData.name : undefined);
-                    }}
-                    enabled={!!selectedCity}
-                    style={styles.picker}
-                >
-                    <Picker.Item label="Chọn quận/huyện" value={undefined} />
-                    {districts.map((district) => (
-                        <Picker.Item key={district._id} label={district.name} value={district._id} />
-                    ))}
-                </Picker>
+                <View style={styles.pickerContainer}>
+                    <Picker
+                        selectedValue={selectedDistrict}
+                        onValueChange={(value) => {
+                            const selectedDistrictData = districts.find(district => district._id === value);
+                            setSelectedDistrict(value, selectedDistrictData ? selectedDistrictData.name : undefined);
+                        }}
+                        enabled={!!selectedCity}
+                        style={styles.picker}
+                    >
+                        <Picker.Item label="Chọn quận/huyện" value={undefined} />
+                        {districts.map((district) => (
+                            <Picker.Item key={district._id} label={district.name} value={district._id} />
+                        ))}
+                    </Picker>
+                </View>
             )}
 
             <Text style={styles.label}>Phường/xã:</Text>
             {loadingWards ? (
                 <ActivityIndicator />
             ) : (
-                <Picker
-                    selectedValue={selectedWard}
-                    onValueChange={(value) => {
-                        const selectedWardData = wards.find(ward => ward._id === value);
-                        setSelectedWard(value, selectedWardData ? selectedWardData.name : undefined);
-                    }}
-                    enabled={!!selectedDistrict}
-                    style={styles.picker}
-                >
-                    <Picker.Item label="Chọn phường/xã" value={undefined} />
-                    {wards.map((ward) => (
-                        <Picker.Item key={ward._id} label={ward.name} value={ward._id} />
-                    ))}
-                </Picker>
+                <View style={styles.pickerContainer}>
+                    <Picker
+                        selectedValue={selectedWard}
+                        onValueChange={(value) => {
+                            const selectedWardData = wards.find(ward => ward._id === value);
+                            setSelectedWard(value, selectedWardData ? selectedWardData.name : undefined);
+                        }}
+                        enabled={!!selectedDistrict}
+                        style={styles.picker}
+                    >
+                        <Picker.Item label="Chọn phường/xã" value={undefined} />
+                        {wards.map((ward) => (
+                            <Picker.Item key={ward._id} label={ward.name} value={ward._id} />
+                        ))}
+                    </Picker>
+                </View>
             )}
 
-            <Text style={styles.label}>Địa chỉ:</Text>
-            <TextInput
-                style={styles.input}
-                placeholder="Vui lòng nhập địa chỉ"
-                value={street}
-                onChangeText={setStreet}
-            />
+            {showStreetInput && (
+                <>
+                    <Text style={styles.label}>Địa chỉ:</Text>
+                    <TextInput
+                        style={styles.input}
+                        placeholder="Vui lòng nhập địa chỉ"
+                        value={street}
+                        onChangeText={setStreet}
+                    />
+                </>
+            )}
         </View>
     );
 };
@@ -175,12 +187,14 @@ const styles = StyleSheet.create({
         marginBottom: 5,
         fontWeight: 'bold',
     },
-    picker: {
-        height: 50,
-        marginBottom: 15,
+    pickerContainer: {
         borderWidth: 1,
         borderColor: '#ccc',
         borderRadius: 5,
+        marginBottom: 15,
+    },
+    picker: {
+        height: 50,
     },
     input: {
         borderWidth: 1,

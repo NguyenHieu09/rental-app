@@ -14,7 +14,7 @@ const ExploreScreen: React.FC = () => {
         { id: '1', title: 'Item 1', description: 'This is item 1 description.' },
         { id: '2', title: 'Item 2', description: 'This is item 2 description.' },
         { id: '3', title: 'Item 3', description: 'This is item 3 description.' },
-        { id: '4', title: 'Item 4', description: 'This is item 4 description.' },
+        { id: '4', title: ' 4', description: 'This is item 4 description.' },
     ]);
 
     const filteredItems = exploreItems.filter((item) =>
@@ -29,13 +29,14 @@ const ExploreScreen: React.FC = () => {
     );
 
     return (
-        <View style={styles.container}>
+        <View style={[styles.container]}>
             <TextInput
                 style={styles.searchInput}
                 placeholder="Search..."
                 value={searchText}
                 onChangeText={(text) => setSearchText(text)}
             />
+
             {filteredItems.length > 0 ? (
                 <FlatList
                     data={filteredItems}
@@ -53,6 +54,7 @@ const styles = StyleSheet.create({
     container: {
         flex: 1,
         padding: 10,
+        marginTop: 200,
         backgroundColor: '#fff',
     },
     searchInput: {

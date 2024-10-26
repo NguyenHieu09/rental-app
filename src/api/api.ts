@@ -306,8 +306,7 @@ export const verifyUser = async (frontUri: string, backUri: string): Promise<IUs
     return await response.json();
 };
 
-
-export const fetchNewestProperties = async (take: number, skip: number, city?: string) => {
+export const fetchNewestProperties = async (take: number, skip: number, district?: string, city?: string) => {
     try {
         const token = await AsyncStorage.getItem('accessToken');
 
@@ -321,7 +320,8 @@ export const fetchNewestProperties = async (take: number, skip: number, city?: s
             skip,
         };
 
-        if (city) {
+        if (city && district) {
+            params.district = district;
             params.city = city;
         }
 

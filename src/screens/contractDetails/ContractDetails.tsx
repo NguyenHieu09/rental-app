@@ -8,6 +8,7 @@ import { commonStyles } from '../../styles/theme';
 import { ICancelContractResponse } from '../../types/cancelContract';
 import { useSelector } from 'react-redux';
 import { RootState } from '../../redux-toolkit/store';
+import { FlatList } from 'react-native-gesture-handler';
 
 type ContractDetailsRouteProp = RouteProp<{ params: { contractId: string } }, 'params'>;
 
@@ -213,32 +214,67 @@ const HandledCancelRequestTab: React.FC<{ cancelRequest: ICancelContractResponse
         console.log("Cancel request:", cancelRequest);
     }, [cancelRequest]);
 
-    const request = cancelRequest ? cancelRequest[0] : null;
+    const renderCancelRequest = ({ item }: { item: ICancelContractResponse }) => (
+        <View style={styles.cancelRequestContainer}>
+            <Text style={styles.label}>Người yêu cầu:</Text>
+            <Text style={styles.value}>{item.userRequest?.name}</Text>
+            <Text style={styles.label}>Ngày gửi yêu cầu:</Text>
+            <Text style={styles.value}>{new Date(item.requestedAt).toLocaleDateString()}</Text>
+            <Text style={styles.label}>Ngày hủy:</Text>
+            <Text style={styles.value}>{new Date(item.cancelDate).toLocaleDateString()}</Text>
+            <Text style={styles.label}>Lý do:</Text>
+            <Text style={styles.value}>{item.reason}</Text>
+            <Text style={styles.label}>Trạng thái:</Text>
+            <Text style={styles.status}>{getCancellationStatusInVietnamese(item.status)}</Text>
+        </View>
+    );
 
     return (
         <View style={styles.container}>
-            {request ? (
-                <>
-                    <View style={styles.cancelRequestContainer}>
-                        <Text style={styles.label}>Người yêu cầu:</Text>
-                        <Text style={styles.value}>{request.userRequest?.name}</Text>
-                        <Text style={styles.label}>Ngày gửi yêu cầu:</Text>
-                        <Text style={styles.value}>{new Date(request.requestedAt).toLocaleDateString()}</Text>
-                        <Text style={styles.label}>Ngày hủy:</Text>
-                        <Text style={styles.value}>{new Date(request.cancelDate).toLocaleDateString()}</Text>
-                        <Text style={styles.label}>Lý do:</Text>
-                        <Text style={styles.value}>{request.reason}</Text>
-                        <Text style={styles.label}>Trạng thái:</Text>
-                        <Text style={styles.status}>{getCancellationStatusInVietnamese(request.status)}</Text>
-                    </View>
-
-                </>
+            {cancelRequest && cancelRequest.length > 0 ? (
+                <FlatList
+                    data={cancelRequest}
+                    renderItem={renderCancelRequest}
+                    keyExtractor={(item) => item.id.toString()}
+                />
             ) : (
                 <Text>Không có yêu cầu hủy hợp đồng đã xử lý</Text>
             )}
         </View>
     );
 };
+
+// const HandledCancelRequestTab: React.FC<{ cancelRequest: ICancelContractResponse[] | null }> = ({ cancelRequest }) => {
+//     useEffect(() => {
+//         console.log("Cancel request:", cancelRequest);
+//     }, [cancelRequest]);
+
+//     const request = cancelRequest ? cancelRequest[0] : null;
+
+//     return (
+//         <View style={styles.container}>
+//             {request ? (
+//                 <>
+//                     <View style={styles.cancelRequestContainer}>
+//                         <Text style={styles.label}>Người yêu cầu:</Text>
+//                         <Text style={styles.value}>{request.userRequest?.name}</Text>
+//                         <Text style={styles.label}>Ngày gửi yêu cầu:</Text>
+//                         <Text style={styles.value}>{new Date(request.requestedAt).toLocaleDateString()}</Text>
+//                         <Text style={styles.label}>Ngày hủy:</Text>
+//                         <Text style={styles.value}>{new Date(request.cancelDate).toLocaleDateString()}</Text>
+//                         <Text style={styles.label}>Lý do:</Text>
+//                         <Text style={styles.value}>{request.reason}</Text>
+//                         <Text style={styles.label}>Trạng thái:</Text>
+//                         <Text style={styles.status}>{getCancellationStatusInVietnamese(request.status)}</Text>
+//                     </View>
+
+//                 </>
+//             ) : (
+//                 <Text>Không có yêu cầu hủy hợp đồng đã xử lý</Text>
+//             )}
+//         </View>
+//     );
+// };
 
 const styles = StyleSheet.create({
     container: {
@@ -270,7 +306,8 @@ const styles = StyleSheet.create({
         borderRadius: 8,
         borderColor: '#ccc',
         borderWidth: 1,
-        padding: 10
+        padding: 10,
+        marginBottom: 20,
     },
     cancelRequestTitle: {
         fontSize: 18,
