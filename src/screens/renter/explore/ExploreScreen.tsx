@@ -650,7 +650,7 @@ const ExploreScreen: React.FC = () => {
     ));
 
     return (
-        <View style={[commonStyles.container, { paddingTop: 30 }]}>
+        <View style={[commonStyles.container, { paddingTop: 70 }]}>
             <View style={styles.findContainer}>
                 <View style={styles.searchContainer}>
                     <TextInput
@@ -704,9 +704,21 @@ const styles = StyleSheet.create({
         backgroundColor: '#fff',
     },
     findContainer: {
+        position: 'absolute',
+        top: 0,
+        left: 0,
+        right: 0,
         flexDirection: 'row',
         justifyContent: 'space-between',
+        paddingTop: 20,
+        paddingHorizontal: 10,
+        backgroundColor: '#fff',
+        zIndex: 1,
     },
+    // findContainer: {
+    //     flexDirection: 'row',
+    //     justifyContent: 'space-between',
+    // },
     searchContainer: {
         flexDirection: 'row',
         alignItems: 'center',
