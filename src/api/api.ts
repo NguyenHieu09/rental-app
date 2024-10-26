@@ -102,30 +102,6 @@ export const fetchNotifications = async (take: number, skip: number) => {
     }
 };
 
-// export const fetchRentalRequestsForOwner = async (take: number, skip: number) => {
-//     try {
-//         const token = await AsyncStorage.getItem('accessToken');
-//         if (!token) {
-//             throw new Error('No token found');
-//         }
-//         const response = await axios.get(`${API_BASE_URL}/rental-requests/owner`, {
-//             params: {
-//                 take,
-//                 skip,
-//             },
-//             headers: {
-//                 Authorization: `Bearer ${token}`,
-//             },
-//         });
-//         // console.log('Rental requests response:', response.data);
-//         return response.data;
-//     } catch (error) {
-//         console.error('Error fetching rental requests:', error);
-//         throw error;
-//     }
-// };
-
-
 
 export const fetchPropertiesWithFilters = async (filters: IFilterProperty, take: number, skip: number) => {
     try {
@@ -376,3 +352,42 @@ export const deleteProperty = async (propertyId: string) => {
         }
     }
 };
+
+const cleanFilters = (filters: any) => {
+    return Object.fromEntries(
+        Object.entries(filters).filter(([_, v]) => v !== undefined && v !== '')
+    );
+};
+
+export const fetchFilteredProperties = async (take: number, skip: number, filters: any) => {
+    try {
+        const token = await AsyncStorage.getItem('accessToken');
+
+        if (!token) {
+            throw new Error('No token provided');
+        }
+
+        const cleanedFilters = cleanFilters(filters);
+        console.log('Cleaned filters:', cleanedFilters);
+
+
+        const response = await axios.get(`${API_BASE_URL}/properties/search`, {
+            params: { ...cleanedFilters, sort: 'newest', take, skip },
+            headers: {
+                Authorization: `Bearer ${token}`,
+            },
+        });
+
+        return response.data;
+    } catch (error: any) {
+        if (error.response && error.response.data && error.response.data.message) {
+            console.error('Error message:', error.response.data.message);
+            throw new Error(error.response.data.message);
+        } else {
+            console.error('Error fetching filtered properties:', error);
+            throw error;
+        }
+    }
+};
+
+// Other existing functions...
