@@ -24,6 +24,7 @@ import PaymentScreen from '../screens/renter/payment/PaymentScreen';
 import ContractDetails from '../screens/contractDetails/ContractDetails';
 import AuthenticationScreen from '../screens/authentication/AuthenticationScreen';
 import ManageCancelContract from '../screens/cancelContract/ManageCancelContract';
+import ChatDetail from '../components/chat/ChatDetail';
 // import PropertyDetail from '../screens/renter/PropertyScreen/PropertyDetail';
 
 const Stack = createStackNavigator();
@@ -138,6 +139,9 @@ const Navigation: React.FC = () => {
                 />
                 <Stack.Screen name="ManageCancelContract" component={ManageCancelContract}
                     options={{ title: 'Yêu cầu hủy hợp đồng' }}
+                />
+                <Stack.Screen name="ChatDetail" component={ChatDetail}
+                    options={{ title: '' }}
                 />
 
 

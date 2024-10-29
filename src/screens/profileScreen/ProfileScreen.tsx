@@ -8,6 +8,7 @@ import { IconOutline } from '@ant-design/icons-react-native';
 import { logoutUserAsync } from '../../redux-toolkit/slices/userSlice';
 import { NavigationProp, useNavigation } from '@react-navigation/native';
 import { RootStackParamList } from '../../types/navigation';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 const options = [
     { id: '1', title: 'Ví', icon: 'wallet' },
@@ -69,7 +70,7 @@ const ProfileScreen = () => {
     }
 
     return (
-        <View style={commonStyles.container}>
+        <SafeAreaView style={commonStyles.container}>
             <View style={commonStyles.header}>
                 <Image source={{ uri: user?.avatar || 'https://res.cloudinary.com/dxvrdtaky/image/upload/v1727451808/avatar_iirzeq.jpg' }} style={styles.avatar} />
                 <Text style={styles.name}>{user?.name || 'Guest'}</Text>
@@ -84,7 +85,7 @@ const ProfileScreen = () => {
             <TouchableOpacity style={[commonStyles.button, styles.button]} onPress={handleLogout}>
                 <Text style={commonStyles.buttonText}>Đăng xuất</Text>
             </TouchableOpacity>
-        </View>
+        </SafeAreaView>
     );
 };
 

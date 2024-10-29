@@ -1,3 +1,5 @@
+
+
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { View, Text, FlatList, TextInput, StyleSheet, TouchableOpacity, ActivityIndicator, Image } from 'react-native';
 import { commonStyles } from '../../../styles/theme';
@@ -8,6 +10,7 @@ import { IProperty } from '../../../types/property';
 import { NavigationProp, RouteProp, useFocusEffect, useNavigation, useRoute } from '@react-navigation/native';
 import { RootStackParamList } from '../../../types/navigation';
 import { IconOutline } from '@ant-design/icons-react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 const ITEMS_PER_PAGE = 10;
 
@@ -23,7 +26,6 @@ const ExploreScreen: React.FC = () => {
     const [currentPage, setCurrentPage] = useState<number>(0);
     const [totalItems, setTotalItems] = useState<number>(0);
 
-
     const navigation = useNavigation<NavigationProp<RootStackParamList>>();
 
     useEffect(() => {
@@ -31,6 +33,10 @@ const ExploreScreen: React.FC = () => {
             await loadProperties(0, initialSearchText);
         };
         loadInitialProperties();
+    }, []);
+
+    useEffect(() => {
+        loadProperties(0, searchText);
     }, [filters]);
 
     useFocusEffect(
@@ -77,14 +83,12 @@ const ExploreScreen: React.FC = () => {
         setModalVisible(false);
         setCurrentPage(0);
         setExploreItems([]);
-        loadProperties(0, searchText);
     };
 
     const handleSearch = () => {
         setCurrentPage(0);
         loadProperties(0, searchText);
     };
-
 
     const filteredItems = exploreItems.filter((item) =>
         item.title.toLowerCase().includes(searchText.toLowerCase())
@@ -111,7 +115,7 @@ const ExploreScreen: React.FC = () => {
     });
 
     return (
-        <View style={[commonStyles.container, { paddingTop: 70 }]}>
+        <SafeAreaView style={[commonStyles.container]}>
             <View style={styles.findContainer}>
                 <View style={styles.searchContainer}>
                     <TextInput
@@ -156,14 +160,13 @@ const ExploreScreen: React.FC = () => {
                 onClose={() => setModalVisible(false)}
                 onApplyFilters={handleApplyFilters}
             />
-        </View>
+        </SafeAreaView>
     );
 };
 
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        padding: 10,
         backgroundColor: '#fff',
     },
     findContainer: {
@@ -198,6 +201,7 @@ const styles = StyleSheet.create({
         borderBottomWidth: 1,
         borderBottomColor: '#ddd',
         marginBottom: 10,
+        marginTop: 10,
     },
     itemImage: {
         width: 100,

@@ -14,6 +14,7 @@ import { fetchPropertiesWithFilters } from '../../../api/api'; // Import fetchPr
 import { IProperty, IFilterProperty } from '../../../types/property';
 import { W3mButton } from '@web3modal/wagmi-react-native';
 import { fetchContractsForOwner, fetchRentalRequestsForOwner } from '../../../api/contract';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 const DashboardOwner: React.FC = () => {
     const dispatch = useDispatch<AppDispatch>();
@@ -115,7 +116,7 @@ const DashboardOwner: React.FC = () => {
     const avatar = user?.avatar || 'https://res.cloudinary.com/dxvrdtaky/image/upload/v1727451808/avatar_iirzeq.jpg'; // Replace with actual avatar URL
 
     return (
-        <View style={[commonStyles.container, styles.dashboard]}>
+        <SafeAreaView style={[commonStyles.container, styles.dashboard]}>
             <HomeHeader avatar={avatar} />
             <View>
                 <View style={styles.owner}>
@@ -148,7 +149,7 @@ const DashboardOwner: React.FC = () => {
                     <W3mButton />
                 </View>
             </View>
-        </View>
+        </SafeAreaView>
     );
 };
 

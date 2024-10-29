@@ -157,7 +157,6 @@ const styles = StyleSheet.create({
     container: {
         flexDirection: 'row',
         alignItems: 'center',
-        padding: 10,
         borderRadius: 10,
         justifyContent: 'space-between',
     },

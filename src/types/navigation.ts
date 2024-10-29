@@ -3,6 +3,7 @@ import { StackNavigationProp } from '@react-navigation/stack';
 import { IProperty } from './property';
 import { IRentalRequest } from './rentalRequest';
 import { IUser } from './user';
+import { IConversation } from './chat';
 
 // export type Address = {
 //     street: string;
@@ -68,6 +69,7 @@ export type RootStackParamList = {
     AuthenticationScreen: undefined;
     ManageCancelContract: undefined;
     ExploreScreen: { searchText?: string };
+    ChatDetail: { conversation: IConversation };
 };
 
 type PropertyDetailRouteProp = RouteProp<RootStackParamList, 'PropertyScreen'>;

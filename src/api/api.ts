@@ -4,6 +4,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { IFilterProperty } from '../types/property';
 import { IGenerateContractRequest } from '../types/rentalRequest';
 import { IUser } from '../types/user';
+import { IConversation } from '../types/chat';
 
 
 const API_BASE_URL = `${API_URL}/estate-manager-service`;
@@ -392,6 +393,32 @@ export const fetchFilteredProperties = async (take: number, skip: number, filter
             throw new Error(error.response.data.message);
         } else {
             console.error('Error fetching filtered properties:', error);
+            throw error;
+        }
+    }
+};
+
+export const fetchAllConversations = async (): Promise<IConversation[]> => {
+    try {
+        const token = await AsyncStorage.getItem('accessToken');
+
+        if (!token) {
+            throw new Error('No token provided');
+        }
+
+        const response = await axios.get(`${API_BASE_URL}/conversations`, {
+            headers: {
+                Authorization: `Bearer ${token}`,
+            },
+        });
+
+        return response.data.data;
+    } catch (error: any) {
+        if (error.response && error.response.data && error.response.data.message) {
+            console.error('Error message:', error.response.data.message);
+            throw new Error(error.response.data.message);
+        } else {
+            console.error('Error fetching conversations:', error);
             throw error;
         }
     }

@@ -1,90 +1,217 @@
-// ChatScreen.tsx
-import React, { useState } from 'react';
-import { View, Text, TextInput, FlatList, StyleSheet, Button } from 'react-native';
+// // // ChatScreen.tsx
+// import React, { useState, useEffect } from 'react';
+// import { View, Text, FlatList, StyleSheet, ActivityIndicator, TouchableOpacity } from 'react-native';
+// import { NavigationProp, useNavigation } from '@react-navigation/native';
+// import { fetchAllConversations } from '../../../api/api';
+// import { IConversation } from '../../../types/chat';
+// import { RootStackParamList } from '../../../types/navigation';
 
-interface Message {
-    id: string;
-    text: string;
-    sender: 'user' | 'friend';
-}
+
+// const ChatScreen: React.FC = () => {
+//     const [conversations, setConversations] = useState<IConversation[]>([]);
+//     const [loading, setLoading] = useState<boolean>(true);
+//     const navigation = useNavigation<NavigationProp<RootStackParamList>>();
+
+//     useEffect(() => {
+//         const loadConversations = async () => {
+//             try {
+//                 const data = await fetchAllConversations();
+//                 console.log('Conversations:', data);
+
+//                 setConversations(data);
+//             } catch (error) {
+//                 console.error('Error loading conversations:', error);
+//             } finally {
+//                 setLoading(false);
+//             }
+//         };
+
+//         loadConversations();
+//     }, []);
+
+//     const renderConversation = ({ item }: { item: IConversation }) => (
+//         <TouchableOpacity onPress={() => navigation.navigate('ChatDetail', { conversation: item })}>
+//             <View style={styles.conversationContainer}>
+//                 <Text style={styles.conversationTitle}>
+//                     {item.participants.map((p) => p.name).join(', ')}
+//                 </Text>
+//                 <Text style={styles.conversationLastMessage}>
+//                     {item.chats[item.chats.length - 1]?.message || 'No messages'}
+//                 </Text>
+//             </View>
+//         </TouchableOpacity>
+//     );
+
+//     if (loading) {
+//         return (
+//             <View style={styles.loadingContainer}>
+//                 <ActivityIndicator size="large" color="#0000ff" />
+//             </View>
+//         );
+//     }
+
+//     return (
+//         <View style={styles.container}>
+//             <FlatList
+//                 data={conversations}
+//                 renderItem={renderConversation}
+//                 keyExtractor={(item) => item.conversationId}
+//             />
+//         </View>
+//     );
+// };
+
+// const styles = StyleSheet.create({
+//     container: {
+//         flex: 1,
+//         padding: 10,
+//     },
+//     loadingContainer: {
+//         flex: 1,
+//         justifyContent: 'center',
+//         alignItems: 'center',
+//     },
+//     conversationContainer: {
+//         padding: 10,
+//         borderBottomWidth: 1,
+//         borderBottomColor: '#ccc',
+//     },
+//     conversationTitle: {
+//         fontSize: 16,
+//         fontWeight: 'bold',
+//     },
+//     conversationLastMessage: {
+//         fontSize: 14,
+//         color: '#555',
+//     },
+// });
+
+// export default ChatScreen;
+
+import React, { useState, useEffect } from 'react';
+import { View, Text, FlatList, StyleSheet, ActivityIndicator, TouchableOpacity, Image } from 'react-native';
+import { NavigationProp, useNavigation } from '@react-navigation/native';
+import { SafeAreaView } from 'react-native-safe-area-context';
+import { fetchAllConversations } from '../../../api/api';
+import { IConversation } from '../../../types/chat';
+import { RootStackParamList } from '../../../types/navigation';
+import { RootState } from '../../../redux-toolkit/store';
+import { useSelector } from 'react-redux';
 
 const ChatScreen: React.FC = () => {
-    const [messages, setMessages] = useState<Message[]>([]);
-    const [inputText, setInputText] = useState<string>('');
+    const [conversations, setConversations] = useState<IConversation[]>([]);
+    const [loading, setLoading] = useState<boolean>(true);
+    const navigation = useNavigation<NavigationProp<RootStackParamList>>();
+    const user = useSelector((state: RootState) => state.user.user);
 
-    const handleSend = () => {
-        if (inputText.trim().length > 0) {
-            const newMessage: Message = {
-                id: Math.random().toString(), // Tạo ID ngẫu nhiên cho tin nhắn
-                text: inputText,
-                sender: 'user',
-            };
-            setMessages((prevMessages) => [...prevMessages, newMessage]);
-            setInputText('');
+    useEffect(() => {
+        const loadConversations = async () => {
+            try {
+                const data = await fetchAllConversations();
+                console.log('Conversations:', data);
+
+                setConversations(data);
+            } catch (error) {
+                console.error('Error loading conversations:', error);
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        loadConversations();
+    }, []);
+
+    const renderConversation = ({ item }: { item: IConversation }) => {
+        const lastMessage = item.chats[item.chats.length - 1]?.message || 'No messages';
+        const lastMessageTime = item.updatedAt; // Format this date as needed
+
+        // Find the participant whose userId is different from the current user's userId
+        const otherParticipant = item.participants.find(p => p.userId !== user?.userId);
+
+        if (!otherParticipant) {
+            return null; // or render a placeholder
         }
+
+        const avatarUrl = otherParticipant.avatar || 'https://res.cloudinary.com/dxvrdtaky/image/upload/v1727451808/avatar_iirzeq.jpg';
+
+        return (
+            <TouchableOpacity onPress={() => navigation.navigate('ChatDetail', { conversation: item })}>
+                <View style={styles.conversationContainer}>
+                    <Image
+                        source={{ uri: avatarUrl }}
+                        style={styles.avatar}
+                    />
+                    <View style={styles.textContainer}>
+                        <Text style={styles.conversationTitle}>
+                            {otherParticipant.name || 'Unknown'}
+                        </Text>
+                        <Text style={styles.conversationLastMessage} numberOfLines={1}>
+                            {lastMessage}
+                        </Text>
+                    </View>
+                    <Text style={styles.time}>{lastMessageTime}</Text>
+                </View>
+            </TouchableOpacity>
+        );
     };
 
-    const renderMessage = ({ item }: { item: Message }) => (
-        <View style={[styles.messageContainer, item.sender === 'user' ? styles.userMessage : styles.friendMessage]}>
-            <Text style={styles.messageText}>{item.text}</Text>
-        </View>
-    );
+    if (loading || !user) {
+        return (
+            <SafeAreaView style={styles.loadingContainer}>
+                <ActivityIndicator size="large" color="#0000ff" />
+            </SafeAreaView>
+        );
+    }
 
     return (
-        <View style={styles.container}>
+        <SafeAreaView style={styles.container}>
             <FlatList
-                data={messages}
-                renderItem={renderMessage}
-                keyExtractor={(item) => item.id}
-                inverted // Đảo ngược danh sách để mới nhất ở dưới cùng
+                data={conversations}
+                renderItem={renderConversation}
+                keyExtractor={(item) => item.conversationId}
             />
-            <View style={styles.inputContainer}>
-                <TextInput
-                    style={styles.input}
-                    value={inputText}
-                    onChangeText={setInputText}
-                    placeholder="Type a message..."
-                />
-                <Button title="Send" onPress={handleSend} />
-            </View>
-        </View>
+        </SafeAreaView>
     );
 };
 
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        padding: 10,
+        backgroundColor: '#fff',
     },
-    messageContainer: {
-        marginVertical: 5,
-        padding: 10,
-        borderRadius: 10,
-        maxWidth: '70%',
+    loadingContainer: {
+        flex: 1,
+        justifyContent: 'center',
+        alignItems: 'center',
     },
-    userMessage: {
-        backgroundColor: '#DCF8C6', // Màu nền cho tin nhắn của người dùng
-        alignSelf: 'flex-end', // Đẩy sang bên phải
-    },
-    friendMessage: {
-        backgroundColor: '#E5E5EA', // Màu nền cho tin nhắn của bạn bè
-        alignSelf: 'flex-start', // Đẩy sang bên trái
-    },
-    messageText: {
-        fontSize: 16,
-    },
-    inputContainer: {
+    conversationContainer: {
         flexDirection: 'row',
         alignItems: 'center',
-        marginTop: 10,
+        padding: 15,
+        borderBottomWidth: 1,
+        borderBottomColor: '#e0e0e0',
     },
-    input: {
+    avatar: {
+        width: 50,
+        height: 50,
+        borderRadius: 25,
+        marginRight: 15,
+    },
+    textContainer: {
         flex: 1,
-        borderWidth: 1,
-        borderColor: '#ccc',
-        borderRadius: 5,
-        padding: 10,
-        marginRight: 10,
+    },
+    conversationTitle: {
+        fontSize: 16,
+        fontWeight: 'bold',
+        color: '#333',
+    },
+    conversationLastMessage: {
+        fontSize: 14,
+        color: '#666',
+    },
+    time: {
+        fontSize: 12,
+        color: '#999',
     },
 });
 

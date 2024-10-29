@@ -15,6 +15,7 @@ import { NavigationProp, useFocusEffect, useNavigation } from '@react-navigation
 import { RootStackParamList } from '../../../types/navigation';
 import { IProperty } from '../../../types/property';
 import AntDesign from 'react-native-vector-icons/AntDesign';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 const HomeScreen: React.FC = () => {
     const [properties, setProperties] = useState<IProperty[]>([]);
@@ -115,14 +116,14 @@ const HomeScreen: React.FC = () => {
 
     if (loading) {
         return (
-            <View style={[commonStyles.container, { justifyContent: 'center', alignItems: 'center', flex: 1 }]}>
+            <SafeAreaView style={[commonStyles.container, { justifyContent: 'center', alignItems: 'center', flex: 1 }]}>
                 <ActivityIndicator size="large" color="#0000ff" />
-            </View>
+            </SafeAreaView>
         );
     }
 
     return (
-        <View style={commonStyles.container}>
+        <SafeAreaView style={commonStyles.container}>
             <HomeHeader avatar={avatar} />
 
             <View style={styles.searchContainer}>
@@ -185,7 +186,7 @@ const HomeScreen: React.FC = () => {
                     </View>
                 </View>
             </ScrollView>
-        </View>
+        </SafeAreaView>
     );
 };
 
@@ -245,7 +246,7 @@ const styles = StyleSheet.create({
         borderColor: '#999',
         borderWidth: 1,
         borderRadius: 5,
-        marginBottom: 10,
+        marginVertical: 10,
         paddingHorizontal: 10,
 
     },
