@@ -127,11 +127,17 @@ const PropertyCard: React.FC<PropertyCardProps> = ({ property, onPress }) => {
                 </TouchableOpacity>
             </View>
             <View style={styles.infoContainer}>
-                <Text style={styles.title}>{truncate(title || '', 32)}</Text>
-                {/* <Text style={styles.location}>{truncate(location || '', 15)}</Text> */}
+                <Text style={styles.title}
+                    numberOfLines={2}
+                    ellipsizeMode="tail"
+                >{title}</Text>
+
                 <View style={styles.locationContainer}>
                     <IconOutline name="environment" size={16} color="#666" />
-                    <Text style={styles.location}>{truncate(location || '', 15)}</Text>
+                    <Text style={styles.location}
+                        numberOfLines={2}
+                        ellipsizeMode="tail"
+                    >{location}</Text>
                 </View>
             </View>
         </TouchableOpacity>
@@ -182,6 +188,7 @@ const styles = StyleSheet.create({
         fontWeight: 'bold',
     },
     locationContainer: {
+        paddingRight: 10,
         flexDirection: 'row',
         alignItems: 'center',
     },

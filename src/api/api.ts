@@ -64,15 +64,18 @@ export const registerUser = async (registrationData: { name: string; email: stri
 
 export const fetchPropertyDetail = async (slug: string) => {
     try {
-        const response = await axios.get(`${API_BASE_URL}/estate-manager-service/properties/slug/${slug}`);
+        const response = await axios.get(`${API_BASE_URL}/properties/slug/${slug}`);
         return response.data;
-    } catch (error) {
-        console.error('Error fetching property detail:', error);
-        throw error;
+    } catch (error: any) {
+        if (error.response && error.response.data && error.response.data.message) {
+            console.error('Error message:', error.response.data.message);
+            throw new Error(error.response.data.message);
+        } else {
+            console.error('Error fetching property detail:', error);
+            throw error;
+        }
     }
 };
-
-
 
 export const fetchNotifications = async (take: number, skip: number) => {
     try {
@@ -359,7 +362,7 @@ const cleanFilters = (filters: any) => {
     );
 };
 
-export const fetchFilteredProperties = async (take: number, skip: number, filters: any) => {
+export const fetchFilteredProperties = async (take: number, skip: number, filters: any, query?: string) => {
     try {
         const token = await AsyncStorage.getItem('accessToken');
 
@@ -370,9 +373,13 @@ export const fetchFilteredProperties = async (take: number, skip: number, filter
         const cleanedFilters = cleanFilters(filters);
         console.log('Cleaned filters:', cleanedFilters);
 
+        const params: any = { ...cleanedFilters, take, skip };
+        if (query) {
+            params.q = query;
+        }
 
         const response = await axios.get(`${API_BASE_URL}/properties/search`, {
-            params: { ...cleanedFilters, sort: 'newest', take, skip },
+            params,
             headers: {
                 Authorization: `Bearer ${token}`,
             },
@@ -389,5 +396,3 @@ export const fetchFilteredProperties = async (take: number, skip: number, filter
         }
     }
 };
-
-// Other existing functions...

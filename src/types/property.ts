@@ -35,6 +35,12 @@ export interface IProperty {
     images: Array<string>;
     rentalConditions: Array<ICondition>;
     price: number;
+    agreementPrice: boolean;
+    latitude: number | null;
+    longitude: number | null;
+    rating: number;
+    ratingCount: number;
+    isFavorite: boolean;
     owner: Pick<IUser, 'userId' | 'name' | 'phoneNumber' | 'avatar' | 'email'>;
     type: {
         id: string;

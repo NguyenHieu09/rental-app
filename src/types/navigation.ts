@@ -55,7 +55,7 @@ export type RootStackParamList = {
     DashboardRenter: undefined;
     RenterTabs: undefined;
     OwnerTabs: undefined;
-    PropertyScreen: { property: IProperty };
+    PropertyScreen: { slug: string };
     ManageProperty: { properties: IProperty[] };
     ManageRequestRental: undefined;
     ContractScreen: { contractData: any, requestId: string };
@@ -67,6 +67,7 @@ export type RootStackParamList = {
     ContractDetails: { contractId: string };
     AuthenticationScreen: undefined;
     ManageCancelContract: undefined;
+    ExploreScreen: { searchText?: string };
 };
 
 type PropertyDetailRouteProp = RouteProp<RootStackParamList, 'PropertyScreen'>;

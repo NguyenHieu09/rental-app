@@ -2,7 +2,7 @@
 
 import React, { useEffect, useState } from 'react';
 import * as Location from 'expo-location';
-import { View, Text, TextInput, ScrollView, ActivityIndicator, StyleSheet } from 'react-native';
+import { View, Text, TextInput, ScrollView, ActivityIndicator, StyleSheet, TouchableOpacity } from 'react-native';
 import { commonStyles, COLORS } from '../../../styles/theme';
 import HomeHeader from '../../../components/homeHeader/HomeHeader';
 import Properties from '../../../components/properties/Properties';
@@ -14,6 +14,7 @@ import { RootState } from '../../../redux-toolkit/store';
 import { NavigationProp, useNavigation } from '@react-navigation/native';
 import { RootStackParamList } from '../../../types/navigation';
 import { IProperty } from '../../../types/property';
+import AntDesign from 'react-native-vector-icons/AntDesign';
 
 const HomeScreen: React.FC = () => {
     const [properties, setProperties] = useState<IProperty[]>([]);
@@ -24,7 +25,8 @@ const HomeScreen: React.FC = () => {
     const ITEMS_PER_PAGE = 10;
     const user = useSelector((state: RootState) => state.user.user);
     const navigation = useNavigation<NavigationProp<RootStackParamList>>();
-    const [location, setLocation] = useState('Gò Vấp,Hồ Chí Minh, Việt Nam');
+    const [location, setLocation] = useState('Gò Vấp, Hồ Chí Minh, Việt Nam');
+    const [searchText, setSearchText] = useState<string>('');
 
     useEffect(() => {
         const initialize = async () => {
@@ -91,7 +93,7 @@ const HomeScreen: React.FC = () => {
     };
 
     const handlePressProperty = (property: IProperty) => {
-        navigation.navigate('PropertyScreen', { property });
+        navigation.navigate('PropertyScreen', { slug: property.slug });
     };
 
     const handlePress = (label: string) => {
@@ -113,10 +115,20 @@ const HomeScreen: React.FC = () => {
         <View style={commonStyles.container}>
             <HomeHeader avatar={avatar} />
 
-            <TextInput
-                style={commonStyles.input}
-                placeholder="Tìm kiếm nhà, căn hộ, v.v."
-            />
+            <View style={styles.searchContainer}>
+                <TextInput
+                    style={styles.searchInput}
+                    placeholder="Tìm kiếm nhà, căn hộ..."
+                    value={searchText}
+                    onChangeText={(text) => setSearchText(text)}
+                />
+                <TouchableOpacity onPress={() => {
+                    navigation.navigate('ExploreScreen', { searchText });
+                }}>
+                    <AntDesign name="search1" size={20} color="#000" />
+                </TouchableOpacity>
+            </View>
+
 
             <ScrollView scrollEventThrottle={400}>
                 <Text style={styles.sectionTitle}>Địa điểm hàng đầu</Text>
@@ -215,6 +227,21 @@ const styles = StyleSheet.create({
         marginTop: 5,
         color: 'gray',
         fontSize: 16,
+    },
+    searchContainer: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        // backgroundColor: 'red',
+        borderColor: '#999',
+        borderWidth: 1,
+        borderRadius: 5,
+        marginBottom: 10,
+        paddingHorizontal: 10,
+
+    },
+    searchInput: {
+        flex: 1,
+        height: 40,
     },
 });
 

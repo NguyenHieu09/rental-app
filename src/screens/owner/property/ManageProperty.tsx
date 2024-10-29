@@ -82,11 +82,7 @@ const ManageProperty: React.FC = () => {
         }
     };
 
-    // const handleDelete = (id: string) => {
-    //     console.log(`Delete property with id: ${id}`);
-    //     // Add your delete logic here
-    //     setProperties((prevProperties) => prevProperties.filter((property) => property.propertyId !== id));
-    // };
+
 
     if (loading && currentPage === 0) {
         return (
@@ -97,7 +93,7 @@ const ManageProperty: React.FC = () => {
     }
 
     if (error) {
-        return <Text>Error: {error}</Text>; // Display the error message
+        return <Text>Error: {error}</Text>;
     }
 
     return (

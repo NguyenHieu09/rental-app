@@ -19,9 +19,17 @@ const Properties: React.FC<PropertiesProps> = ({ property, onPress }) => {
             <Image source={{ uri: property.images[0] }} style={styles.image} />
             <View style={styles.infoContainer}>
                 <View style={styles.header}>
-                    <Text style={styles.title}>{truncate(property.title, 25)}</Text>
+                    <Text style={styles.title} numberOfLines={1}
+                        ellipsizeMode="tail">{property.title}</Text>
                 </View>
-                <Text style={styles.location}>{truncate(`${property.address.street}, ${property.address.ward}, ${property.address.district}, ${property.address.city}`, 30)}</Text>
+                <Text
+                    style={styles.location}
+                    numberOfLines={1}
+                    ellipsizeMode="tail"
+                >
+                    {property.address.street}, {property.address.ward}, {property.address.district}, {property.address.city}
+                </Text>
+                {/* <Text style={styles.location}>{property.address.street}, {property.address.ward}, {property.address.district}, {property.address.city}</Text> */}
                 <Text style={styles.price}>{formattedPrice}/tháng</Text>
                 <Text style={styles.type}>{property.type.name}</Text>
             </View>
@@ -40,6 +48,8 @@ const styles = StyleSheet.create({
         shadowRadius: 4,
         elevation: 2,
         margin: 10,
+        width: 250,
+        // height: 300
     },
     image: {
         width: '100%',

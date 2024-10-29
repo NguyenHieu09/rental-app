@@ -1,18 +1,20 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { View, Text, FlatList, TextInput, StyleSheet, TouchableOpacity, ActivityIndicator, Image } from 'react-native';
 import { commonStyles } from '../../../styles/theme';
 import AntDesign from 'react-native-vector-icons/AntDesign';
 import SearchModal from '../../../components/modal/SearchModal';
 import { fetchFilteredProperties } from '../../../api/api';
 import { IProperty } from '../../../types/property';
-import { NavigationProp, useFocusEffect, useNavigation } from '@react-navigation/native';
+import { NavigationProp, RouteProp, useFocusEffect, useNavigation, useRoute } from '@react-navigation/native';
 import { RootStackParamList } from '../../../types/navigation';
 import { IconOutline } from '@ant-design/icons-react-native';
 
 const ITEMS_PER_PAGE = 10;
 
 const ExploreScreen: React.FC = () => {
-    const [searchText, setSearchText] = useState<string>('');
+    const route = useRoute<RouteProp<RootStackParamList, 'ExploreScreen'>>();
+    const initialSearchText = route.params?.searchText || '';
+    const [searchText, setSearchText] = useState<string>(initialSearchText);
     const [modalVisible, setModalVisible] = useState(false);
     const [exploreItems, setExploreItems] = useState<IProperty[]>([]);
     const [filters, setFilters] = useState<any>({});
@@ -20,26 +22,46 @@ const ExploreScreen: React.FC = () => {
     const [isLoadingMore, setIsLoadingMore] = useState<boolean>(false);
     const [currentPage, setCurrentPage] = useState<number>(0);
     const [totalItems, setTotalItems] = useState<number>(0);
+    const initialLoadRef = useRef(true);
 
     const navigation = useNavigation<NavigationProp<RootStackParamList>>();
 
     useEffect(() => {
-        loadProperties(0);
+        const loadInitialProperties = async () => {
+            if (initialLoadRef.current) {
+                if (initialSearchText) {
+                    setSearchText(initialSearchText);
+                    await loadProperties(0, initialSearchText);
+                } else {
+                    await loadProperties(0);
+                }
+                initialLoadRef.current = false;
+            } else {
+                await loadProperties(0, initialSearchText);
+            }
+        };
+        loadInitialProperties();
     }, [filters]);
 
     useFocusEffect(
         useCallback(() => {
-            loadProperties(0);
-        }, [filters])
+            const loadPropertiesOnFocus = async () => {
+                await loadProperties(0, searchText);
+            };
+            loadPropertiesOnFocus();
+        }, [searchText])
     );
 
-    const loadProperties = async (page: number) => {
+    const loadProperties = async (page: number, query?: string) => {
         try {
             if (page === 0) setLoading(true);
             else setIsLoadingMore(true);
 
             const skip = page * ITEMS_PER_PAGE;
-            const data = await fetchFilteredProperties(ITEMS_PER_PAGE, skip, filters);
+            console.log('Fetching properties with query:', query);
+            const data = await fetchFilteredProperties(ITEMS_PER_PAGE, skip, filters, query);
+
+
 
             if (data && data.data) {
                 if (page === 0) {
@@ -65,7 +87,7 @@ const ExploreScreen: React.FC = () => {
         if (!isLoadingMore && exploreItems.length < totalItems) {
             const nextPage = currentPage + 1;
             setCurrentPage(nextPage);
-            loadProperties(nextPage);
+            loadProperties(nextPage, searchText);
         }
     };
 
@@ -74,31 +96,39 @@ const ExploreScreen: React.FC = () => {
         setModalVisible(false);
         setCurrentPage(0);
         setExploreItems([]);
+        handleSearch();
+    };
+
+    const handleSearch = () => {
+        console.log('Search button pressed with query:', searchText); // Debugging log
+        setCurrentPage(0);
+        loadProperties(0, searchText);
     };
 
     const filteredItems = exploreItems.filter((item) =>
         item.title.toLowerCase().includes(searchText.toLowerCase())
     );
 
-    const MemoizedRenderExploreItem = React.memo(({ item }: { item: IProperty }) => (
-        <TouchableOpacity
-            style={styles.itemContainer}
-            onPress={() => navigation.navigate('PropertyScreen', { property: item })}
-        >
-            <Image source={{ uri: item.images[0] }} style={styles.itemImage} />
-            <View style={styles.itemDetails}>
-                <Text style={styles.itemTitle} numberOfLines={2}>{item.title}</Text>
-                <Text style={styles.itemDescription} numberOfLines={2}>{item.description}</Text>
-                {/* <View style={{ flexDirection: 'row', justifyContent: 'center', alignItems: 'center' }}> */}
-                {/* <IconOutline name="environment" size={20} color="#000" /> */}
-                <Text style={styles.itemAddress}>ĐC: {`${item.address.street}, ${item.address.ward}, ${item.address.district}, ${item.address.city}`}</Text>
+    const MemoizedRenderExploreItem = React.memo(({ item }: { item: IProperty }) => {
+        console.log('Rendering item with slug:', item.slug); // Debugging log
 
-                {/* </View> */}
-                <Text style={styles.itemPrice}>{item.price.toLocaleString()} đ/tháng</Text>
-
-            </View>
-        </TouchableOpacity>
-    ));
+        return (
+            <TouchableOpacity
+                style={styles.itemContainer}
+                onPress={() => {
+                    navigation.navigate('PropertyScreen', { slug: item.slug });
+                }}
+            >
+                <Image source={{ uri: item.images[0] }} style={styles.itemImage} />
+                <View style={styles.itemDetails}>
+                    <Text style={styles.itemTitle} numberOfLines={2}>{item.title}</Text>
+                    <Text style={styles.itemDescription} numberOfLines={2}>{item.description}</Text>
+                    <Text style={styles.itemAddress}>ĐC: {`${item.address.street}, ${item.address.ward}, ${item.address.district}, ${item.address.city}`}</Text>
+                    <Text style={styles.itemPrice}>{item.price.toLocaleString()} đ/tháng</Text>
+                </View>
+            </TouchableOpacity>
+        );
+    });
 
     return (
         <View style={[commonStyles.container, { paddingTop: 70 }]}>
@@ -110,7 +140,9 @@ const ExploreScreen: React.FC = () => {
                         value={searchText}
                         onChangeText={(text) => setSearchText(text)}
                     />
-                    <AntDesign name="search1" size={20} color="#000" />
+                    <TouchableOpacity onPress={handleSearch}>
+                        <AntDesign name="search1" size={20} color="#000" />
+                    </TouchableOpacity>
                 </View>
                 <TouchableOpacity onPress={() => setModalVisible(true)} style={styles.selectButton}>
                     <AntDesign name="filter" size={24} color="#000" />
@@ -121,9 +153,9 @@ const ExploreScreen: React.FC = () => {
                 <View style={styles.loadingContainer}>
                     <ActivityIndicator size="large" color="#0000ff" />
                 </View>
-            ) : filteredItems.length > 0 ? (
+            ) : exploreItems.length > 0 ? (
                 <FlatList
-                    data={filteredItems}
+                    data={exploreItems}
                     renderItem={({ item }) => <MemoizedRenderExploreItem item={item} />}
                     keyExtractor={(item) => item.propertyId}
                     onEndReached={loadMoreProperties}
@@ -166,10 +198,6 @@ const styles = StyleSheet.create({
         backgroundColor: '#fff',
         zIndex: 1,
     },
-    // findContainer: {
-    //     flexDirection: 'row',
-    //     justifyContent: 'space-between',
-    // },
     searchContainer: {
         flexDirection: 'row',
         alignItems: 'center',
@@ -212,12 +240,10 @@ const styles = StyleSheet.create({
     itemPrice: {
         fontSize: 16,
         fontWeight: '500',
-        // color: '#007BFF',
         marginTop: 5,
     },
     itemAddress: {
         fontSize: 14,
-        // color: '#555',
         marginTop: 5,
     },
     emptyText: {
@@ -244,3 +270,4 @@ const styles = StyleSheet.create({
 });
 
 export default ExploreScreen;
+
