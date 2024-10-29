@@ -22,33 +22,20 @@ const ExploreScreen: React.FC = () => {
     const [isLoadingMore, setIsLoadingMore] = useState<boolean>(false);
     const [currentPage, setCurrentPage] = useState<number>(0);
     const [totalItems, setTotalItems] = useState<number>(0);
-    const initialLoadRef = useRef(true);
+
 
     const navigation = useNavigation<NavigationProp<RootStackParamList>>();
 
     useEffect(() => {
         const loadInitialProperties = async () => {
-            if (initialLoadRef.current) {
-                if (initialSearchText) {
-                    setSearchText(initialSearchText);
-                    await loadProperties(0, initialSearchText);
-                } else {
-                    await loadProperties(0);
-                }
-                initialLoadRef.current = false;
-            } else {
-                await loadProperties(0, initialSearchText);
-            }
+            await loadProperties(0, initialSearchText);
         };
         loadInitialProperties();
     }, [filters]);
 
     useFocusEffect(
         useCallback(() => {
-            const loadPropertiesOnFocus = async () => {
-                await loadProperties(0, searchText);
-            };
-            loadPropertiesOnFocus();
+            loadProperties(0, searchText);
         }, [searchText])
     );
 
@@ -58,25 +45,17 @@ const ExploreScreen: React.FC = () => {
             else setIsLoadingMore(true);
 
             const skip = page * ITEMS_PER_PAGE;
-            console.log('Fetching properties with query:', query);
             const data = await fetchFilteredProperties(ITEMS_PER_PAGE, skip, filters, query);
 
-
-
             if (data && data.data) {
-                if (page === 0) {
-                    setExploreItems(data.data);
-                } else {
-                    setExploreItems((prevItems) => [...prevItems, ...data.data]);
-                }
-                console.log('Total items:', data.pageInfo.total);
-
+                setExploreItems(prevItems => (page === 0 ? data.data : [...prevItems, ...data.data]));
                 setTotalItems(data.pageInfo.total);
             } else {
                 setExploreItems([]);
             }
         } catch (error) {
             console.error('Error loading properties:', error);
+            // Optionally, set an error state here
         } finally {
             setLoading(false);
             setIsLoadingMore(false);
@@ -85,9 +64,11 @@ const ExploreScreen: React.FC = () => {
 
     const loadMoreProperties = () => {
         if (!isLoadingMore && exploreItems.length < totalItems) {
-            const nextPage = currentPage + 1;
-            setCurrentPage(nextPage);
-            loadProperties(nextPage, searchText);
+            setCurrentPage(prevPage => {
+                const nextPage = prevPage + 1;
+                loadProperties(nextPage, searchText);
+                return nextPage;
+            });
         }
     };
 
@@ -96,21 +77,20 @@ const ExploreScreen: React.FC = () => {
         setModalVisible(false);
         setCurrentPage(0);
         setExploreItems([]);
-        handleSearch();
+        loadProperties(0, searchText);
     };
 
     const handleSearch = () => {
-        console.log('Search button pressed with query:', searchText); // Debugging log
         setCurrentPage(0);
         loadProperties(0, searchText);
     };
+
 
     const filteredItems = exploreItems.filter((item) =>
         item.title.toLowerCase().includes(searchText.toLowerCase())
     );
 
     const MemoizedRenderExploreItem = React.memo(({ item }: { item: IProperty }) => {
-        console.log('Rendering item with slug:', item.slug); // Debugging log
 
         return (
             <TouchableOpacity

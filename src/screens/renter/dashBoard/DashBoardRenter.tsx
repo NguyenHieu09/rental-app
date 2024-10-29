@@ -1,6 +1,6 @@
 
 
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import * as Location from 'expo-location';
 import { View, Text, TextInput, ScrollView, ActivityIndicator, StyleSheet, TouchableOpacity } from 'react-native';
 import { commonStyles, COLORS } from '../../../styles/theme';
@@ -11,7 +11,7 @@ import CustomButton from '../../../components/customButton/CustomButton';
 import { fetchNewestProperties } from '../../../api/api';
 import { useSelector } from 'react-redux';
 import { RootState } from '../../../redux-toolkit/store';
-import { NavigationProp, useNavigation } from '@react-navigation/native';
+import { NavigationProp, useFocusEffect, useNavigation } from '@react-navigation/native';
 import { RootStackParamList } from '../../../types/navigation';
 import { IProperty } from '../../../types/property';
 import AntDesign from 'react-native-vector-icons/AntDesign';
@@ -37,6 +37,16 @@ const HomeScreen: React.FC = () => {
 
         initialize();
     }, [city, district]);
+
+    useFocusEffect(
+        useCallback(() => {
+            const refreshScreen = async () => {
+                setSearchText('');
+            };
+
+            refreshScreen();
+        }, [city, district])
+    );
 
     const getLocation = async () => {
         let { status } = await Location.requestForegroundPermissionsAsync();
