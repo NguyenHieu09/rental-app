@@ -20,9 +20,12 @@
         "backgroundColor": "#ffffff"
       },
       "permissions": [
-        "ACCESS_FINE_LOCATION",
-        "ACCESS_COARSE_LOCATION"
-      ]
+        "android.permission.ACCESS_FINE_LOCATION",
+        "android.permission.ACCESS_COARSE_LOCATION",
+        "android.permission.CAMERA",
+        "android.permission.RECORD_AUDIO"
+      ],
+      "package": "com.nguyenhieu17.rentalapp"
     },
     "web": {
       "favicon": "./assets/favicon.png"
@@ -43,7 +46,13 @@
         {
           "photosPermission": "The app accesses your photos to let you share them with your friends."
         }
-      ]
-    ]
+      ],
+      "expo-video"
+    ],
+    "extra": {
+      "eas": {
+        "projectId": "e52cec78-c5e4-42f2-812b-949bca9f2b22"
+      }
+    }
   }
 }

@@ -15,6 +15,7 @@ import { IProperty, IFilterProperty } from '../../../types/property';
 import { W3mButton } from '@web3modal/wagmi-react-native';
 import { fetchContractsForOwner, fetchRentalRequestsForOwner } from '../../../api/contract';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import FileComponent from '../../../components/chat/FileComponent';
 
 const DashboardOwner: React.FC = () => {
     const dispatch = useDispatch<AppDispatch>();
@@ -147,7 +148,10 @@ const DashboardOwner: React.FC = () => {
                         <Text style={styles.cardLabel}>Hủy hợp đồng</Text>
                     </TouchableOpacity>
                     <W3mButton />
+
+
                 </View>
+
             </View>
         </SafeAreaView>
     );

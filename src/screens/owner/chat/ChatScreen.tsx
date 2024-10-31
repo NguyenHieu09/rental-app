@@ -36,7 +36,7 @@ const ChatScreen: React.FC = () => {
                 data={messages}
                 renderItem={renderMessage}
                 keyExtractor={(item) => item.id}
-                inverted // Đảo ngược danh sách để mới nhất ở dưới cùng
+                inverted
             />
             <View style={styles.inputContainer}>
                 <TextInput
