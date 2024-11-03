@@ -69,7 +69,8 @@ export type RootStackParamList = {
     AuthenticationScreen: undefined;
     ManageCancelContract: undefined;
     ExploreScreen: { searchText?: string };
-    ChatDetail: { conversation: IConversation };
+    // ChatDetail: { conversation: IConversation };
+    ChatDetail: undefined;
 };
 
 type PropertyDetailRouteProp = RouteProp<RootStackParamList, 'PropertyScreen'>;
