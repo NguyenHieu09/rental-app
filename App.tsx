@@ -142,6 +142,7 @@ import { WagmiProvider } from 'wagmi';
 import '@walletconnect/react-native-compat';
 import { NODE_ENV, API_URL } from '@env';
 import Socket from './src/config/socket';
+import { app } from './src/config/firebaseConfig';
 
 // Suppress the specific warning
 LogBox.ignoreLogs(['TNodeChildrenRenderer: Support for defaultProps will be removed from function components in a future major release.']);

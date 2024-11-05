@@ -438,6 +438,10 @@ const PropertyScreen: React.FC = () => {
 
         return `${secondUser}-${firstUser}`;
     };
+
+
+
+
     const handleContactOwnerPress = () => {
         const conversationId = createChatConversation(user?.userId || '', property.owner.userId);
         const conversation: IConversation = conversations.find((c) => c.conversationId === conversationId) || {

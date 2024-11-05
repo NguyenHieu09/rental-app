@@ -579,22 +579,24 @@ const ChatScreen: React.FC = () => {
     const conversations = useSelector((state: RootState) => state.conversations.conversations);
     const dispatch = useDispatch<AppDispatch>();
 
-    useEffect(() => {
-        const loadConversations = async () => {
-            try {
-                const data = await fetchAllConversations();
-                dispatch(addConversations({ data, pageInfo: { current: 1, pageSize: 10, total: data.length } }));
-            } catch (error) {
-                console.error('Error loading conversations:', error);
-            } finally {
-                setLoading(false);
-            }
-        };
 
-        loadConversations();
-    }, [dispatch]);
+    const loadConversations = async () => {
+        setLoading(true);
+        try {
+            const data = await fetchAllConversations();
+            dispatch(addConversations({ data, pageInfo: { current: 1, pageSize: 10, total: data.length } }));
+        } catch (error) {
+            console.error('Error loading conversations:', error);
+        } finally {
+            setLoading(false);
+        }
+    };
 
-
+    useFocusEffect(
+        React.useCallback(() => {
+            loadConversations();
+        }, [dispatch])
+    );
 
     const getLastMessageText = (lastMessage: any) => {
         if (lastMessage.message) {
@@ -633,23 +635,6 @@ const ChatScreen: React.FC = () => {
         }
     };
 
-    // const handleConversationPress = (conversation: IConversation) => {
-    //     dispatch(setSelectedConversation(conversation));
-
-    //     const otherUser = conversation.participants.find(p => p.userId !== user?.userId);
-    //     const lastChat = conversation.chats[conversation.chats.length - 1];
-
-    //     if (conversation.unreadCount > 0 && lastChat && otherUser) {
-    //         socket?.emit('read-conversation', {
-    //             conversationId: conversation.conversationId,
-    //             time: new Date().toISOString(),
-    //             chatId: lastChat.chatId,
-    //             userId: otherUser.userId,
-    //         });
-    //     }
-
-    //     navigation.navigate('ChatDetail');
-    // };
 
     const handleConversationPress = (conversation: IConversation) => {
         dispatch(setSelectedConversation(conversation));
@@ -671,9 +656,9 @@ const ChatScreen: React.FC = () => {
     };
 
     const renderConversation = ({ item }: { item: IConversation }) => {
-        const lastMessage = item.chats[item.chats.length - 1];
-        const lastMessageText = getLastMessageText(lastMessage);
-        const lastMessageTime = formatTime(item.updatedAt);
+        const lastMessage = item.chats.length > 0 ? item.chats[item.chats.length - 1] : null;
+        const lastMessageText = lastMessage ? getLastMessageText(lastMessage) : '';
+        const lastMessageTime = item.updatedAt ? formatTime(item.updatedAt) : '';
 
         const otherParticipant = item.participants.find(p => p.userId !== user?.userId);
 
@@ -683,7 +668,8 @@ const ChatScreen: React.FC = () => {
 
         const avatarUrl = otherParticipant.avatar || 'https://res.cloudinary.com/dxvrdtaky/image/upload/v1727451808/avatar_iirzeq.jpg';
 
-        const isUnread = item.unreadCount > 0 || lastMessage.status === 'RECEIVED';
+        // Kiểm tra xem tin nhắn cuối cùng có phải là chưa đọc hay không
+        const isUnread = lastMessage && (item.unreadCount > 0 || (lastMessage.senderId !== user?.userId && lastMessage.status === 'RECEIVED'));
 
         return (
             <TouchableOpacity onPress={() => handleConversationPress(item)}>
@@ -696,7 +682,7 @@ const ChatScreen: React.FC = () => {
                         <Text
                             style={[
                                 styles.conversationLastMessage,
-                                isUnread && styles.unreadMessageText,
+                                isUnread && styles.unreadMessageText, // Áp dụng kiểu chữ đậm nếu tin nhắn chưa đọc
                             ]}
                             numberOfLines={1}
                         >
@@ -708,6 +694,7 @@ const ChatScreen: React.FC = () => {
             </TouchableOpacity>
         );
     };
+
 
     if (loading || !user) {
         return (
@@ -774,3 +761,4 @@ const styles = StyleSheet.create({
 });
 
 export default ChatScreen;
+
