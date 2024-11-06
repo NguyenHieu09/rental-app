@@ -110,7 +110,7 @@ const SearchModal: React.FC<SearchModalProps> = ({ visible, onClose, onApplyFilt
                     <ScrollView>
                         <View style={styles.condition}>
                             <Text style={styles.title}>Tìm Theo khu vực</Text>
-                            <View style={styles.locationOptionsContainer}>
+                            {/* <View style={styles.locationOptionsContainer}>
                                 <Text style={{ padding: 8, fontSize: 16, fontWeight: '500' }}>Phổ biến:</Text>
                                 <ScrollView horizontal showsHorizontalScrollIndicator={false}>
                                     {locations.map((location, index) => (
@@ -119,7 +119,7 @@ const SearchModal: React.FC<SearchModalProps> = ({ visible, onClose, onApplyFilt
                                         </TouchableOpacity>
                                     ))}
                                 </ScrollView>
-                            </View>
+                            </View> */}
 
                             <AddressInput
                                 selectedCity={selectedCity}

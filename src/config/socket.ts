@@ -8,11 +8,13 @@ import { addConversation, readConversation } from '../redux-toolkit/slices/conve
 import { connectSocket, disconnectSocket, socket } from '../redux-toolkit/slices/socketSlice';
 import { IConversation } from '../types/chat';
 import { addChat } from '../redux-toolkit/slices/chatSlice'; // Import addChat từ chatSlice
+import { addNotification } from '../redux-toolkit/slices/notificationSlice';
 
 const Socket: React.FC = () => {
     const user = useSelector((state: RootState) => state.user.user);
     const selectedConversation = useSelector((state: RootState) => state.conversations.selectedConversation);
     const dispatch = useDispatch<AppDispatch>();
+
 
     useEffect(() => {
         // Kết nối socket khi người dùng có sẵn
@@ -30,7 +32,7 @@ const Socket: React.FC = () => {
 
     useEffect(() => {
         const handleSendMessage = (data: IConversationSocket) => {
-            console.log('Message received:', data);
+            // console.log('Message received:', data);
             const participants = [data.sender, data.receiver];
             console.log(data.receiver);
 
@@ -82,6 +84,7 @@ const Socket: React.FC = () => {
         };
 
         const handleCreateNotification = (data: INotification) => {
+            dispatch(addNotification(data));
             console.log('Notification received:', data);
             // Xử lý thông báo
         };
@@ -107,4 +110,6 @@ const Socket: React.FC = () => {
 };
 
 export default Socket;
+
+
 

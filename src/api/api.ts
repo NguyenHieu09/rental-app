@@ -94,6 +94,8 @@ export const fetchNotifications = async (take: number, skip: number) => {
                 Authorization: `Bearer ${token}`,
             },
         });
+
+
         return response.data;
     } catch (error: any) {
         if (error.response && error.response.data && error.response.data.message) {
@@ -106,6 +108,38 @@ export const fetchNotifications = async (take: number, skip: number) => {
     }
 };
 
+
+export const updateNotificationStatus = async (notificationIds: string[], status: string) => {
+    try {
+        const token = await AsyncStorage.getItem('accessToken');
+
+        if (!token) {
+            throw new Error('No token provided');
+        }
+
+        const response = await axios.post(`${API_BASE_URL}/notifications/update-status`, {
+            notificationIds,
+            status,
+        }, {
+            headers: {
+                Authorization: `Bearer ${token}`,
+            },
+        });
+
+        console.log('Update notification status response:', response.data);
+
+
+        return response.data;
+    } catch (error: any) {
+        if (error.response && error.response.data && error.response.data.message) {
+            console.error('Error message:', error.response.data.message);
+            throw new Error(error.response.data.message);
+        } else {
+            console.error('Error updating notification status:', error);
+            throw error;
+        }
+    }
+};
 
 export const fetchPropertiesWithFilters = async (filters: IFilterProperty, take: number, skip: number) => {
     try {

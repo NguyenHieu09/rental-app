@@ -615,6 +615,9 @@ const ChatDetail: React.FC = () => {
         }
     }, [selectedConversation, user, dispatch]); // Chạy khi selectedConversation hoặc user thay đổi
 
+    useEffect(() => {
+        flatListRef.current?.scrollToEnd({ animated: true });
+    }, [chats]);
 
     const handleSend = async (text: string, uploadedImageUrls: string[]) => {
         if ((text.trim().length === 0 && uploadedImageUrls.length === 0) || !user) {
@@ -660,6 +663,8 @@ const ChatDetail: React.FC = () => {
         socket.emit('receive-message', socketData);
 
         setInputText(''); // Xóa nội dung văn bản sau khi gửi
+
+
     };
 
 
@@ -760,6 +765,8 @@ const ChatDetail: React.FC = () => {
     };
 
     const renderMessage = ({ item, index }: { item: IChat; index: number }) => {
+
+
         const showTimestamp = index === 0 ||
             moment(item.createdAt).diff(moment(chats[index - 1]?.createdAt), 'minutes') > 5;
 

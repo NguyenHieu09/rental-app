@@ -573,30 +573,30 @@ import { socket } from '../../../redux-toolkit/slices/socketSlice'; // Import th
 import { IReadConversationSocket } from '../../../types/conversation';
 
 const ChatScreen: React.FC = () => {
-    const [loading, setLoading] = useState<boolean>(true);
+    // const [loading, setLoading] = useState<boolean>(true);
     const navigation = useNavigation<NavigationProp<RootStackParamList>>();
     const user = useSelector((state: RootState) => state.user.user);
-    const conversations = useSelector((state: RootState) => state.conversations.conversations);
+    // const conversations = useSelector((state: RootState) => state.conversations.conversations);
     const dispatch = useDispatch<AppDispatch>();
+    const { conversations, loading } = useSelector((state: RootState) => state.conversations);
 
+    // const loadConversations = async () => {
+    //     setLoading(true);
+    //     try {
+    //         const data = await fetchAllConversations();
+    //         dispatch(addConversations({ data, pageInfo: { current: 1, pageSize: 10, total: data.length } }));
+    //     } catch (error) {
+    //         console.error('Error loading conversations:', error);
+    //     } finally {
+    //         setLoading(false);
+    //     }
+    // };
 
-    const loadConversations = async () => {
-        setLoading(true);
-        try {
-            const data = await fetchAllConversations();
-            dispatch(addConversations({ data, pageInfo: { current: 1, pageSize: 10, total: data.length } }));
-        } catch (error) {
-            console.error('Error loading conversations:', error);
-        } finally {
-            setLoading(false);
-        }
-    };
-
-    useFocusEffect(
-        React.useCallback(() => {
-            loadConversations();
-        }, [dispatch])
-    );
+    // useFocusEffect(
+    //     React.useCallback(() => {
+    //         loadConversations();
+    //     }, [dispatch])
+    // );
 
     const getLastMessageText = (lastMessage: any) => {
         if (lastMessage.message) {
@@ -674,22 +674,34 @@ const ChatScreen: React.FC = () => {
         return (
             <TouchableOpacity onPress={() => handleConversationPress(item)}>
                 <View style={styles.conversationContainer}>
+
                     <Image source={{ uri: avatarUrl }} style={styles.avatar} />
                     <View style={styles.textContainer}>
-                        <Text style={styles.conversationTitle}>
-                            {otherParticipant.name || 'Unknown'}
-                        </Text>
-                        <Text
-                            style={[
-                                styles.conversationLastMessage,
-                                isUnread && styles.unreadMessageText, // Áp dụng kiểu chữ đậm nếu tin nhắn chưa đọc
-                            ]}
-                            numberOfLines={1}
-                        >
-                            {lastMessageText}
-                        </Text>
+                        <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
+                            <Text style={styles.conversationTitle}>
+                                {otherParticipant.name || 'Unknown'}
+                            </Text>
+                            <Text style={styles.time}>{lastMessageTime}</Text>
+                        </View>
+                        <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginTop: 5 }}>
+                            <Text
+                                style={[
+                                    styles.conversationLastMessage,
+                                    isUnread && styles.unreadMessageText, // Áp dụng kiểu chữ đậm nếu tin nhắn chưa đọc
+                                ]}
+                                numberOfLines={1}
+                            >
+                                {lastMessageText}
+                            </Text>
+                            {isUnread && <View style={styles.unreadDot} />}
+
+                        </View>
+
+
+
                     </View>
-                    <Text style={styles.time}>{lastMessageTime}</Text>
+
+
                 </View>
             </TouchableOpacity>
         );
@@ -755,8 +767,21 @@ const styles = StyleSheet.create({
         color: '#999',
     },
     unreadMessageText: {
-        fontWeight: 'bold',
+        fontWeight: '800',
         color: '#000',
+    },
+    unreadCount: {
+        color: 'red'
+    },
+    unreadDot: {
+        width: 10,
+        height: 10,
+        borderRadius: 5,
+        backgroundColor: 'red',
+        position: 'absolute',
+        // top: '50%',
+        right: 10,
+        // marginTop: -5,
     },
 });
 

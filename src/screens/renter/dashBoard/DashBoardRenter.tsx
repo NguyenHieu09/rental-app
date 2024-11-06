@@ -111,8 +111,53 @@ const HomeScreen: React.FC = () => {
         console.log(`${label} button pressed!`);
     };
 
-    const lastName = user?.name ? user.name.split(' ').pop() : 'Guest';
+    // const lastName = user?.name ? user.name.split(' ').pop() : 'Guest';
     const avatar = user?.avatar || 'https://res.cloudinary.com/dxvrdtaky/image/upload/v1727451808/avatar_iirzeq.jpg';
+
+    const locations = [
+        {
+            title: "Hà Nội",
+            src: require("../../../../assets/img/ha-noi-location.webp"),
+
+        },
+        {
+            title: "Hồ Chí Minh",
+            src: require("../../../../assets/img/bat-dong-san-hcm.webp"),
+
+        },
+        {
+            title: "Đà Nẵng",
+            src: require("../../../../assets/img/bat-dong-san-da-nang.webp"),
+
+        },
+        {
+            title: "Cần Thơ",
+            src: require("../../../../assets/img/bat-dong-san-can-tho.webp"),
+
+        },
+        {
+            title: "Bà Rịa - Vũng Tàu",
+            src: require("../../../../assets/img/bat-dong-san-ba-ria-vung-tau.webp"),
+
+        },
+        {
+            title: "Bình Dương",
+            src: require("../../../../assets/img/bat-dong-san-binh-duong.webp"),
+
+        },
+        {
+            title: "Đồng Nai",
+            src: require("../../../../assets/img/bat-dong-san-dong-nai.webp"),
+
+        },
+        {
+            title: "Hải Phòng",
+            src: require("../../../../assets/img/bat-dong-san-hai-phong.webp"),
+
+        },
+    ];
+
+
 
     if (loading) {
         return (
@@ -144,7 +189,7 @@ const HomeScreen: React.FC = () => {
             <ScrollView scrollEventThrottle={400}>
                 <Text style={styles.sectionTitle}>Địa điểm hàng đầu</Text>
 
-                <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.scrollView}>
+                {/* <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.scrollView}>
                     <CustomButton
                         imageSource={require("../../../../assets/img/1.png")}
                         label="Hà Nội"
@@ -160,7 +205,19 @@ const HomeScreen: React.FC = () => {
                         label="Đà Nẵng"
                         onPress={() => handlePress('Đà Nẵng')}
                     />
+                </ScrollView> */}
+
+                <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.scrollView}>
+                    {locations.map((location, index) => (
+                        <CustomButton
+                            key={index} // hoặc sử dụng một giá trị duy nhất khác như location.title
+                            imageSource={location.src} // Đảm bảo rằng thuộc tính này trỏ tới đường dẫn hình ảnh đúng
+                            label={location.title}
+                            onPress={() => handlePress(location.title)}
+                        />
+                    ))}
                 </ScrollView>
+
 
                 <Text style={styles.sectionTitle}>Bất động sản nổi bật</Text>
                 <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.featuredContainer}>
