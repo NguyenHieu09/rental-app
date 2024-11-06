@@ -105,6 +105,9 @@ const conversationSlice = createSlice({
                 state.selectedConversation = foundConversation ?? null; // Use null if not found
             }
         },
+        clearConversations: (state) => {
+            state.conversations = [];
+        },
     },
 });
 
@@ -114,6 +117,7 @@ export const {
     addConversations,
     setSelectedConversation,
     readConversation,
+    clearConversations
 } = conversationSlice.actions;
 
 export default conversationSlice.reducer;

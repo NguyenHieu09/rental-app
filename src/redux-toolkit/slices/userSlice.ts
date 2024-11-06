@@ -211,6 +211,7 @@ import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import { fetchUserData, loginUser, registerUser } from '../../api/api';
 import { IUser } from '../../types/user';
 
+
 export interface userInfoInterfaceI {
     user: IUser | undefined;
     accessToken?: string | undefined;
@@ -226,6 +227,7 @@ const initialState: userInfoInterfaceI = {
     loading: false,
     error: null,
 };
+
 
 export const loginUserAsync = createAsyncThunk(
     'user/loginUserAsync',

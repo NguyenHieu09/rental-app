@@ -176,7 +176,11 @@ const Tab = createBottomTabNavigator();
 const RenterTabs: React.FC = () => {
     const dispatch = useDispatch<AppDispatch>();
     const conversations = useSelector((state: RootState) => state.conversations.conversations);
+
     const userId = useSelector((state: RootState) => state.user.user?.userId); // Giả định có ID người dùng trong Redux store
+    const filteredConversations = conversations.filter((conversation) =>
+        conversation.participants.some((participant) => participant.userId === userId)
+    );
     const [unreadCount, setUnreadCount] = useState(0);
 
     // Tính toán số lượng tin nhắn chưa đọc
@@ -201,7 +205,7 @@ const RenterTabs: React.FC = () => {
     // Đảm bảo tính toán lại mỗi khi có sự thay đổi trong conversations
     useEffect(() => {
         if (userId) {
-            const unreadMessages = calculateUnreadMessages(conversations, userId);
+            const unreadMessages = calculateUnreadMessages(filteredConversations, userId);
             setUnreadCount(unreadMessages);
         }
     }, [conversations, userId]);

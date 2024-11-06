@@ -579,24 +579,10 @@ const ChatScreen: React.FC = () => {
     // const conversations = useSelector((state: RootState) => state.conversations.conversations);
     const dispatch = useDispatch<AppDispatch>();
     const { conversations, loading } = useSelector((state: RootState) => state.conversations);
+    const filteredConversations = conversations.filter((conversation) =>
+        conversation.participants.some((participant) => participant.userId === user?.userId)
+    );
 
-    // const loadConversations = async () => {
-    //     setLoading(true);
-    //     try {
-    //         const data = await fetchAllConversations();
-    //         dispatch(addConversations({ data, pageInfo: { current: 1, pageSize: 10, total: data.length } }));
-    //     } catch (error) {
-    //         console.error('Error loading conversations:', error);
-    //     } finally {
-    //         setLoading(false);
-    //     }
-    // };
-
-    // useFocusEffect(
-    //     React.useCallback(() => {
-    //         loadConversations();
-    //     }, [dispatch])
-    // );
 
     const getLastMessageText = (lastMessage: any) => {
         if (lastMessage.message) {
@@ -656,15 +642,17 @@ const ChatScreen: React.FC = () => {
     };
 
     const renderConversation = ({ item }: { item: IConversation }) => {
-        const lastMessage = item.chats.length > 0 ? item.chats[item.chats.length - 1] : null;
-        const lastMessageText = lastMessage ? getLastMessageText(lastMessage) : '';
-        const lastMessageTime = item.updatedAt ? formatTime(item.updatedAt) : '';
-
+        // Kiểm tra xem user có phải là một trong những participants trong cuộc hội thoại không
         const otherParticipant = item.participants.find(p => p.userId !== user?.userId);
 
+        // Nếu không có người tham gia khác (tức là chỉ có user trong participants), thì không hiển thị cuộc hội thoại này
         if (!otherParticipant) {
             return null;
         }
+
+        const lastMessage = item.chats.length > 0 ? item.chats[item.chats.length - 1] : null;
+        const lastMessageText = lastMessage ? getLastMessageText(lastMessage) : '';
+        const lastMessageTime = item.updatedAt ? formatTime(item.updatedAt) : '';
 
         const avatarUrl = otherParticipant.avatar || 'https://res.cloudinary.com/dxvrdtaky/image/upload/v1727451808/avatar_iirzeq.jpg';
 
@@ -674,7 +662,6 @@ const ChatScreen: React.FC = () => {
         return (
             <TouchableOpacity onPress={() => handleConversationPress(item)}>
                 <View style={styles.conversationContainer}>
-
                     <Image source={{ uri: avatarUrl }} style={styles.avatar} />
                     <View style={styles.textContainer}>
                         <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
@@ -694,18 +681,65 @@ const ChatScreen: React.FC = () => {
                                 {lastMessageText}
                             </Text>
                             {isUnread && <View style={styles.unreadDot} />}
-
                         </View>
-
-
-
                     </View>
-
-
                 </View>
             </TouchableOpacity>
         );
     };
+
+
+    // const renderConversation = ({ item }: { item: IConversation }) => {
+    //     const lastMessage = item.chats.length > 0 ? item.chats[item.chats.length - 1] : null;
+    //     const lastMessageText = lastMessage ? getLastMessageText(lastMessage) : '';
+    //     const lastMessageTime = item.updatedAt ? formatTime(item.updatedAt) : '';
+
+    //     const otherParticipant = item.participants.find(p => p.userId !== user?.userId);
+
+    //     if (!otherParticipant) {
+    //         return null;
+    //     }
+
+    //     const avatarUrl = otherParticipant.avatar || 'https://res.cloudinary.com/dxvrdtaky/image/upload/v1727451808/avatar_iirzeq.jpg';
+
+    //     // Kiểm tra xem tin nhắn cuối cùng có phải là chưa đọc hay không
+    //     const isUnread = lastMessage && (item.unreadCount > 0 || (lastMessage.senderId !== user?.userId && lastMessage.status === 'RECEIVED'));
+
+    //     return (
+    //         <TouchableOpacity onPress={() => handleConversationPress(item)}>
+    //             <View style={styles.conversationContainer}>
+
+    //                 <Image source={{ uri: avatarUrl }} style={styles.avatar} />
+    //                 <View style={styles.textContainer}>
+    //                     <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
+    //                         <Text style={styles.conversationTitle}>
+    //                             {otherParticipant.name || 'Unknown'}
+    //                         </Text>
+    //                         <Text style={styles.time}>{lastMessageTime}</Text>
+    //                     </View>
+    //                     <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginTop: 5 }}>
+    //                         <Text
+    //                             style={[
+    //                                 styles.conversationLastMessage,
+    //                                 isUnread && styles.unreadMessageText, // Áp dụng kiểu chữ đậm nếu tin nhắn chưa đọc
+    //                             ]}
+    //                             numberOfLines={1}
+    //                         >
+    //                             {lastMessageText}
+    //                         </Text>
+    //                         {isUnread && <View style={styles.unreadDot} />}
+
+    //                     </View>
+
+
+
+    //                 </View>
+
+
+    //             </View>
+    //         </TouchableOpacity>
+    //     );
+    // };
 
 
     if (loading || !user) {
@@ -719,7 +753,7 @@ const ChatScreen: React.FC = () => {
     return (
         <SafeAreaView style={styles.container}>
             <FlatList
-                data={conversations}
+                data={filteredConversations}
                 renderItem={renderConversation}
                 keyExtractor={(item) => item.conversationId}
             />

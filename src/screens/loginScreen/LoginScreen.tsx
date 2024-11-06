@@ -7,6 +7,7 @@ import { IconFill, IconOutline } from "@ant-design/icons-react-native";
 import { commonStyles, COLORS } from '../../styles/theme';
 import { loginUserAsync } from '../../redux-toolkit/slices/userSlice';
 import { RootState, AppDispatch } from '../../redux-toolkit/store';
+import { clearConversations } from '../../redux-toolkit/slices/conversationSlice';
 
 const LoginScreen: React.FC = () => {
     const [email, setEmail] = useState('');
@@ -19,9 +20,13 @@ const LoginScreen: React.FC = () => {
         console.log('User state updated:', user);
         if (user && Array.isArray(user.userTypes)) {
             if (user.userTypes.includes('owner')) {
+
+
                 navigation.navigate('OwnerTabs');
             } else if (user.userTypes.includes('renter')) {
-                navigation.navigate('RenterTabs'); // Điều hướng đến Bottom Tabs Navigator cho người thuê
+
+
+                navigation.navigate('RenterTabs');
             }
         }
     }, [user, navigation]);
