@@ -68,9 +68,10 @@ export type RootStackParamList = {
     ContractDetails: { contractId: string };
     AuthenticationScreen: undefined;
     ManageCancelContract: undefined;
-    ExploreScreen: { searchText?: string };
+    ExploreScreen: { city?: string };
     // ChatDetail: { conversation: IConversation };
     ChatDetail: undefined;
+    NotificationScreen: undefined;
 
 };
 

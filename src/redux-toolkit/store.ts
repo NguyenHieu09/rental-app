@@ -4,7 +4,7 @@ import chatReducer from '../redux-toolkit/slices/chatSlice';
 import conversationReducer from '../redux-toolkit/slices/conversationSlice';
 import socketReducer from '../redux-toolkit/slices/socketSlice';
 import notificationReducer from '../redux-toolkit/slices/notificationSlice';
-
+import favoriteReducer from '../redux-toolkit/slices/favoriteSlice';
 
 const store = configureStore({
     reducer: {
@@ -13,6 +13,7 @@ const store = configureStore({
         conversations: conversationReducer,
         socket: socketReducer,
         notifications: notificationReducer,
+        favorite: favoriteReducer,
     },
     middleware: (getDefaultMiddleware) => getDefaultMiddleware().concat(),
 });

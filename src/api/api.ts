@@ -5,6 +5,7 @@ import { IFilterProperty } from '../types/property';
 import { IGenerateContractRequest } from '../types/rentalRequest';
 import { IUser } from '../types/user';
 import { IConversation } from '../types/chat';
+import { ICreatePropertyInteraction } from '../types/propertyInteraction';
 
 
 const API_BASE_URL = `${API_URL}/estate-manager-service`;
@@ -73,6 +74,32 @@ export const fetchPropertyDetail = async (slug: string) => {
             throw new Error(error.response.data.message);
         } else {
             console.error('Error fetching property detail:', error);
+            throw error;
+        }
+    }
+};
+
+export const fetchUnreadNotificationsCount = async () => {
+    try {
+        const token = await AsyncStorage.getItem('accessToken');
+
+        if (!token) {
+            throw new Error('No token provided');
+        }
+
+        const response = await axios.get(`${API_BASE_URL}/notifications/count`, {
+            headers: {
+                Authorization: `Bearer ${token}`,
+            },
+        });
+
+        return response.data.data;
+    } catch (error: any) {
+        if (error.response && error.response.data && error.response.data.message) {
+            console.error('Error message:', error.response.data.message);
+            throw new Error(error.response.data.message);
+        } else {
+            console.error('Error fetching unread notifications count:', error);
             throw error;
         }
     }
@@ -406,7 +433,7 @@ export const fetchFilteredProperties = async (take: number, skip: number, filter
         }
 
         const cleanedFilters = cleanFilters(filters);
-        console.log('Cleaned filters:', cleanedFilters);
+        // console.log('Cleaned filters:', cleanedFilters);
 
         const params: any = { ...cleanedFilters, take, skip };
         if (query) {
@@ -457,3 +484,102 @@ export const fetchAllConversations = async (): Promise<IConversation[]> => {
         }
     }
 };
+
+
+export const createPropertyToFavorites = async (data: ICreatePropertyInteraction) => {
+    try {
+        const token = await AsyncStorage.getItem('accessToken');
+
+        if (!token) {
+            throw new Error('No token provided');
+        }
+
+        const response = await axios.post(
+            `${API_BASE_URL}/property-interactions`,
+            {
+                propertyId: data.propertyId,
+                interactionType: data.interactionType,
+            },
+            {
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                },
+            }
+        );
+
+        return response.data;
+    } catch (error: any) {
+        if (error.response && error.response.data && error.response.data.message) {
+            console.error('Error message:', error.response.data.message);
+            throw new Error(error.response.data.message);
+        } else {
+            console.error('Error adding property to favorites:', error);
+            throw error;
+        }
+    }
+};
+
+export const getFavoriteProperties = async (take: number, skip: number) => {
+    try {
+        const token = await AsyncStorage.getItem('accessToken');
+
+        if (!token) {
+            throw new Error('No token provided');
+        }
+
+        const response = await axios.get(
+            `${API_BASE_URL}/property-interactions/favorites`,
+            {
+                params: {
+                    take, // Số lượng yêu thích mỗi lần load
+                    skip, // Bắt đầu từ vị trí này (tính từ 0)
+                },
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                },
+            }
+        );
+
+        return response.data; // Trả về danh sách yêu thích
+    } catch (error: any) {
+        if (error.response && error.response.data && error.response.data.message) {
+            console.error('Error message:', error.response.data.message);
+            throw new Error(error.response.data.message);
+        } else {
+            console.error('Error fetching favorite properties:', error);
+            throw error;
+        }
+    }
+};
+
+
+// // Hàm lấy danh sách yêu thích từ API
+// export const getFavoriteProperties = async () => {
+//     try {
+//         const token = await AsyncStorage.getItem('accessToken');
+
+//         if (!token) {
+//             throw new Error('No token provided');
+//         }
+
+//         const response = await axios.get(
+//             `${API_BASE_URL}/property-interactions/favorites`,
+//             {
+//                 headers: {
+//                     Authorization: `Bearer ${token}`,
+//                 },
+//             }
+//         );
+
+//         return response.data; // Trả về danh sách yêu thích
+//     } catch (error: any) {
+//         if (error.response && error.response.data && error.response.data.message) {
+//             console.error('Error message:', error.response.data.message);
+//             throw new Error(error.response.data.message);
+//         } else {
+//             console.error('Error fetching favorite properties:', error);
+//             throw error;
+//         }
+//     }
+// };
+

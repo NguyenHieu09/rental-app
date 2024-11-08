@@ -108,7 +108,10 @@ const HomeScreen: React.FC = () => {
     };
 
     const handlePress = (label: string) => {
-        console.log(`${label} button pressed!`);
+        // console.log('City:', label);
+
+        navigation.navigate('ExploreScreen', { city: label });
+        // console.log(`${label} button pressed!`);
     };
 
     // const lastName = user?.name ? user.name.split(' ').pop() : 'Guest';
@@ -121,7 +124,7 @@ const HomeScreen: React.FC = () => {
 
         },
         {
-            title: "Hồ Chí Minh",
+            title: "TP. Hồ Chí Minh",
             src: require("../../../../assets/img/bat-dong-san-hcm.webp"),
 
         },
@@ -171,41 +174,26 @@ const HomeScreen: React.FC = () => {
         <SafeAreaView style={commonStyles.container}>
             <HomeHeader avatar={avatar} />
 
-            <View style={styles.searchContainer}>
+            <TouchableOpacity style={styles.searchContainer}>
                 <TextInput
                     style={styles.searchInput}
                     placeholder="Tìm kiếm nhà, căn hộ..."
-                    value={searchText}
+                    // value={searchText}
+                    onFocus={() => {
+
+                        navigation.navigate('ExploreScreen', {});
+                    }}
                     onChangeText={(text) => setSearchText(text)}
                 />
-                <TouchableOpacity onPress={() => {
-                    navigation.navigate('ExploreScreen', { searchText });
-                }}>
+                <TouchableOpacity>
                     <AntDesign name="search1" size={20} color="#000" />
                 </TouchableOpacity>
-            </View>
+            </TouchableOpacity>
 
 
             <ScrollView scrollEventThrottle={400}>
                 <Text style={styles.sectionTitle}>Địa điểm hàng đầu</Text>
 
-                {/* <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.scrollView}>
-                    <CustomButton
-                        imageSource={require("../../../../assets/img/1.png")}
-                        label="Hà Nội"
-                        onPress={() => handlePress('Hà Nội')}
-                    />
-                    <CustomButton
-                        imageSource={require("../../../../assets/img/1.png")}
-                        label="TP.HCM"
-                        onPress={() => handlePress('TP.HCM')}
-                    />
-                    <CustomButton
-                        imageSource={require("../../../../assets/img/1.png")}
-                        label="Đà Nẵng"
-                        onPress={() => handlePress('Đà Nẵng')}
-                    />
-                </ScrollView> */}
 
                 <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.scrollView}>
                     {locations.map((location, index) => (

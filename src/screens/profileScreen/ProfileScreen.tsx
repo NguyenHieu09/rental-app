@@ -9,6 +9,9 @@ import { logoutUserAsync } from '../../redux-toolkit/slices/userSlice';
 import { NavigationProp, useNavigation } from '@react-navigation/native';
 import { RootStackParamList } from '../../types/navigation';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { resetFavorites } from '../../redux-toolkit/slices/favoriteSlice';
+import { clearConversations } from '../../redux-toolkit/slices/conversationSlice';
+import { resetNotifications } from '../../redux-toolkit/slices/notificationSlice';
 
 const options = [
     { id: '1', title: 'Ví', icon: 'wallet' },
@@ -28,7 +31,12 @@ const ProfileScreen = () => {
     const navigation = useNavigation<NavigationProp<RootStackParamList>>();
 
     const handleLogout = async () => {
+        dispatch(resetFavorites());
+        dispatch(clearConversations());
+        dispatch(resetNotifications());
+
         await dispatch(logoutUserAsync());
+
         navigation.navigate('Login');
     };
     const renderItem = ({ item }: { item: { id: string, title: string, icon: string } }) => (

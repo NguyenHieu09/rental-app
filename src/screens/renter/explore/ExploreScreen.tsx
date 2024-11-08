@@ -1,5 +1,3 @@
-
-
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { View, Text, FlatList, TextInput, StyleSheet, TouchableOpacity, ActivityIndicator, Image } from 'react-native';
 import { commonStyles } from '../../../styles/theme';
@@ -9,15 +7,16 @@ import { fetchFilteredProperties } from '../../../api/api';
 import { IProperty } from '../../../types/property';
 import { NavigationProp, RouteProp, useFocusEffect, useNavigation, useRoute } from '@react-navigation/native';
 import { RootStackParamList } from '../../../types/navigation';
-import { IconOutline } from '@ant-design/icons-react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { IconFill, IconOutline } from '@ant-design/icons-react-native';
+import RenderExploreItem from '../../../components/exploreItem/RenderExploreItem';
 
 const ITEMS_PER_PAGE = 10;
 
 const ExploreScreen: React.FC = () => {
     const route = useRoute<RouteProp<RootStackParamList, 'ExploreScreen'>>();
-    const initialSearchText = route.params?.searchText || '';
-    const [searchText, setSearchText] = useState<string>(initialSearchText);
+    const city = route.params?.city;
+    const [searchText, setSearchText] = useState<string>('');
     const [modalVisible, setModalVisible] = useState(false);
     const [exploreItems, setExploreItems] = useState<IProperty[]>([]);
     const [filters, setFilters] = useState<any>({});
@@ -29,42 +28,83 @@ const ExploreScreen: React.FC = () => {
     const navigation = useNavigation<NavigationProp<RootStackParamList>>();
 
     useEffect(() => {
+        if (city) {
+            setExploreItems([]);
+            setCurrentPage(0);
+            loadProperties(0, searchText, city);
+        }
+    }, [city, filters, searchText]);
+
+    useEffect(() => {
         const loadInitialProperties = async () => {
-            await loadProperties(0, initialSearchText);
+            const selectedCity = route.params?.city || '';
+            setExploreItems([]);
+            setCurrentPage(0);
+            loadProperties(0, searchText, selectedCity);
         };
         loadInitialProperties();
     }, []);
 
+    useFocusEffect(
+        useCallback(() => {
+            setExploreItems([]);
+            setCurrentPage(0);
+            loadProperties(0, searchText, filters.city || city);  // Sử dụng filters.city thay vì city trực tiếp
+        }, [searchText, city, filters]) // Đảm bảo rằng filters được sử dụng chính xác
+    );
+
     useEffect(() => {
-        loadProperties(0, searchText);
-    }, [filters]);
+        if (filters.city) {
+            loadProperties(0, searchText, filters.city);  // Gọi lại loadProperties khi filters.city thay đổi
+        }
+    }, [filters.city]);  // Khi filters.city thay đổi, sẽ gọi lại loadProperties
+
+
 
     useFocusEffect(
         useCallback(() => {
-            loadProperties(0, searchText);
-        }, [searchText])
+            setExploreItems([]);
+            setCurrentPage(0);
+            loadProperties(0, searchText, city);
+        }, [searchText, city, filters])
     );
 
-    const loadProperties = async (page: number, query?: string) => {
+
+
+    const handleApplyFilters = (appliedFilters: any) => {
+        const selectedCity = appliedFilters.city || city;
+        setFilters({ ...filters, city: selectedCity, ...appliedFilters });
+        setModalVisible(false);
+        setCurrentPage(0);
+        setExploreItems([]);
+        loadProperties(0, searchText, selectedCity);
+    };
+
+
+
+    const loadProperties = async (page: number, query?: string, city?: string) => {
         try {
-            if (page === 0) setLoading(true);
-            else setIsLoadingMore(true);
+            if (page === 0) setLoading(true); // Set loading to true when fetching the first page
+            else setIsLoadingMore(true); // Set loading more state to true when fetching more data
 
             const skip = page * ITEMS_PER_PAGE;
-            const data = await fetchFilteredProperties(ITEMS_PER_PAGE, skip, filters, query);
+            const filter = city ? { ...filters, city } : filters;
+            console.log('Đang load properties với bộ lọc:', filter);
+
+            const data = await fetchFilteredProperties(ITEMS_PER_PAGE, skip, filter, query);
 
             if (data && data.data) {
                 setExploreItems(prevItems => (page === 0 ? data.data : [...prevItems, ...data.data]));
                 setTotalItems(data.pageInfo.total);
+                // console.log('Tổng số item: ', data.pageInfo.total);
             } else {
                 setExploreItems([]);
             }
         } catch (error) {
             console.error('Error loading properties:', error);
-            // Optionally, set an error state here
         } finally {
-            setLoading(false);
-            setIsLoadingMore(false);
+            setLoading(false); // Set loading to false after the first fetch
+            setIsLoadingMore(false); // Set loading more to false after fetching more data
         }
     };
 
@@ -72,47 +112,20 @@ const ExploreScreen: React.FC = () => {
         if (!isLoadingMore && exploreItems.length < totalItems) {
             setCurrentPage(prevPage => {
                 const nextPage = prevPage + 1;
-                loadProperties(nextPage, searchText);
+                // Kiểm tra xem nextPage có vượt quá số trang không
+                if (nextPage * ITEMS_PER_PAGE < totalItems) {
+                    loadProperties(nextPage, searchText, city);
+                }
                 return nextPage;
             });
         }
     };
 
-    const handleApplyFilters = (appliedFilters: any) => {
-        setFilters(appliedFilters);
-        setModalVisible(false);
-        setCurrentPage(0);
-        setExploreItems([]);
-    };
 
     const handleSearch = () => {
         setCurrentPage(0);
         loadProperties(0, searchText);
     };
-
-    const filteredItems = exploreItems.filter((item) =>
-        item.title.toLowerCase().includes(searchText.toLowerCase())
-    );
-
-    const MemoizedRenderExploreItem = React.memo(({ item }: { item: IProperty }) => {
-
-        return (
-            <TouchableOpacity
-                style={styles.itemContainer}
-                onPress={() => {
-                    navigation.navigate('PropertyScreen', { slug: item.slug });
-                }}
-            >
-                <Image source={{ uri: item.images[0] }} style={styles.itemImage} />
-                <View style={styles.itemDetails}>
-                    <Text style={styles.itemTitle} numberOfLines={2}>{item.title}</Text>
-                    <Text style={styles.itemDescription} numberOfLines={2}>{item.description}</Text>
-                    <Text style={styles.itemAddress}>ĐC: {`${item.address.street}, ${item.address.ward}, ${item.address.district}, ${item.address.city}`}</Text>
-                    <Text style={styles.itemPrice}>{item.price.toLocaleString()} đ/tháng</Text>
-                </View>
-            </TouchableOpacity>
-        );
-    });
 
     return (
         <SafeAreaView style={[commonStyles.container]}>
@@ -129,19 +142,20 @@ const ExploreScreen: React.FC = () => {
                     </TouchableOpacity>
                 </View>
                 <TouchableOpacity onPress={() => setModalVisible(true)} style={styles.selectButton}>
-                    <AntDesign name="filter" size={24} color="#000" />
+                    <AntDesign name="filter" size={26} color="#000" />
                 </TouchableOpacity>
             </View>
 
             {loading && currentPage === 0 ? (
                 <View style={styles.loadingContainer}>
                     <ActivityIndicator size="large" color="#0000ff" />
+                    <Text style={styles.loadingText}>Đang tải...</Text>
                 </View>
             ) : exploreItems.length > 0 ? (
                 <FlatList
                     data={exploreItems}
-                    renderItem={({ item }) => <MemoizedRenderExploreItem item={item} />}
-                    keyExtractor={(item) => item.propertyId}
+                    renderItem={({ item }) => <RenderExploreItem item={item} navigation={navigation} />}
+                    keyExtractor={(item, index) => `${item.propertyId}-${index}`}
                     onEndReached={loadMoreProperties}
                     onEndReachedThreshold={0.5}
                     ListFooterComponent={isLoadingMore ? (
@@ -150,6 +164,7 @@ const ExploreScreen: React.FC = () => {
                             <Text style={styles.loadingText}>Đang tải thêm...</Text>
                         </View>
                     ) : null}
+                    ListHeaderComponent={<View style={{ height: 30 }} />}
                 />
             ) : (
                 <Text style={styles.emptyText}>Không có kết quả tìm kiếm</Text>
@@ -164,6 +179,8 @@ const ExploreScreen: React.FC = () => {
     );
 };
 
+
+
 const styles = StyleSheet.create({
     container: {
         flex: 1,
@@ -171,7 +188,7 @@ const styles = StyleSheet.create({
     },
     findContainer: {
         position: 'absolute',
-        top: 0,
+        top: 10,
         left: 0,
         right: 0,
         flexDirection: 'row',
@@ -251,7 +268,14 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
         marginLeft: 5,
     },
+    favoriteIcon: {
+        position: 'absolute',
+        top: 10,
+        right: 0,
+    },
 });
 
 export default ExploreScreen;
+
+
 

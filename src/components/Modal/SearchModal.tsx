@@ -35,7 +35,7 @@ const modalWidth = width;
 const modalHeight = height * 0.8;
 
 const SearchModal: React.FC<SearchModalProps> = ({ visible, onClose, onApplyFilters }) => {
-    const locations = ['TP Hồ Chí Minh', 'Hà Nội', 'Đà Nẵng'];
+
 
     const [selectedCity, setSelectedCity] = useState<string | undefined>(undefined);
     const [selectedCityName, setSelectedCityName] = useState<string | undefined>(undefined);
