@@ -6,13 +6,16 @@ import { fetchTransactions } from '../../api/contract';
 import { RouteProp, useRoute } from '@react-navigation/native';
 import { RootStackParamList } from '../../types/navigation';
 import { ITransaction } from '../../types/transaction';
+import { RootState } from '../../redux-toolkit/store';
+import { useSelector } from 'react-redux';
 
 // Define the type for the route prop
-type TransactionsRouteProp = RouteProp<RootStackParamList, 'Transactions'>;
+// type TransactionsRouteProp = RouteProp<RootStackParamList, 'Transactions'>;
 
 const Transactions: React.FC = () => {
-    const route = useRoute<TransactionsRouteProp>();
-    const { user } = route.params;
+    // const route = useRoute<TransactionsRouteProp>();
+    // const { user } = route.params;
+    const user = useSelector((state: RootState) => state.user.user);
     const [transactions, setTransactions] = useState<ITransaction[]>([]);
     const [currentPage, setCurrentPage] = useState(0);
     const [totalTransactions, setTotalTransactions] = useState(0);
@@ -29,7 +32,7 @@ const Transactions: React.FC = () => {
 
             const skip = page * ITEMS_PER_PAGE;
             // console.log(`Fetching data with skip: ${skip}`);
-            const response = await fetchTransactions(user.userId, 'ALL', ITEMS_PER_PAGE, skip);
+            const response = await fetchTransactions('ALL', ITEMS_PER_PAGE, skip);
             // console.log('API response:', response);
 
             const { transactions, total } = response;
@@ -57,7 +60,7 @@ const Transactions: React.FC = () => {
 
     useEffect(() => {
         loadTransactions(0);
-    }, [user]);
+    }, []);
 
     const loadMoreTransactions = () => {
         console.log('Attempting to load more transactions...');
@@ -73,7 +76,7 @@ const Transactions: React.FC = () => {
 
     const renderItem = ({ item }: { item: ITransaction }) => {
         const amountEth = item.amountEth !== null && item.amountEth !== undefined ? item.amountEth.toFixed(4) : '0.0000'; // Format to 4 decimal places
-        const isOutgoing = item.fromId === user.userId;
+        const isOutgoing = item.fromId === user?.userId;
         return (
             <Card style={styles.transactionCard}>
                 <Text style={styles.transactionDescription}>{item.title}</Text>

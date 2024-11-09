@@ -13,15 +13,17 @@ export interface INotification {
 }
 
 export type NotificationType =
-    | 'RENTER_RENTAL_REQUEST'
+    | 'RENTER_PAYMENT'
     | 'RENTAL_REQUEST'
+    | 'RENTER_RENTAL_REQUEST'
+    | 'OWNER_CONTRACT'
+    | 'CONTRACT_DETAIL'
+    | 'OWNER_DETAIL_PROPERTY'
+
+
     | 'PROPERTY'
     | 'REVIEW'
-    | 'OWNER_DETAIL_PROPERTY'
-    | 'OWNER_CONTRACT'
     | 'RENTER_CONTRACT'
-    | 'CONTRACT_DETAIL'
-    | 'RENTER_PAYMENT'
     | 'OWNER_PROPERTY'
     | 'ADMIN_PROPERTY';
 export type NotificationStatus = 'RECEIVED' | 'READ' | 'DELETED';

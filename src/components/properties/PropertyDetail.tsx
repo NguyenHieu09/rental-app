@@ -25,7 +25,6 @@
 //     const formattedDeposit = formatPrice(deposit);
 //     console.log(property.propertyId);
 
-
 //     const area = rentalConditions.find((condition) => condition.type === 'Diện tích')?.value;
 //     const bed = rentalConditions.find((condition) => condition.type === 'Phòng ngủ')?.value;
 //     const bath = rentalConditions.find((condition) => condition.type === 'Phòng tắm')?.value;

@@ -37,7 +37,7 @@ export const createContract = async (contractRequest: ICreateContractRequest): P
     }
 };
 
-export const fetchTransactions = async (userId: string, type: string, take: number, skip: number) => {
+export const fetchTransactions = async (type: string, take: number, skip: number) => {
     try {
         const token = await AsyncStorage.getItem('accessToken');
 
@@ -47,7 +47,7 @@ export const fetchTransactions = async (userId: string, type: string, take: numb
 
         const response = await axios.get(`${API_CONTRACT_URL}/transactions`, {
             params: {
-                userId,
+                // userId,
                 type,
                 take,
                 skip,
@@ -331,6 +331,33 @@ export const updateRentalRequestStatus = async (requestId: string, status: strin
         }
 
         const response = await axios.patch(`${API_CONTRACT_URL}/rental-requests/owner/status`, { requestId, status }, {
+            headers: {
+                Authorization: `Bearer ${token}`,
+            },
+        });
+
+        return response.data;
+    } catch (error: any) {
+        if (error.response && error.response.data && error.response.data.message) {
+            console.error('Error message:', error.response.data.message);
+            throw new Error(error.response.data.message);
+        } else {
+            console.error('Error updating rental request status:', error);
+            throw error;
+        }
+    }
+};
+
+
+export const updateRentalRequestStatusRenter = async (requestId: string, status: string) => {
+    try {
+        const token = await AsyncStorage.getItem('accessToken');
+
+        if (!token) {
+            throw new Error('No token provided');
+        }
+
+        const response = await axios.patch(`${API_CONTRACT_URL}/rental-requests/renter/status`, { requestId, status }, {
             headers: {
                 Authorization: `Bearer ${token}`,
             },

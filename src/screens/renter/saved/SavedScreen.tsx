@@ -22,7 +22,7 @@ const SavedScreen: React.FC = () => {
     const loadFavorites = async (page: number) => {
         try {
             if (page === 1) {
-                dispatch(setLoading(true)); // Set loading state for initial load
+                dispatch(setLoading(true));
             }
             const skip = (page - 1) * itemsPerPage;
             const response = await getFavoriteProperties(itemsPerPage, skip);
@@ -32,9 +32,9 @@ const SavedScreen: React.FC = () => {
             dispatch(setError(error.message || 'Lỗi khi tải dữ liệu'));
         } finally {
             if (page === 1) {
-                dispatch(setLoading(false)); // Reset loading state for initial load
+                dispatch(setLoading(false));
             }
-            setIsLoadingMore(false); // Reset loading state for loading more items
+            setIsLoadingMore(false);
         }
     };
 

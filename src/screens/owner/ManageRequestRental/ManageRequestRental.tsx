@@ -11,7 +11,7 @@ import { IGenerateContractRequest, IRentalRequest } from '../../../types/rentalR
 import { useFocusEffect, NavigationProp, useNavigation } from '@react-navigation/native';
 import { RootStackParamList } from '../../../types/navigation';
 import { format } from 'date-fns';
-import { fetchRentalRequestsForOwner, fetchRentalRequestsForRenter, generateContract } from '../../../api/contract';
+import { fetchRentalRequestsForOwner, fetchRentalRequestsForRenter, generateContract, updateRentalRequestStatus, updateRentalRequestStatusRenter } from '../../../api/contract';
 
 export type RentalRequestStatus = 'PENDING' | 'APPROVED' | 'REJECTED' | 'CANCELLED';
 
@@ -129,10 +129,48 @@ const ManageRequestRental = () => {
         }
     };
 
-    const handleCancelPress = (item: IRentalRequest) => {
-        // Logic to handle cancel request
-        Alert.alert('Cancel', `Yêu cầu thuê ${item.requestId} đã bị hủy.`);
+    const handleRejectPress = async (item: IRentalRequest) => {
+        try {
+            const response = await updateRentalRequestStatus(item.requestId, 'REJECTED');
+            // Sau khi cập nhật trạng thái thành công, bạn có thể cập nhật lại danh sách yêu cầu
+            setRentalRequests((prevRequests) =>
+                prevRequests.map((request) =>
+                    request.requestId === item.requestId
+                        ? { ...request, status: 'REJECTED' }
+                        : request
+                )
+            );
+            Alert.alert('Thông báo', 'Yêu cầu thuê đã bị từ chối.');
+        } catch (error) {
+            console.error('Error rejecting rental request:', error);
+            Alert.alert('Error', 'Có lỗi xảy ra khi từ chối yêu cầu.');
+        }
     };
+
+
+    const handleCancelPress = async (item: IRentalRequest) => {
+
+        try {
+            // Gọi API để cập nhật trạng thái của yêu cầu
+            const response = await updateRentalRequestStatusRenter(item.requestId, 'CANCELLED');
+
+            // Sau khi cập nhật trạng thái thành công, cập nhật lại danh sách yêu cầu
+            setRentalRequests((prevRequests) =>
+                prevRequests.map((request) =>
+                    request.requestId === item.requestId
+                        ? { ...request, status: 'CANCELLED' }
+                        : request
+                )
+            );
+
+            // Thông báo thành công
+            Alert.alert('Thông báo', 'Yêu cầu thuê đã bị hủy.');
+        } catch (error) {
+            console.error('Error cancelling rental request:', error);
+            Alert.alert('Error', 'Có lỗi xảy ra khi hủy yêu cầu.');
+        }
+    };
+
 
     const renderRentalRequest = ({ item }: { item: IRentalRequest }) => (
         <View key={item.requestId} style={styles.requestCard}>
@@ -158,12 +196,12 @@ const ManageRequestRental = () => {
                     {item.status === 'PENDING' ? (
                         <>
                             {user?.userTypes.includes('renter') ? (
-                                <TouchableOpacity style={[styles.button]} >
+                                <TouchableOpacity style={[styles.button]} onPress={() => handleCancelPress(item)}>
                                     <Text style={styles.buttonText}>Hủy</Text>
                                 </TouchableOpacity>
                             ) : (
                                 <>
-                                    <TouchableOpacity style={[styles.button, styles.rejectButton]} >
+                                    <TouchableOpacity style={[styles.button, styles.rejectButton]} onPress={() => handleRejectPress(item)}>
                                         <Text style={styles.buttonText}>Từ chối</Text>
                                     </TouchableOpacity>
                                     <TouchableOpacity style={[styles.button]} onPress={() => handleAcceptPress(item)}>

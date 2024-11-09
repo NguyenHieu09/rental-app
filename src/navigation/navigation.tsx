@@ -180,6 +180,7 @@ import ManageCancelContract from '../screens/cancelContract/ManageCancelContract
 import ChatDetail from '../components/chat/ChatDetail';
 import ContractScreen from '../screens/owner/Contract/ContractScreen ';
 import NotificationScreen from '../screens/Notification/NotificationScreen';
+import Transactions from '../components/transactions/Transactions';
 
 const Stack = createStackNavigator();
 
@@ -286,6 +287,11 @@ const Navigation: React.FC = () => {
                 <Stack.Screen name="ManageCancelContract" component={ManageCancelContract} options={{ title: 'Yêu cầu hủy hợp đồng' }} />
                 <Stack.Screen name="ChatDetail" component={ChatDetail} options={{ title: '' }} />
                 <Stack.Screen name="NotificationScreen" component={NotificationScreen} options={{ headerShown: true }} />
+                <Stack.Screen
+                    name="Transactions"
+                    component={Transactions}
+                    options={{ title: 'Lịch sử giao dịch' }}
+                />
 
             </Stack.Navigator>
         </NavigationContainer>

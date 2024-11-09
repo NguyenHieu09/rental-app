@@ -3,7 +3,7 @@
 import React, { useCallback, useState } from 'react';
 import { View, Text, StyleSheet, FlatList, ActivityIndicator, TouchableOpacity } from 'react-native';
 import { useDispatch, useSelector } from 'react-redux';
-import { readAllNotifications, setNotifications, setLoading } from '../../redux-toolkit/slices/notificationSlice';
+import { readAllNotifications, setNotifications, setLoading, readNotification } from '../../redux-toolkit/slices/notificationSlice';
 import { AppDispatch, RootState } from '../../redux-toolkit/store';
 import { fetchNotifications, updateNotificationStatus } from '../../api/api';
 import { NavigationProp, useFocusEffect, useNavigation } from '@react-navigation/native';
@@ -38,7 +38,6 @@ const NotificationsScreen: React.FC = () => {
                 data: [...notifications, ...filteredNewNotifications],
                 pageInfo: response.pageInfo
             }));
-            console.log(response.pageInfo);
 
             // Sau khi load xong, cập nhật currentPage
             setIsLoadingMore(false);
@@ -65,16 +64,40 @@ const NotificationsScreen: React.FC = () => {
         const unreadNotificationIds = notifications
             .filter(notification => notification.status === 'RECEIVED')
             .map(notification => notification.id);
+        console.log(unreadNotificationIds);
         await updateNotificationStatus(unreadNotificationIds, 'READ');
         dispatch(readAllNotifications());
     };
+
+    const handleNotificationPress = async (notification: INotification) => {
+        // Cập nhật trạng thái của thông báo thành 'READ'
+        if (notification.status === 'RECEIVED') {
+            await updateNotificationStatus([notification.id], 'READ');
+            console.log("đã đọc");
+            dispatch(readNotification(notification.id));
+        }
+        if (notification.type === 'RENTER_PAYMENT') {
+            navigation.navigate('PaymentScreen');
+        } else if (notification.type === 'RENTAL_REQUEST') {
+            navigation.navigate('ManageRequestRental');
+        } else if (notification.type === 'RENTER_RENTAL_REQUEST') {
+            navigation.navigate('ManageRequestRental');
+        } else if (notification.type === 'OWNER_CONTRACT') {
+            navigation.navigate('Transactions');
+        } else if (notification.type === 'CONTRACT_DETAIL') {
+            navigation.navigate('ContractDetails', { contractId: notification.docId });
+        } else if (notification.type === 'OWNER_DETAIL_PROPERTY') {
+            navigation.navigate('ManageProperty');
+        }
+    };
+
 
     useFocusEffect(
         useCallback(() => {
             loadNotifications(0);
             navigation.setOptions({
                 headerTitle: () => (
-                    <Text style={styles.customHeaderTitle}>Thông Báo</Text> // Sử dụng Text component để tùy chỉnh
+                    <Text style={styles.customHeaderTitle}>Thông Báo</Text>
                 ),
                 headerRight: () => (
                     <TouchableOpacity onPress={markAllAsRead} style={styles.markAllButton}>
@@ -87,7 +110,6 @@ const NotificationsScreen: React.FC = () => {
 
     return (
         <View style={styles.container}>
-
             {loading && currentPage === 0 ? (
                 <ActivityIndicator size="large" color="#0000ff" />
             ) : (
@@ -96,10 +118,14 @@ const NotificationsScreen: React.FC = () => {
                     keyExtractor={(item, index) => `${item?.id}-${index}`} // Ensure unique keys
                     renderItem={({ item }) => (
                         item ? (
-                            <TouchableOpacity style={[styles.notificationItem, item.status === 'READ' && styles.readNotification]}>
+                            <TouchableOpacity
+                                style={[styles.notificationItem, item.status === 'READ' && styles.readNotification]}
+                                onPress={() => handleNotificationPress(item)} // Khi nhấn vào thông báo
+                            >
                                 <Text style={styles.notificationTitle}>{item.title}</Text>
                                 <Text style={styles.notificationBody}>{item.body}</Text>
                                 <Text style={styles.notificationDate}>{convertDateToTimeAgo(new Date(item.createdAt))}</Text>
+                                <Text>{item.type}</Text>
                             </TouchableOpacity>
                         ) : null
                     )}
@@ -121,10 +147,8 @@ const styles = StyleSheet.create({
     container: {
         flex: 1,
         paddingHorizontal: 16,
-
     },
     customHeaderTitle: {
-
         fontSize: 20,
         fontWeight: 'bold',
     },
@@ -134,17 +158,6 @@ const styles = StyleSheet.create({
     markAll: {
         color: '#007BFF',
     },
-    header: {
-        flexDirection: 'row',
-        justifyContent: 'space-between',
-        alignItems: 'center',
-        // marginBottom: 16,
-    },
-    title: {
-        fontSize: 20,
-        fontWeight: 'bold',
-    },
-
     notificationItem: {
         padding: 16,
         borderBottomWidth: 1,
