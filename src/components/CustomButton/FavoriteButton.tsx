@@ -18,6 +18,7 @@ const FavoriteButton: React.FC<FavoriteButtonProps> = ({ isFavorite, propertyId 
 
     const handleFavoriteToggle = async () => {
         setLoading(true);
+        console.log(propertyId);
 
         try {
             const interactionType = favorite ? 'VIEWED' : 'FAVORITED';
@@ -33,6 +34,7 @@ const FavoriteButton: React.FC<FavoriteButtonProps> = ({ isFavorite, propertyId 
 
             // Cập nhật số lượng yêu thích trong store thông qua Redux
             if (favorite) {
+                console.log('decrement');
 
                 dispatch(decrement()); // Gọi decrement khi xóa yêu thích
             } else {

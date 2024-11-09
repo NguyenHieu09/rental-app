@@ -164,27 +164,6 @@ const favoriteSlice = createSlice({
 
 export const { increment, decrement, addFavorite, setLoading, setCount, setFirstLoad, setFavorites, setError, resetFavorites } = favoriteSlice.actions;
 
-export const fetchFavoriteProperties = (take: number, skip: number) => async (dispatch: AppDispatch) => {
-    dispatch(setLoading(true));
-    try {
-        const data = await getFavoriteProperties(take, skip); // Truyền tham số phân trang vào API
-
-        // Cập nhật favorites và pageInfo từ kết quả trả về
-        dispatch(setFavorites({
-            data: data.data,
-            pageInfo: data.pageInfo, // Cập nhật pageInfo
-        }));
-        dispatch(setFirstLoad(true));
-        dispatch(setLoading(false));
-    } catch (error: any) {
-        dispatch(setError(error?.message || 'Failed to fetch favorite properties'));
-        dispatch(setLoading(false));
-    }
-};
-
-export const resetFavoriteData = () => (dispatch: AppDispatch) => {
-    dispatch(resetFavorites());
-};
 
 export default favoriteSlice.reducer;
 

@@ -23,6 +23,7 @@ const RenderExploreItem: React.FC<MemoizedRenderExploreItemProps> = ({ item, nav
         setIsFavorite(item.isFavorite);
     }, [item.isFavorite]);
 
+
     return (
         <TouchableOpacity
             style={styles.itemContainer}
