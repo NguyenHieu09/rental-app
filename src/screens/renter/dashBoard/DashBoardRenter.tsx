@@ -115,7 +115,7 @@ const HomeScreen: React.FC = () => {
     };
 
     // const lastName = user?.name ? user.name.split(' ').pop() : 'Guest';
-    const avatar = user?.avatar || 'https://res.cloudinary.com/dxvrdtaky/image/upload/v1727451808/avatar_iirzeq.jpg';
+    const avatar = user?.avatar;
 
     const locations = [
         {

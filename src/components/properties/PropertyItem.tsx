@@ -5,6 +5,8 @@ import { IProperty } from '../../types/property';
 import { AntDesign } from '@expo/vector-icons';
 import { Swipeable } from 'react-native-gesture-handler';
 import { formatPrice } from '../../utils/formattedPrice';
+import { RootStackParamList } from '../../types/navigation';
+import { NavigationProp, useNavigation } from '@react-navigation/native';
 
 interface PropertyItemProps {
     item: IProperty;
@@ -20,15 +22,15 @@ const statusMapping: { [key: string]: string } = {
 };
 
 const PropertyItem: React.FC<PropertyItemProps> = ({ item, onDelete }) => {
-    const { address, title, price, images, propertyId, status } = item;
+    const { address, title, price, images, propertyId, status, slug } = item;
     const location = `${address.street}, ${address.ward}, ${address.district}, ${address.city}`;
-
+    const navigation = useNavigation<NavigationProp<RootStackParamList>>();
     const renderRightActions = () => {
         return (
             <View style={styles.buttonContainer}>
                 <TouchableOpacity
                     style={styles.deleteButton}
-                    onPress={() => onDelete(propertyId)} // Wrap onDelete with the propertyId
+                    onPress={() => onDelete(propertyId)}
                 >
                     <AntDesign name="delete" size={24} color="white" />
                 </TouchableOpacity>
@@ -39,7 +41,9 @@ const PropertyItem: React.FC<PropertyItemProps> = ({ item, onDelete }) => {
 
     return (
         <Swipeable renderRightActions={renderRightActions}>
-            <View style={styles.container}>
+            <TouchableOpacity style={styles.container} onPress={() => {
+                navigation.navigate('PropertyDetail', { slug: slug });
+            }}>
                 <View style={styles.imageContainer}>
                     <Image source={{ uri: images[0] }} style={styles.image} />
                 </View>
@@ -57,7 +61,7 @@ const PropertyItem: React.FC<PropertyItemProps> = ({ item, onDelete }) => {
                         <Text style={styles.price}>{formatPrice(price)}/tháng</Text>
                     </View>
                 </View>
-            </View>
+            </TouchableOpacity>
         </Swipeable>
     );
 };

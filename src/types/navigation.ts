@@ -27,16 +27,8 @@ export type RootStackParamList = {
     AuthenticationScreen: undefined;
     ManageCancelContract: undefined;
     ExploreScreen: { city?: string };
-    // ChatDetail: { conversation: IConversation };
+    PropertyDetail: { slug: string };
     ChatDetail: undefined;
     NotificationScreen: undefined;
 
 };
-
-// type PropertyDetailRouteProp = RouteProp<RootStackParamList, 'PropertyScreen'>;
-// // type PropertyDetailNavigationProp = StackNavigationProp<RootStackParamList, 'PropertyScreen'>;
-
-// export type PropertyDetailProps = {
-//     route: PropertyDetailRouteProp;
-//     // navigation: PropertyDetailNavigationProp;
-// };

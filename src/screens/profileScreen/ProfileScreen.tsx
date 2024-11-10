@@ -12,6 +12,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { resetFavorites } from '../../redux-toolkit/slices/favoriteSlice';
 import { clearConversations } from '../../redux-toolkit/slices/conversationSlice';
 import { resetNotifications } from '../../redux-toolkit/slices/notificationSlice';
+import { getFirstAndLastName } from '../../utils/avatar';
 
 const options = [
     { id: '1', title: 'Ví', icon: 'wallet' },
@@ -80,7 +81,17 @@ const ProfileScreen = () => {
     return (
         <SafeAreaView style={commonStyles.container}>
             <View style={commonStyles.header}>
-                <Image source={{ uri: user?.avatar || 'https://res.cloudinary.com/dxvrdtaky/image/upload/v1727451808/avatar_iirzeq.jpg' }} style={styles.avatar} />
+                {user?.avatar ? (
+                    <Image source={{ uri: user.avatar }} style={styles.avatar} />
+                ) : (
+                    user?.name && (
+                        <View style={styles.nameInitials}>
+                            <Text style={styles.initials}>{getFirstAndLastName(user.name)}</Text>
+                        </View>
+                    )
+                )}
+
+                {/* <Image source={{ uri: user?.avatar || 'https://res.cloudinary.com/dxvrdtaky/image/upload/v1727451808/avatar_iirzeq.jpg' }} style={styles.avatar} /> */}
                 <Text style={styles.name}>{user?.name || 'Guest'}</Text>
                 <Text style={styles.email}>{user?.email || 'guest@example.com'}</Text>
             </View>
@@ -131,7 +142,22 @@ const styles = StyleSheet.create({
     },
     button: {
         marginTop: 30,
-    }
+    },
+    nameInitials: {
+        backgroundColor: '#f4f4f5',
+        width: 80,
+        height: 80,
+        borderRadius: 40,
+        justifyContent: 'center',
+        alignItems: 'center',
+        marginBottom: 10,
+    },
+    initials: {
+        fontSize: 30,
+        fontWeight: '500',
+        color: '#09090b',
+    },
+
 });
 
 export default ProfileScreen;

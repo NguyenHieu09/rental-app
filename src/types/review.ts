@@ -41,4 +41,7 @@ export interface IReview {
     children: IReplyReview[];
     contractId: string;
     propertyId: string;
+    updatedAt: string;
+    slug: string;
+
 }

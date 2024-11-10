@@ -181,6 +181,7 @@ import ChatDetail from '../components/chat/ChatDetail';
 import ContractScreen from '../screens/owner/Contract/ContractScreen ';
 import NotificationScreen from '../screens/Notification/NotificationScreen';
 import Transactions from '../components/transactions/Transactions';
+import PropertyDetail from '../components/properties/PropertyDetail';
 
 const Stack = createStackNavigator();
 
@@ -293,9 +294,32 @@ const Navigation: React.FC = () => {
                     options={{ title: 'Lịch sử giao dịch' }}
                 />
 
+                <Stack.Screen
+                    name="PropertyDetail"
+                    component={PropertyDetail}
+                    options={{
+                        title: 'Thông tin bất động sản',
+                        headerTitleStyle: {
+                            fontWeight: '500',
+                            fontSize: 20,
+                            color: '#333',
+                        },
+                        // headerRight: () => (
+                        //     <TouchableOpacity onPress={() => setIsBookmarked(!isBookmarked)} style={{ marginRight: 16 }}>
+                        //         <FontAwesome
+                        //             name={isBookmarked ? "bookmark" : "bookmark-o"}
+                        //             size={30}
+                        //             color={isBookmarked ? "blue" : "black"}
+                        //         />
+                        //     </TouchableOpacity>
+                        // ),
+                    }}
+                />
+
             </Stack.Navigator>
         </NavigationContainer>
     );
 };
 
 export default Navigation;
+
