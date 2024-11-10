@@ -25,5 +25,6 @@ export type NotificationType =
     | 'REVIEW'
     | 'RENTER_CONTRACT'
     | 'OWNER_PROPERTY'
-    | 'ADMIN_PROPERTY';
+    | 'ADMIN_PROPERTY'
+    | 'REPORT';
 export type NotificationStatus = 'RECEIVED' | 'READ' | 'DELETED';

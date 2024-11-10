@@ -86,7 +86,7 @@
 import React, { useState } from 'react';
 import { View, Text, Image, StyleSheet, TouchableOpacity } from 'react-native';
 import { IconOutline, IconFill } from '@ant-design/icons-react-native';
-import { truncate } from '../../utils/truncate';
+import { truncate } from '../../utils/avatar';
 import { formatPrice } from '../../utils/formattedPrice';
 import { NavigationProp, useNavigation } from '@react-navigation/native';
 import { RootStackParamList, } from '../../types/navigation';

@@ -15,7 +15,13 @@ const store = configureStore({
         notifications: notificationReducer,
         favorite: favoriteReducer,
     },
-    middleware: (getDefaultMiddleware) => getDefaultMiddleware().concat(),
+    middleware: (getDefaultMiddleware) =>
+        getDefaultMiddleware({
+            serializableCheck: {
+                warnAfter: 100, // tăng ngưỡng lên 100ms
+            },
+        }),
+    // middleware: (getDefaultMiddleware) => getDefaultMiddleware().concat(),
 });
 
 export type RootState = ReturnType<typeof store.getState>;

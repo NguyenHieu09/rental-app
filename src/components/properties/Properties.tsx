@@ -2,7 +2,7 @@
 
 import React from 'react';
 import { View, Text, Image, StyleSheet, TouchableOpacity } from 'react-native';
-import { truncate } from '../../utils/truncate';
+import { truncate } from '../../utils/avatar';
 import { formatPrice } from '../../utils/formattedPrice';
 import { IProperty } from '../../types/property';
 

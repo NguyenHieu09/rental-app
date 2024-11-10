@@ -6,6 +6,7 @@ import { IGenerateContractRequest } from '../types/rentalRequest';
 import { IUser } from '../types/user';
 import { IConversation } from '../types/chat';
 import { ICreatePropertyInteraction } from '../types/propertyInteraction';
+import { ICreateReview } from '../types/review';
 
 
 const API_BASE_URL = `${API_URL}/estate-manager-service`;
@@ -553,33 +554,81 @@ export const getFavoriteProperties = async (take: number, skip: number) => {
 };
 
 
-// // Hàm lấy danh sách yêu thích từ API
-// export const getFavoriteProperties = async () => {
-//     try {
-//         const token = await AsyncStorage.getItem('accessToken');
+export const fetchPropertyReviews = async (slug: string) => {
+    try {
+        const token = await AsyncStorage.getItem('accessToken');
 
-//         if (!token) {
-//             throw new Error('No token provided');
-//         }
+        if (!token) {
+            throw new Error('No token provided');
+        }
 
-//         const response = await axios.get(
-//             `${API_BASE_URL}/property-interactions/favorites`,
-//             {
-//                 headers: {
-//                     Authorization: `Bearer ${token}`,
-//                 },
-//             }
-//         );
+        const response = await axios.get(`${API_BASE_URL}/reviews/property/${slug}`, {
+            headers: {
+                Authorization: `Bearer ${token}`,
+            },
+        });
 
-//         return response.data; // Trả về danh sách yêu thích
-//     } catch (error: any) {
-//         if (error.response && error.response.data && error.response.data.message) {
-//             console.error('Error message:', error.response.data.message);
-//             throw new Error(error.response.data.message);
-//         } else {
-//             console.error('Error fetching favorite properties:', error);
-//             throw error;
-//         }
-//     }
-// };
+        return response.data; // Trả về danh sách đánh giá
+    } catch (error: any) {
+        if (error.response && error.response.data && error.response.data.message) {
+            console.error('Error message:', error.response.data.message);
+            throw new Error(error.response.data.message);
+        } else {
+            console.error('Error fetching property reviews:', error);
+            throw error;
+        }
+    }
+};
 
+
+export const fetchContractReviews = async (contractId: string) => {
+    try {
+        const token = await AsyncStorage.getItem('accessToken');
+
+        if (!token) {
+            throw new Error('No token provided');
+        }
+
+        const response = await axios.get(`${API_BASE_URL}/reviews/contract/${contractId}`, {
+            headers: {
+                Authorization: `Bearer ${token}`,
+            },
+        });
+
+        return response.data; // Return the list of reviews
+    } catch (error: any) {
+        if (error.response && error.response.data && error.response.data.message) {
+            console.error('Error message:', error.response.data.message);
+            throw new Error(error.response.data.message);
+        } else {
+            console.error('Error fetching contract reviews:', error);
+            throw error;
+        }
+    }
+};
+
+export const createReview = async (reviewData: ICreateReview) => {
+    try {
+        const token = await AsyncStorage.getItem('accessToken');
+
+        if (!token) {
+            throw new Error('No token provided');
+        }
+
+        const response = await axios.post(`${API_BASE_URL}/reviews`, reviewData, {
+            headers: {
+                Authorization: `Bearer ${token}`,
+            },
+        });
+
+        return response.data; // Return the created review
+    } catch (error: any) {
+        if (error.response && error.response.data && error.response.data.message) {
+            console.error('Error message:', error.response.data.message);
+            throw new Error(error.response.data.message);
+        } else {
+            console.error('Error creating review:', error);
+            throw error;
+        }
+    }
+};

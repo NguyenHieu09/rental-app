@@ -5,7 +5,7 @@ import { View, Text, Image, StyleSheet, TouchableOpacity, FlatList, ActivityIndi
 import { IconOutline } from '@ant-design/icons-react-native';
 import { useSelector, useDispatch } from 'react-redux';
 import { fetchNotifications, fetchUnreadNotificationsCount, } from '../../api/api';
-import { truncate } from '../../utils/truncate';
+// import { truncate } from '../../utils/avatar';
 import * as Location from 'expo-location';
 import { NavigationProp, useNavigation } from '@react-navigation/native';
 import { AppDispatch, RootState } from '../../redux-toolkit/store';
@@ -81,7 +81,7 @@ const HomeHeader: React.FC<HomeHeaderProps> = ({ avatar }) => {
         <View style={styles.container}>
             <View style={styles.locationContainer}>
                 <IconOutline name="environment" size={20} color="#000" />
-                <Text style={styles.locationText}>{truncate(location, 20)}</Text>
+                <Text style={styles.locationText} numberOfLines={1}>{location}</Text>
                 <IconOutline name="down" size={20} color="#000" />
             </View>
             <TouchableOpacity style={styles.iconContainer} onPress={handleNotificationPress}>
@@ -111,19 +111,20 @@ const styles = StyleSheet.create({
         justifyContent: 'space-between',
     },
     locationContainer: {
+
         flexDirection: 'row',
         alignItems: 'center',
     },
     locationText: {
-        marginHorizontal: 5,
+        width: 195,
         fontSize: 16,
     },
     iconContainer: {
-        marginHorizontal: 10,
+        // marginHorizontal: 5,
     },
     bellIconContainer: {
-        width: 40,
-        height: 40,
+        width: 35,
+        height: 35,
         borderRadius: 20,
         borderWidth: 2,
         borderColor: '#000',
