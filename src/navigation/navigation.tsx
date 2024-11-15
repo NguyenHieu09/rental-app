@@ -175,13 +175,13 @@ import WalletManagement from './WalletManagement';
 import ManageContract from '../screens/owner/manageContract/ManageContract';
 import PaymentScreen from '../screens/renter/payment/PaymentScreen';
 import ContractDetails from '../screens/contractDetails/ContractDetails';
-import AuthenticationScreen from '../screens/authentication/AuthenticationScreen';
 import ManageCancelContract from '../screens/cancelContract/ManageCancelContract';
 import ChatDetail from '../components/chat/ChatDetail';
 import ContractScreen from '../screens/owner/Contract/ContractScreen ';
 import NotificationScreen from '../screens/Notification/NotificationScreen';
 import Transactions from '../components/transactions/Transactions';
 import PropertyDetail from '../components/properties/PropertyDetail';
+import AuthenticationScreen from '../screens/authentication/AuthenticationScreen';
 
 const Stack = createStackNavigator();
 

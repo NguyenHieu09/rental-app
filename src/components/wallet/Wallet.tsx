@@ -124,9 +124,13 @@ const Wallet: React.FC = () => {
 
     return (
         <View style={styles.cardContainer}>
-            <Text style={styles.title}>Tài khoản thanh toán</Text>
+            <Text style={styles.title}>Địa chỉ ví</Text>
             <Text style={styles.accountNumber}>{user.walletAddress}</Text>
-            <Text style={styles.balance}>Số dư khả dụng: {data?.formatted} {data?.symbol}</Text>
+            <Text style={styles.balance}>
+                Số dư khả dụng: {parseFloat(data?.formatted || '0').toFixed(4)} {data?.symbol}
+            </Text>
+
+            {/* <Text style={styles.balance}>Số dư khả dụng: {data?.formatted} {data?.symbol}</Text> */}
         </View>
     );
 };
