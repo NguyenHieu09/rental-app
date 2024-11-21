@@ -17,7 +17,7 @@ const ChatInput: React.FC<ChatInputProps> = ({ inputText, setInputText, handleSe
     const openImageLibrary = async () => {
         const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
         if (status !== 'granted') {
-            Alert.alert("Permission Denied", "You need to enable permissions to access the photo library.");
+            Alert.alert("Quyền truy cập bị từ chối", "Bạn cần cấp quyền để truy cập vào thư viện ảnh.");
             return;
         }
 
@@ -39,7 +39,7 @@ const ChatInput: React.FC<ChatInputProps> = ({ inputText, setInputText, handleSe
 
     const handleSendMessage = async () => {
         if (inputText.trim().length === 0 && selectedImages.length === 0) {
-            Alert.alert("No Message", "Please enter a message or select images to send.");
+            Alert.alert("Không có tin nhắn", "Vui lòng nhập tin nhắn hoặc chọn hình ảnh để gửi.");
             return;
         }
 

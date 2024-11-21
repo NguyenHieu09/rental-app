@@ -30,5 +30,6 @@ export type RootStackParamList = {
     PropertyDetail: { slug: string };
     ChatDetail: undefined;
     NotificationScreen: undefined;
+    ChatBotScreen: undefined;
 
 };

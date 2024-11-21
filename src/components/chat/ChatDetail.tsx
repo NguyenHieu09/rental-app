@@ -15,6 +15,7 @@ import { socket } from '../../redux-toolkit/slices/socketSlice';
 import { IConversationSocket, IReadConversationSocket } from '../../types/conversation';
 import { addChat } from '../../redux-toolkit/slices/chatSlice';
 import { readConversation } from '../../redux-toolkit/slices/conversationSlice';
+import { getFirstAndLastName } from '../../utils/avatar';
 
 const ChatDetail: React.FC = () => {
     const navigation = useNavigation<NavigationProp<RootStackParamList>>();
@@ -27,12 +28,22 @@ const ChatDetail: React.FC = () => {
 
     useEffect(() => {
         const friend = selectedConversation?.participants.find(p => p.userId !== user?.userId);
-        const defaultAvatar = 'https://res.cloudinary.com/dxvrdtaky/image/upload/v1727451808/avatar_iirzeq.jpg';
+        // const defaultAvatar = 'https://res.cloudinary.com/dxvrdtaky/image/upload/v1727451808/avatar_iirzeq.jpg';
         if (friend) {
             navigation.setOptions({
                 headerTitle: () => (
+                    // <View style={{ flexDirection: 'row', justifyContent: 'center', alignItems: 'center' }}>
+                    //     <Image source={{ uri: friend.avatar || defaultAvatar }} style={styles.avatar} />
+                    //     <Text style={styles.headerTitle}>{friend.name}</Text>
+                    // </View>
                     <View style={{ flexDirection: 'row', justifyContent: 'center', alignItems: 'center' }}>
-                        <Image source={{ uri: friend.avatar || defaultAvatar }} style={styles.avatar} />
+                        {friend.avatar ? (
+                            <Image source={{ uri: friend.avatar }} style={styles.avatar} />
+                        ) : (
+                            <View style={styles.nameInitials}>
+                                <Text style={styles.initials}>{getFirstAndLastName(friend.name)}</Text>
+                            </View>
+                        )}
                         <Text style={styles.headerTitle}>{friend.name}</Text>
                     </View>
                 ),
@@ -401,7 +412,22 @@ const styles = StyleSheet.create({
     },
     userMessageText: {
 
-    }
+    },
+    nameInitials: {
+        backgroundColor: '#f4f4f5',
+        width: 40,
+        height: 40,
+        borderRadius: 20,
+        justifyContent: 'center',
+        alignItems: 'center',
+        marginRight: 10,
+
+    },
+    initials: {
+        fontSize: 16,
+        fontWeight: '500',
+        color: '#09090b',
+    },
 });
 
 export default ChatDetail;

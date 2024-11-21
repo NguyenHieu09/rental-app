@@ -571,6 +571,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { addConversations, setSelectedConversation, readConversation } from '../../../redux-toolkit/slices/conversationSlice';
 import { socket } from '../../../redux-toolkit/slices/socketSlice'; // Import the socket instance
 import { IReadConversationSocket } from '../../../types/conversation';
+import { getFirstAndLastName } from '../../../utils/avatar';
 
 const ChatScreen: React.FC = () => {
     // const [loading, setLoading] = useState<boolean>(true);
@@ -654,15 +655,22 @@ const ChatScreen: React.FC = () => {
         const lastMessageText = lastMessage ? getLastMessageText(lastMessage) : '';
         const lastMessageTime = item.updatedAt ? formatTime(item.updatedAt) : '';
 
-        const avatarUrl = otherParticipant.avatar || 'https://res.cloudinary.com/dxvrdtaky/image/upload/v1727451808/avatar_iirzeq.jpg';
-
+        // const avatarUrl = otherParticipant.avatar || 'https://res.cloudinary.com/dxvrdtaky/image/upload/v1727451808/avatar_iirzeq.jpg';
+        const avatarUrl = otherParticipant.avatar || '';
         // Kiểm tra xem tin nhắn cuối cùng có phải là chưa đọc hay không
         const isUnread = lastMessage && (item.unreadCount > 0 || (lastMessage.senderId !== user?.userId && lastMessage.status === 'RECEIVED'));
 
         return (
             <TouchableOpacity onPress={() => handleConversationPress(item)}>
                 <View style={styles.conversationContainer}>
-                    <Image source={{ uri: avatarUrl }} style={styles.avatar} />
+                    {avatarUrl ? (
+                        <Image source={{ uri: avatarUrl }} style={styles.avatar} />
+                    ) : (
+                        <View style={styles.nameInitials}>
+                            <Text style={styles.initials}>{getFirstAndLastName(otherParticipant.name)}</Text>
+                        </View>
+                    )}
+                    {/* <Image source={{ uri: avatarUrl }} style={styles.avatar} /> */}
                     <View style={styles.textContainer}>
                         <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
                             <Text style={styles.conversationTitle}>
@@ -816,6 +824,21 @@ const styles = StyleSheet.create({
         // top: '50%',
         right: 10,
         // marginTop: -5,
+    },
+    nameInitials: {
+        backgroundColor: '#f4f4f5',
+        width: 50,
+        height: 50,
+        borderRadius: 25,
+        justifyContent: 'center',
+        alignItems: 'center',
+        marginRight: 15,
+
+    },
+    initials: {
+        fontSize: 16,
+        fontWeight: '500',
+        color: '#09090b',
     },
 });
 

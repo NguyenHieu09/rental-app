@@ -15,6 +15,8 @@ import { RootStackParamList } from '../../types/navigation';
 import { ITable } from '../../types/table';
 import { commonStyles } from '../../styles/theme';
 import { getFirstAndLastName } from '../../utils/avatar';
+import Feather from 'react-native-vector-icons/Feather';
+
 
 interface HomeHeaderProps {
     avatar?: string;
@@ -89,7 +91,8 @@ const HomeHeader: React.FC<HomeHeaderProps> = ({ avatar }) => {
             </View>
             <TouchableOpacity style={styles.iconContainer} onPress={handleNotificationPress}>
                 <View style={styles.bellIconContainer}>
-                    <IconOutline name="bell" size={20} color="#000" />
+                    <Feather name="bell" size={24} color="#000" />
+                    {/* <IconOutline name="bell" size={20} color="#000" /> */}
                     {unreadCount > 0 && (
                         <View style={styles.notificationBadge}>
                             <Text style={styles.badgeText}>{unreadCount}</Text>
@@ -123,7 +126,7 @@ const styles = StyleSheet.create({
         alignItems: 'center',
     },
     locationText: {
-        width: 195,
+        width: 250,
         fontSize: 16,
     },
     iconContainer: {
@@ -133,8 +136,8 @@ const styles = StyleSheet.create({
         width: 35,
         height: 35,
         borderRadius: 20,
-        borderWidth: 2,
-        borderColor: '#000',
+        // borderWidth: 2,
+        // borderColor: '#000',
         justifyContent: 'center',
         alignItems: 'center',
         position: 'relative',

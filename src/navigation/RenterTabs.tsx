@@ -170,6 +170,11 @@ import { AppDispatch, RootState } from '../redux-toolkit/store';
 import { fetchAllConversations } from '../api/api';
 import { IConversation } from '../types/chat';
 import { addConversations } from '../redux-toolkit/slices/conversationSlice';
+import Feather from 'react-native-vector-icons/Feather';
+import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
+
+import ChatBotScreen from '../screens/renter/chatBot/ChatBotScreen';
+
 
 const Tab = createBottomTabNavigator();
 
@@ -241,14 +246,15 @@ const RenterTabs: React.FC = () => {
                 name="DashboardRenter"
                 component={DashboardRenter}
                 options={{
-                    title: 'Home',
+                    // title: 'Home',
                     headerShown: false,
                     tabBarIcon: ({ color, size }) => (
                         <IconFill name="home" color={color} size={size} />
                     ),
-                    tabBarLabel: ({ color }) => (
-                        <Text style={{ color, fontSize: 14, fontWeight: '700' }}>Home</Text>
-                    ),
+                    tabBarLabel: () => null
+                    // tabBarLabel: ({ color }) => (
+                    //     <Text style={{ color, fontSize: 14, fontWeight: '700' }}>Home</Text>
+                    // ),
                 }}
             />
 
@@ -256,14 +262,15 @@ const RenterTabs: React.FC = () => {
                 name="ExploreScreen"
                 component={ExploreScreen}
                 options={{
-                    title: 'Explore',
+                    // title: 'Explore',
                     headerShown: false,
                     tabBarIcon: ({ color, size }) => (
                         <IconOutline name="search" color={color} size={size} />
                     ),
-                    tabBarLabel: ({ color }) => (
-                        <Text style={{ color, fontSize: 14, fontWeight: '700' }}>Find</Text>
-                    ),
+                    tabBarLabel: () => null
+                    // tabBarLabel: ({ color }) => (
+                    //     <Text style={{ color, fontSize: 14, fontWeight: '700' }}>Find</Text>
+                    // ),
                 }}
             />
 
@@ -271,14 +278,16 @@ const RenterTabs: React.FC = () => {
                 name="SavedScreen"
                 component={SavedScreen}
                 options={{
-                    title: 'SavedScreen',
+                    // title: 'SavedScreen',
                     headerShown: false,
                     tabBarIcon: ({ color, size }) => (
-                        <IconFill name="heart" color={color} size={size} />
+                        <Feather name='heart' color={color} size={size} />
+                        // <IconFill name="heart" color={color} size={size} />
                     ),
-                    tabBarLabel: ({ color }) => (
-                        <Text style={{ color, fontSize: 14, fontWeight: '700' }}>Saved</Text>
-                    ),
+                    tabBarLabel: () => null
+                    // tabBarLabel: ({ color }) => (
+                    //     <Text style={{ color, fontSize: 14, fontWeight: '700' }}>Saved</Text>
+                    // ),
                 }}
             />
 
@@ -286,29 +295,47 @@ const RenterTabs: React.FC = () => {
                 name="ChatScreen"
                 component={ChatScreen}
                 options={{
-                    title: 'Chat',
+                    // title: 'Chat',
                     headerShown: false,
                     tabBarIcon: ({ color, size }) => (
-                        <IconFill name="message" color={color} size={size} />
+                        <Feather name="message-circle" color={color} size={size} />
+                        // <IconFill name="message" color={color} size={size} />
                     ),
-                    tabBarLabel: ({ color }) => (
-                        <Text style={{ color, fontSize: 14, fontWeight: '700' }}>Chat</Text>
-                    ),
+                    tabBarLabel: () => null,
+                    // tabBarLabel: ({ color }) => (
+                    //     <Text style={{ color, fontSize: 14, fontWeight: '700' }}>Chat</Text>
+                    // ),
                     tabBarBadge: unreadCount > 0 ? unreadCount : undefined, // Hiển thị số lượng tin nhắn chưa đọc
+                }}
+            />
+            <Tab.Screen
+                name="ChatBotScreen"
+                component={ChatBotScreen}
+                options={{
+                    // title: 'SavedScreen',
+                    headerShown: false,
+                    tabBarIcon: ({ color, size }) => (
+                        <MaterialCommunityIcons name='robot-outline' color={color} size={size} />
+
+
+                    ),
+                    tabBarLabel: () => null
+
                 }}
             />
             <Tab.Screen
                 name="ProfileScreen"
                 component={ProfileScreen}
                 options={{
-                    title: 'Profile',
+                    // title: 'Profile',
                     headerShown: false,
                     tabBarIcon: ({ color, size }) => (
                         <IconOutline name="user" color={color} size={size} />
                     ),
-                    tabBarLabel: ({ color }) => (
-                        <Text style={{ color, fontSize: 14, fontWeight: '700' }}>Profile</Text>
-                    ),
+                    tabBarLabel: () => null
+                    // tabBarLabel: ({ color }) => (
+                    //     <Text style={{ color, fontSize: 14, fontWeight: '700' }}>Profile</Text>
+                    // ),
                 }}
             />
         </Tab.Navigator>

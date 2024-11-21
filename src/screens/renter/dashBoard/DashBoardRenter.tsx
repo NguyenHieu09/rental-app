@@ -207,7 +207,7 @@ const HomeScreen: React.FC = () => {
                 </ScrollView>
 
 
-                <Text style={styles.sectionTitle}>Bất động sản nổi bật</Text>
+                <Text style={styles.sectionTitle}>Bất động sản mới nhất</Text>
                 <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.featuredContainer}>
                     {properties.map((property: IProperty, index: number) => (
                         <Properties
