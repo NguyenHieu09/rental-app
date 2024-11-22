@@ -126,7 +126,7 @@ const styles = StyleSheet.create({
         alignItems: 'center',
     },
     locationText: {
-        width: 250,
+        width: 200,
         fontSize: 16,
     },
     iconContainer: {

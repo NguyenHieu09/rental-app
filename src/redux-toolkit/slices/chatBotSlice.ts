@@ -29,8 +29,11 @@ const chatBotSlice = createSlice({
         setLoading: (state, action: PayloadAction<boolean>) => {
             state.loading = action.payload;
         },
+        clearChat: (state) => {
+            state.chats = [];
+        },
     },
 });
 
-export const { addChat, addChats, setChat, setLoading } = chatBotSlice.actions;
+export const { addChat, addChats, setChat, setLoading, clearChat } = chatBotSlice.actions;
 export default chatBotSlice.reducer;

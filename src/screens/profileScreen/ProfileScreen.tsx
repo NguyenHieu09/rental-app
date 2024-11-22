@@ -13,6 +13,7 @@ import { resetFavorites } from '../../redux-toolkit/slices/favoriteSlice';
 import { clearConversations } from '../../redux-toolkit/slices/conversationSlice';
 import { resetNotifications } from '../../redux-toolkit/slices/notificationSlice';
 import { getFirstAndLastName } from '../../utils/avatar';
+import { clearChat } from '../../redux-toolkit/slices/chatBotSlice';
 
 const options = [
     { id: '1', title: 'Ví', icon: 'wallet' },
@@ -35,6 +36,7 @@ const ProfileScreen = () => {
         dispatch(resetFavorites());
         dispatch(clearConversations());
         dispatch(resetNotifications());
+        dispatch((clearChat()));
 
         await dispatch(logoutUserAsync());
 
