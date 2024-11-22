@@ -10,32 +10,46 @@ import { useNavigation, NavigationProp, useFocusEffect } from '@react-navigation
 import { RootStackParamList } from '../../../types/navigation'; // Import the type
 import HomeHeader from '../../../components/homeHeader/HomeHeader'; // Import HomeHeader
 import { commonStyles } from '../../../styles/theme';
-import { fetchPropertiesWithFilters } from '../../../api/api'; // Import fetchPropertiesWithFilters and fetchRentalRequestsForOwner
+import { fetchPropertiesWithFilters, fetchPropertyOverview } from '../../../api/api'; // Import fetchPropertiesWithFilters and fetchRentalRequestsForOwner
 import { IProperty, IFilterProperty } from '../../../types/property';
 import { W3mButton } from '@web3modal/wagmi-react-native';
-import { fetchContractsForOwner, fetchRentalRequestsForOwner } from '../../../api/contract';
+import { fetchContractOverview, fetchContractsForOwner, fetchRentalRequestsForOwner } from '../../../api/contract';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import FileComponent from '../../../components/chat/FileComponent';
+import { formatPrice } from '../../../utils/formattedPrice';
 
 const DashboardOwner: React.FC = () => {
     const dispatch = useDispatch<AppDispatch>();
     const navigation = useNavigation<NavigationProp<RootStackParamList>>();
     const { user, loading } = useSelector((state: RootState) => state.user);
 
-    const [location, setLocation] = useState('');
-    const [properties, setProperties] = useState<IProperty[]>([]);
-    const [rentalRequests, setRentalRequests] = useState([]);
-    const [loadingProperties, setLoadingProperties] = useState<boolean>(true);
-    const [loadingRequests, setLoadingRequests] = useState<boolean>(true);
     const [error, setError] = useState<string | null>(null);
-    const [totalRequests, setTotalRequests] = useState(0);
-    const [totalProperties, setTotalProperties] = useState(0);
-    const [totalContracts, setTotalContracts] = useState<number>(0);
 
-    const handleLogout = async () => {
-        await dispatch(logoutUserAsync()).unwrap();
-        navigation.navigate('Login');
+
+    const [totalProperties, setTotalProperties] = useState(0);
+    const [countUnavailableProperties, setCountUnavailableProperties] = useState<number>(0);
+    const [countRentalRequest, setCountRentalRequest] = useState<number>(0);
+    const [countExtensionRequest, setCountExtensionRequest] = useState<number>(0);
+    const [countCancelRequest, setCountCancelRequest] = useState<number>(0);
+    const [avgRevenueVND, setAvgRevenueVND] = useState<number>(0);
+    const [avgRevenueETH, setAvgRevenueETH] = useState<number>(0);
+
+
+    const loadPropertyOverview = async () => {
+        try {
+            const data = await fetchPropertyOverview();
+            setTotalProperties(data.countProperties);
+            setCountUnavailableProperties(data.countUnavailableProperties);
+        } catch (error) {
+            console.error('Error loading owner dashboard overview:', error);
+            setError('Có lỗi xảy ra khi tải dữ liệu tổng quan.');
+        }
     };
+
+    // const handleLogout = async () => {
+    //     await dispatch(logoutUserAsync()).unwrap();
+    //     navigation.navigate('Login');
+    // };
 
     useEffect(() => {
         if (!user && !loading) {
@@ -43,63 +57,31 @@ const DashboardOwner: React.FC = () => {
         }
     }, [user, loading, navigation]);
 
-    const loadProperties = async () => {
-        setLoadingProperties(true);
-        setError(null);
 
-        const filters: IFilterProperty = {
-            // status: 'ACTIVE',
-        };
-
+    const loadContractOverview = async () => {
         try {
-            const { properties, total } = await fetchPropertiesWithFilters(filters, 10, 0);
-            setProperties(properties);
-            setTotalProperties(total);
-            console.log('Total properties:', total);
-        } catch (err: any) {
-            setError(err.message);
-        } finally {
-            setLoadingProperties(false);
-        }
-    };
+            const data = await fetchContractOverview();
 
-    const loadRentalRequests = async () => {
-        setLoadingRequests(true);
-        setError(null);
-
-        try {
-            const response = await fetchRentalRequestsForOwner(10, 0);
-            const { data, pageInfo } = response;
-            setRentalRequests(data);
-            setTotalRequests(pageInfo.total);
-            console.log('Total rental requests:', pageInfo.total);
-        } catch (err: any) {
-            setError(err.message);
-        } finally {
-            setLoadingRequests(false);
-        }
-    };
-
-    const fetchContracts = async () => {
-        try {
-            const { total } = await fetchContractsForOwner(10, 0); // Fetch total contracts
-            setTotalContracts(total); // Set total contracts
+            setCountRentalRequest(data.countRentalRequest);
+            setCountExtensionRequest(data.countExtensionRequest);
+            setCountCancelRequest(data.countCancelRequest);
+            setAvgRevenueVND(data.avgRevenue.VND);
+            setAvgRevenueETH(data.avgRevenue.ETH);
         } catch (error) {
-            console.error('Error fetching contracts:', error);
+            console.error('Error loading contract overview:', error);
             setError('Có lỗi xảy ra khi tải dữ liệu hợp đồng.');
         }
     };
 
     useFocusEffect(
         useCallback(() => {
-            loadProperties();
-            loadRentalRequests();
-            fetchContracts();
+            loadPropertyOverview();
+            loadContractOverview();
         }, [])
     );
 
     const handleViewProperties = () => {
-        navigation.navigate('ManageProperty', { properties });
+        navigation.navigate('ManageProperty');
     };
 
     const handleViewRequestRental = () => {
@@ -114,7 +96,11 @@ const DashboardOwner: React.FC = () => {
         navigation.navigate('ManageCancelContract');
     };
 
-    const avatar = user?.avatar || 'https://res.cloudinary.com/dxvrdtaky/image/upload/v1727451808/avatar_iirzeq.jpg'; // Replace with actual avatar URL
+    const avatar = user?.avatar || '';
+
+    const formatCurrency = (amount: number) => {
+        return new Intl.NumberFormat('vi-VN').format(amount);
+    };
 
     return (
         <SafeAreaView style={[commonStyles.container, styles.dashboard]}>
@@ -122,10 +108,10 @@ const DashboardOwner: React.FC = () => {
             <View>
                 <View style={styles.owner}>
                     <Text style={styles.title}>{user?.name || 'Guest'}</Text>
-                    <Text style={styles.revenue}>Tổng Doanh Thu Thuê</Text>
-                    <Text style={styles.amount}>42,000,000</Text>
+                    <Text style={styles.revenue}>Doanh Thu Trung Bình</Text>
+                    <Text style={styles.amount}>{formatPrice(avgRevenueVND)}</Text>
                     <TouchableOpacity style={styles.button} onPress={handleViewProperties}>
-                        <Text style={styles.buttonText}>Xem Tài Sản Của Tôi →</Text>
+                        <Text style={styles.buttonText}>Xem báo cáo thống kê →</Text>
                     </TouchableOpacity>
                 </View>
 
@@ -133,21 +119,34 @@ const DashboardOwner: React.FC = () => {
                 <View style={styles.summaryContainer}>
                     <TouchableOpacity style={styles.card} onPress={handleViewProperties}>
                         <Text style={styles.cardText}>{totalProperties}</Text>
-                        <Text style={styles.cardLabel}>Tài Sản</Text>
+                        <Text style={styles.cardLabel}>Tổng số căn hộ</Text>
                     </TouchableOpacity>
                     <TouchableOpacity style={styles.card} onPress={handleViewContracts}>
-                        <Text style={styles.cardText}>{totalContracts}</Text>
-                        <Text style={styles.cardLabel}>Hợp Đồng Thuê</Text>
+                        <Text style={styles.cardText}>{countUnavailableProperties}</Text>
+                        <Text style={styles.cardLabel}>Đang cho thuê</Text>
                     </TouchableOpacity>
                     <TouchableOpacity style={styles.card} onPress={handleViewRequestRental}>
-                        <Text style={styles.cardText}>{totalRequests}</Text>
-                        <Text style={styles.cardLabel}>Yêu Cầu thuê nhà</Text>
+                        <Text style={styles.cardText}>{countRentalRequest}</Text>
+                        <Text style={styles.cardLabel}>Yêu cầu thuê nhà</Text>
+                    </TouchableOpacity>
+
+
+                    <TouchableOpacity style={styles.card} >
+                        <Text style={styles.cardText}>{countCancelRequest}</Text>
+                        <Text style={styles.cardLabel}>Yêu cầu{`\n`}hủy hợp đồng</Text>
+
                     </TouchableOpacity>
                     <TouchableOpacity style={styles.card} >
-                        <Text style={styles.cardText}>31</Text>
-                        <Text style={styles.cardLabel}>Hủy hợp đồng</Text>
+                        <Text style={styles.cardText}>{countExtensionRequest}</Text>
+                        <Text style={styles.cardLabel}>Yêu cầu gia hạn</Text>
                     </TouchableOpacity>
-                    <W3mButton />
+                    {/* <TouchableOpacity style={styles.card} >
+                        <Text style={styles.cardText}>{formatCurrency(avgRevenueVND)}</Text>
+                        <Text style={styles.cardLabel}>Doanh thu{`\n`}trung bình</Text>
+                    </TouchableOpacity> */}
+
+
+                    {/* <W3mButton /> */}
 
 
                 </View>

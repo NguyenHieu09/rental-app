@@ -8,6 +8,7 @@ import { RootStackParamList } from '../../types/navigation';
 import { ITransaction } from '../../types/transaction';
 import { RootState } from '../../redux-toolkit/store';
 import { useSelector } from 'react-redux';
+import { formatPrice } from '../../utils/formattedPrice';
 
 // Define the type for the route prop
 // type TransactionsRouteProp = RouteProp<RootStackParamList, 'Transactions'>;
@@ -82,7 +83,7 @@ const Transactions: React.FC = () => {
                 <Text style={styles.transactionDescription}>{item.title}</Text>
 
                 <View style={styles.transactionContent}>
-                    <Text>Số tiền: {item.amount.toLocaleString()} ₫</Text>
+                    <Text>Số tiền: {formatPrice(item.amount)}</Text>
                     {/* <Text style={parseFloat(amountEth) >= 0 ? styles.transactionAmountPositive : styles.transactionAmountNegative}>
                         {parseFloat(amountEth) >= 0 ? `+ ${amountEth} ETH` : `${amountEth} ETH`}
                     </Text> */}

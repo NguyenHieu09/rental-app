@@ -267,6 +267,7 @@ import { IReview } from '../../types/review';
 import StarRating from 'react-native-star-rating-widget';
 import { formatDate } from '../../utils/datetime';
 import { getFirstAndLastName } from '../../utils/avatar';
+import { commonStyles } from '../../styles/theme';
 
 const ContractDetailTab: React.FC<{ contract: IContractDetail }> = ({ contract }) => {
     const [review, setReview] = useState<IReview | null>(null);  // Chỉ cần một đánh giá
@@ -301,111 +302,114 @@ const ContractDetailTab: React.FC<{ contract: IContractDetail }> = ({ contract }
     }
 
     return (
-        <ScrollView contentContainerStyle={styles.container}>
-            <Text style={styles.label}>Mã hợp đồng:</Text>
-            <Text style={styles.value}>{contract.contractId}</Text>
-            <Text style={styles.label}>Chủ nhà:</Text>
-            <Text style={styles.value}>{contract.owner.name}</Text>
-            <Text style={styles.label}>Người thuê:</Text>
-            <Text style={styles.value}>{contract.renter.name}</Text>
-            <Text style={styles.label}>Ngày bắt đầu:</Text>
-            <Text style={styles.value}>{new Date(contract.startDate).toLocaleDateString()}</Text>
-            <Text style={styles.label}>Ngày kết thúc:</Text>
-            <Text style={styles.value}>{new Date(contract.endDate).toLocaleDateString()}</Text>
-            <Text style={styles.label}>Giá thuê:</Text>
-            <Text style={styles.value}>{contract.monthlyRent.toLocaleString()} đ/tháng</Text>
-            <Text style={styles.label}>Tiền cọc:</Text>
-            <Text style={styles.value}>{contract.depositAmount.toLocaleString()} đ</Text>
-            <Text style={styles.label}>Trạng thái:</Text>
-            <Text style={styles.status}>{getStatusInVietnamese(contract.status)}</Text>
+        <View style={commonStyles.container}>
+            <ScrollView contentContainerStyle={styles.container}>
+                <Text style={styles.label}>Mã hợp đồng:</Text>
+                <Text style={styles.value}>{contract.contractId}</Text>
+                <Text style={styles.label}>Chủ nhà:</Text>
+                <Text style={styles.value}>{contract.owner.name}</Text>
+                <Text style={styles.label}>Người thuê:</Text>
+                <Text style={styles.value}>{contract.renter.name}</Text>
+                <Text style={styles.label}>Ngày bắt đầu:</Text>
+                <Text style={styles.value}>{new Date(contract.startDate).toLocaleDateString()}</Text>
+                <Text style={styles.label}>Ngày kết thúc:</Text>
+                <Text style={styles.value}>{new Date(contract.endDate).toLocaleDateString()}</Text>
+                <Text style={styles.label}>Giá thuê:</Text>
+                <Text style={styles.value}>{contract.monthlyRent.toLocaleString()} đ/tháng</Text>
+                <Text style={styles.label}>Tiền cọc:</Text>
+                <Text style={styles.value}>{contract.depositAmount.toLocaleString()} đ</Text>
+                <Text style={styles.label}>Trạng thái:</Text>
+                <Text style={styles.status}>{getStatusInVietnamese(contract.status)}</Text>
 
-            <Text style={styles.reviewsLabel}>Đánh giá:</Text>
-            {loading ? (
-                <ActivityIndicator size="large" color="#0000ff" />
-            ) : error ? (
-                <Text style={styles.error}>Lỗi: {error}</Text>
-            ) : review ? (
+                <Text style={styles.reviewsLabel}>Đánh giá:</Text>
+                {loading ? (
+                    <ActivityIndicator size="large" color="#0000ff" />
+                ) : error ? (
+                    <Text style={styles.error}>Lỗi: {error}</Text>
+                ) : review ? (
 
-                <View>
-                    <View style={styles.reviewContainer}>
-                        {/* Avatar của người đánh giá chính */}
-                        {review.renter.avatar ? (
-                            <Image source={{ uri: review.renter.avatar }} style={styles.avatar} />
-                        ) : (
-                            <View style={styles.nameInitials}>
-                                <Text style={styles.initials}>{getFirstAndLastName(review.renter.name)}</Text>
-                            </View>
-                        )}
-                        <View>
-                            <Text style={styles.reviewerName}>{review.renter.name}</Text>
-                            <StarRating
-                                rating={review.rating / 2}
-                                onChange={() => { }}
-                                starSize={25}
-                                color="#f1c40f"
-                            />
-                            <Text style={styles.comment}>{review.content}</Text>
-                            {review.medias?.length > 0 && review.medias.map((media, index) => (
-                                <Image key={index} source={{ uri: media }} style={styles.media} />
-                            ))}
-                            <Text style={styles.date}>{formatDate(review.createdAt)}</Text>
-
-
-                        </View>
-                    </View>
-
-                    {review.children.length > 0 ? (
-                        review.children.map((child) => {
-                            const userDetails = getUserDetails(child.userId);
-                            return (
-                                <View key={child.id} style={styles.reviewContainer}>
-                                    {/* Avatar của người phản hồi */}
-                                    <View>
-                                        {userDetails?.avatar ? (
-                                            <Image source={{ uri: userDetails.avatar }} style={styles.avatar} />
-                                        ) : (
-                                            <View style={styles.nameInitials}>
-                                                <Text style={styles.initials}>
-                                                    {getFirstAndLastName(userDetails?.name || '')}
-                                                </Text>
-                                            </View>
-                                        )}
-                                    </View>
-
-                                    <View>
-                                        <Text style={styles.reviewerName}>{userDetails?.name}</Text>
-                                        <StarRating
-                                            rating={child.rating / 2}
-                                            onChange={() => { }}
-                                            starSize={25}
-                                            color="#f1c40f"
-                                        />
-                                        <Text style={styles.comment}>{child.content}</Text>
-                                        {child.medias?.length > 0 && child.medias.map((media, index) => (
-                                            <Image key={index} source={{ uri: media }} style={styles.media} />
-                                        ))}
-                                        <Text style={styles.date}>{formatDate(child.createdAt)}</Text>
-                                    </View>
+                    <View>
+                        <View style={styles.reviewContainer}>
+                            {/* Avatar của người đánh giá chính */}
+                            {review.renter.avatar ? (
+                                <Image source={{ uri: review.renter.avatar }} style={styles.avatar} />
+                            ) : (
+                                <View style={styles.nameInitials}>
+                                    <Text style={styles.initials}>{getFirstAndLastName(review.renter.name)}</Text>
                                 </View>
-                            );
-                        })
-                    ) : (
-                        <Text style={styles.noReviews}>Chưa có phản hồi nào</Text>
-                    )}
+                            )}
+                            <View>
+                                <Text style={styles.reviewerName}>{review.renter.name}</Text>
+                                <StarRating
+                                    rating={review.rating / 2}
+                                    onChange={() => { }}
+                                    starSize={25}
+                                    color="#f1c40f"
+                                />
+                                <Text style={styles.comment}>{review.content}</Text>
+                                {review.medias?.length > 0 && review.medias.map((media, index) => (
+                                    <Image key={index} source={{ uri: media }} style={styles.media} />
+                                ))}
+                                <Text style={styles.date}>{formatDate(review.createdAt)}</Text>
 
 
-                </View>
-            ) : (
-                <Text style={styles.noReviews}>Chưa có đánh giá nào</Text>
-            )}
-        </ScrollView>
+                            </View>
+                        </View>
+
+                        {review.children.length > 0 ? (
+                            review.children.map((child) => {
+                                const userDetails = getUserDetails(child.userId);
+                                return (
+                                    <View key={child.id} style={styles.reviewContainer}>
+                                        {/* Avatar của người phản hồi */}
+                                        <View>
+                                            {userDetails?.avatar ? (
+                                                <Image source={{ uri: userDetails.avatar }} style={styles.avatar} />
+                                            ) : (
+                                                <View style={styles.nameInitials}>
+                                                    <Text style={styles.initials}>
+                                                        {getFirstAndLastName(userDetails?.name || '')}
+                                                    </Text>
+                                                </View>
+                                            )}
+                                        </View>
+
+                                        <View>
+                                            <Text style={styles.reviewerName}>{userDetails?.name}</Text>
+                                            <StarRating
+                                                rating={child.rating / 2}
+                                                onChange={() => { }}
+                                                starSize={25}
+                                                color="#f1c40f"
+                                            />
+                                            <Text style={styles.comment}>{child.content}</Text>
+                                            {child.medias?.length > 0 && child.medias.map((media, index) => (
+                                                <Image key={index} source={{ uri: media }} style={styles.media} />
+                                            ))}
+                                            <Text style={styles.date}>{formatDate(child.createdAt)}</Text>
+                                        </View>
+                                    </View>
+                                );
+                            })
+                        ) : (
+                            <Text style={styles.noReviews}>Chưa có phản hồi nào</Text>
+                        )}
+
+
+                    </View>
+                ) : (
+                    <Text style={styles.noReviews}>Chưa có đánh giá nào</Text>
+                )}
+            </ScrollView>
+
+        </View>
     );
 };
 
 const styles = StyleSheet.create({
     container: {
         padding: 20,
-        backgroundColor: '#fff',
+        // backgroundColor: 'red',
     },
     label: {
         fontSize: 16,

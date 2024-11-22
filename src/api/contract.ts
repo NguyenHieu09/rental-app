@@ -565,3 +565,57 @@ export const updateCancelContractRequestStatus = async (requestId: number, statu
     }
 };
 
+
+export const fetchContractOverview = async () => {
+    try {
+        const token = await AsyncStorage.getItem('accessToken');
+
+        if (!token) {
+            throw new Error('No token provided');
+        }
+
+        const response = await axios.get(`${API_CONTRACT_URL}/dashboard/owner/overview`, {
+            headers: {
+                Authorization: `Bearer ${token}`,
+            },
+        });
+
+
+        return response.data;
+    } catch (error: any) {
+        if (error.response && error.response.data && error.response.data.message) {
+            console.error('Error message:', error.response.data.message);
+            throw new Error(error.response.data.message);
+        } else {
+            console.error('Error fetching contract overview:', error);
+            throw error;
+        }
+    }
+};
+
+export const fetchIncomeExpenditure = async () => {
+    try {
+        const token = await AsyncStorage.getItem('accessToken');
+
+        if (!token) {
+            throw new Error('No token provided');
+        }
+
+        const response = await axios.get(`${API_CONTRACT_URL}/dashboard/owner/income-expenditure`, {
+            headers: {
+                Authorization: `Bearer ${token}`,
+            },
+        });
+
+        return response.data;
+    } catch (error: any) {
+        if (error.response && error.response.data && error.response.data.message) {
+            console.error('Error message:', error.response.data.message);
+            throw new Error(error.response.data.message);
+        } else {
+            console.error('Error fetching income and expenditure:', error);
+            throw error;
+        }
+    }
+};
+
