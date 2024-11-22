@@ -619,3 +619,54 @@ export const fetchIncomeExpenditure = async () => {
     }
 };
 
+export const fetchContractCancellationRate = async () => {
+    try {
+        const token = await AsyncStorage.getItem('accessToken');
+
+        if (!token) {
+            throw new Error('No token provided');
+        }
+
+        const response = await axios.get(`${API_CONTRACT_URL}/dashboard/owner/contract-cancellation-rate`, {
+            headers: {
+                Authorization: `Bearer ${token}`,
+            },
+        });
+
+        return response.data;
+    } catch (error: any) {
+        if (error.response && error.response.data && error.response.data.message) {
+            console.error('Error message:', error.response.data.message);
+            throw new Error(error.response.data.message);
+        } else {
+            console.error('Error fetching contract cancellation rate:', error);
+            throw error;
+        }
+    }
+};
+
+export const fetchRentalRequestRating = async () => {
+    try {
+        const token = await AsyncStorage.getItem('accessToken');
+
+        if (!token) {
+            throw new Error('No token provided');
+        }
+
+        const response = await axios.get(`${API_CONTRACT_URL}/dashboard/owner/rental-request-rating`, {
+            headers: {
+                Authorization: `Bearer ${token}`,
+            },
+        });
+
+        return response.data;
+    } catch (error: any) {
+        if (error.response && error.response.data && error.response.data.message) {
+            console.error('Error message:', error.response.data.message);
+            throw new Error(error.response.data.message);
+        } else {
+            console.error('Error fetching rental request rating:', error);
+            throw error;
+        }
+    }
+};

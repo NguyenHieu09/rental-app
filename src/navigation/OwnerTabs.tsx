@@ -8,7 +8,7 @@ import ProfileScreen from '../screens/profileScreen/ProfileScreen';
 // import ExploreScreen from '../screens/owner/explore/ExploreScreen';
 import AuthenticationScreen from '../screens/authentication/AuthenticationScreen';
 import AddProperty from '../screens/owner/addProperty/AddPropertyScreen';
-import ExploreScreen from '../screens/owner/explore/ExploreScreen';
+import ExploreScreen from '../screens/owner/statistics/StatisticsScreen';
 import ChatScreen from '../screens/renter/chat/ChatScreen';
 import { AppDispatch, RootState } from '../redux-toolkit/store';
 import { useDispatch, useSelector } from 'react-redux';
@@ -17,6 +17,7 @@ import { fetchAllConversations } from '../api/api';
 import { addConversations, clearConversations } from '../redux-toolkit/slices/conversationSlice';
 import { RootStackParamList } from '../types/navigation';
 import { NavigationProp, useFocusEffect, useNavigation } from '@react-navigation/native';
+import StatisticsScreen from '../screens/owner/statistics/StatisticsScreen';
 // import ExploreScreen from '../screens/renter/explore/ExploreScreen';
 // import AuthenticationScreen from '../screens/Authentication/AuthenticationScreen';
 // import ContractScreen from '../screens/owner/Contract/ContractScreen ';
@@ -103,8 +104,8 @@ const OwnerTabs: React.FC = () => {
             />
 
             <Tab.Screen
-                name="ExploreScreen"
-                component={ExploreScreen}
+                name="StatisticsScreen"
+                component={StatisticsScreen}
 
                 options={{
                     headerShown: false,

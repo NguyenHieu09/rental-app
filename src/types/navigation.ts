@@ -31,5 +31,6 @@ export type RootStackParamList = {
     ChatDetail: undefined;
     NotificationScreen: undefined;
     ChatBotScreen: undefined;
+    StatisticsScreen: undefined;
 
 };
