@@ -7,6 +7,13 @@ declare module '@env' {
     export const EXPO_PUBLIC_WAGMI_ICONS: string;
     export const NODE_ENV: string;
 
+    export const NEXT_PUBLIC_CHAIN_ID = number;
+    export const NEXT_PUBLIC_CHAIN_NAME = string;
+    export const NEXT_PUBLIC_CHAIN_NPC_URL = string;
+    export const NEXT_PUBLIC_CHAIN_DECIMALS = number;
+    export const NEXT_PUBLIC_CHAIN_SYMBOL = string;
+    export const NEXT_PUBLIC_CHAIN_CURRENCY = string;
+
     // Biến môi trường Firebase
     export const NEXT_PUBLIC_FIREBASE_API_KEY: string;
     export const NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN: string;

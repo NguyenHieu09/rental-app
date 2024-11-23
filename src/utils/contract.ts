@@ -1,3 +1,5 @@
+import { ICreateContractRequest } from "../types/contract";
+
 export const getStatusInVietnamese = (status: string): string => {
     switch (status) {
         case 'WAITING':
@@ -42,4 +44,8 @@ export const getCancellationStatusInVietnamese = (status: string): string => {
         default:
             return status;
     }
+};
+
+export const getOwnerCreateContractMessage = (data: ICreateContractRequest) => {
+    return `Tạo hợp đồng thuê nhà với ${data.renterId} tại ${data.propertyId} từ ${data.startDate} đến ${data.endDate} với giá ${data.monthlyRent} và cọc ${data.depositAmount}`;
 };

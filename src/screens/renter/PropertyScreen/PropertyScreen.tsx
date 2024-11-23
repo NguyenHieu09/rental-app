@@ -226,14 +226,15 @@ const PropertyScreen: React.FC = () => {
                                         <Text style={[styles.buttonText, { color: 'white' }]}>Gửi yêu cầu thuê</Text>
                                     </View>
                                 </TouchableOpacity>
-                                <RentalRequestModal
-                                    isVisible={isModalVisible}
-                                    onClose={toggleModal}
-                                    property={property}
-                                    ownerId={owner.userId}
-                                    userId={user?.userId || ''}
-                                />
+
                             </View>
+                            <RentalRequestModal
+                                isVisible={isModalVisible}
+                                onClose={toggleModal}
+                                property={property}
+                                ownerId={owner.userId}
+                                userId={user?.userId || ''}
+                            />
                         </View>
                     );
                 } else if (item.key === 'reviews') {

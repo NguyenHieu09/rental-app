@@ -17,6 +17,8 @@ import { fetchContractOverview, fetchContractsForOwner, fetchRentalRequestsForOw
 import { SafeAreaView } from 'react-native-safe-area-context';
 import FileComponent from '../../../components/chat/FileComponent';
 import { formatPrice } from '../../../utils/formattedPrice';
+import MyComponent from '../../../components/test/MyComponent';
+
 
 const DashboardOwner: React.FC = () => {
     const dispatch = useDispatch<AppDispatch>();
@@ -88,6 +90,7 @@ const DashboardOwner: React.FC = () => {
         navigation.navigate('ManageRequestRental');
     };
 
+
     const handleViewContracts = () => {
         navigation.navigate('ManageContract');
     };
@@ -136,10 +139,12 @@ const DashboardOwner: React.FC = () => {
                         <Text style={styles.cardLabel}>Yêu cầu{`\n`}hủy hợp đồng</Text>
 
                     </TouchableOpacity>
-                    <TouchableOpacity style={styles.card} >
+                    <TouchableOpacity style={styles.card} onPress={handleViewRequestRental}>
                         <Text style={styles.cardText}>{countExtensionRequest}</Text>
                         <Text style={styles.cardLabel}>Yêu cầu gia hạn</Text>
                     </TouchableOpacity>
+
+                    <MyComponent />
                     {/* <TouchableOpacity style={styles.card} >
                         <Text style={styles.cardText}>{formatCurrency(avgRevenueVND)}</Text>
                         <Text style={styles.cardLabel}>Doanh thu{`\n`}trung bình</Text>

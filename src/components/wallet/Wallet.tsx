@@ -92,7 +92,7 @@ const Wallet: React.FC = () => {
 
     const { data, isError, isLoading, error: balanceError } = useBalance({
         address: user?.walletAddress ?? undefined,
-        chainId: 1337,
+        chainId: process.env.NEXT_PUBLIC_CHAIN_ID,
     });
 
     useEffect(() => {
