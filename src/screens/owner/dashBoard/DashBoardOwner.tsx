@@ -144,7 +144,7 @@ const DashboardOwner: React.FC = () => {
                         <Text style={styles.cardLabel}>Yêu cầu gia hạn</Text>
                     </TouchableOpacity>
 
-                    <MyComponent />
+                    {/* <MyComponent /> */}
                     {/* <TouchableOpacity style={styles.card} >
                         <Text style={styles.cardText}>{formatCurrency(avgRevenueVND)}</Text>
                         <Text style={styles.cardLabel}>Doanh thu{`\n`}trung bình</Text>

@@ -517,6 +517,7 @@ import { Connector, useAccount, useConnect, useDisconnect, useSignMessage } from
 import { useSelector } from 'react-redux';
 import { RootState } from '../../../redux-toolkit/store';
 import { getOwnerCreateContractMessage } from '../../../utils/contract';
+import { W3mButton } from '@web3modal/wagmi-react-native';
 // import { updateRentalRequestStatus } from '../../../api/api';
 
 
@@ -536,18 +537,34 @@ const ContractScreen = () => {
 
 
     const handleSign = async ({ message }: { message: string }) => {
-        const connector: Connector = connectors.find((c) => c.id === 'metaMaskSDK')!;
+        const connector: Connector = connectors[0]
+
+        console.log("user?.walletAddress", user?.walletAddress);
+        console.log("address", address);
 
         if (address !== user?.walletAddress) {
-            await disconnectAsync();
+            console.log("user?.walletAddress", user?.walletAddress);
+            console.log("address", address);
+
+            await disconnectAsync({
+                connector,
+            });
+
+            console.log("disconnect")
+
             await connectAsync({ connector });
+
+            console.log("connectAsync")
         }
 
         if (user?.walletAddress !== address) throw new Error('Địa chỉ ví không khớp');
 
+        console.log("user?.walletAddress", user?.walletAddress);
+
         const res = await signMessageAsync({
             message,
             account: address,
+            connector
         });
 
         return res;
@@ -626,6 +643,7 @@ const ContractScreen = () => {
                 <TouchableOpacity style={[styles.button, { backgroundColor: '#007BFF' }]} onPress={handleCreateContract}>
                     <Text style={commonStyles.buttonText}>Tạo hợp đồng</Text>
                 </TouchableOpacity>
+                <W3mButton />
             </View>
         </View>
     );

@@ -274,12 +274,13 @@ import { sepolia } from '@wagmi/core/chains';
 import {
   createWeb3Modal,
   defaultWagmiConfig,
+  W3mButton,
   Web3Modal,
 } from '@web3modal/wagmi-react-native';
-import { WagmiProvider } from 'wagmi';
+import { cookieStorage, createStorage, http, WagmiProvider } from 'wagmi';
 import '@walletconnect/react-native-compat';
 import Socket from './src/config/socket';
-import { metaMask } from 'wagmi/connectors';
+import { injected, metaMask, safe, walletConnect } from 'wagmi/connectors';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import "node-libs-expo/globals"
 import "react-native-url-polyfill/auto"
@@ -327,9 +328,8 @@ const metadata = {
 //   },
 // };
 
-
 const stagingChain = {
-  id: process.env.NEXT_PUBLIC_CHAIN_ID,
+  id: Number(process.env.NEXT_PUBLIC_CHAIN_ID),
   name: process.env.NEXT_PUBLIC_CHAIN_NAME,
   nativeCurrency: {
     decimals: process.env.NEXT_PUBLIC_CHAIN_DECIMALS,
@@ -355,10 +355,16 @@ const stagingChain = {
 // Create chains configuration
 const chains = [
   stagingChain,
-  sepolia,
+  // sepolia,
 ] as const;
 
-const wagmiConfig = defaultWagmiConfig({ connectors: [metaMask()], chains, projectId, metadata });
+const wagmiConfig = defaultWagmiConfig({
+  chains, projectId,
+  metadata,
+  transports: {
+    [stagingChain.id]: http()
+  }
+});
 
 // Create modal
 createWeb3Modal({
