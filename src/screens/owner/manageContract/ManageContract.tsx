@@ -238,7 +238,7 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import { View, Text, StyleSheet, Image, FlatList, TouchableOpacity, ActivityIndicator, Alert } from 'react-native';
 import { commonStyles } from '../../../styles/theme';
-import { createCancelContractRequest, fetchContractsForOwner, fetchRentalContractsForRenter } from '../../../api/contract';
+import { cancelContractBeforeDeposit, createCancelContractRequest, fetchContractsForOwner, fetchRentalContractsForRenter } from '../../../api/contract';
 import { RootState } from '../../../redux-toolkit/store';
 import { useSelector } from 'react-redux';
 import { NavigationProp, useFocusEffect, useNavigation } from '@react-navigation/native';
@@ -246,15 +246,16 @@ import { RootStackParamList } from '../../../types/navigation';
 import { format } from 'date-fns';
 import { IContract, ContractStatus } from '../../../types/contract';
 import CancelContractModal from '../../../components/modal/CancelContractModal';
+import CancelBeforeDepositModal from '../../../components/modal/CancelBeforeDepositModal';
 
 const getStatusInVietnamese = (status: ContractStatus): string => {
     switch (status) {
         case 'WAITING':
-            return 'Đang chờ';
+            return 'Chờ xác nhận';
         case 'DEPOSITED':
             return 'Đã đặt cọc';
         case 'ONGOING':
-            return 'Đang diễn ra';
+            return 'Đang thuê';
         case 'ENDED':
             return 'Đã kết thúc';
         case 'OVERDUE':
@@ -262,11 +263,11 @@ const getStatusInVietnamese = (status: ContractStatus): string => {
         case 'CANCELLED':
             return 'Đã hủy';
         case 'PENDING_CANCELLATION':
-            return 'Đang chờ hủy';
+            return 'Chờ xác nhận huỷ';
         case 'UNILATERAL_CANCELLATION':
-            return 'Hủy đơn phương';
+            return 'Hủy một phía';
         case 'APPROVED_CANCELLATION':
-            return 'Đã duyệt hủy';
+            return 'Chấp nhận hủy';
         case 'REJECTED_CANCELLATION':
             return 'Từ chối hủy';
         default:
@@ -280,7 +281,9 @@ const ManageContract = () => {
     const [totalContracts, setTotalContracts] = useState(0);
     const [loading, setLoading] = useState(true);
     const [isLoadingMore, setIsLoadingMore] = useState(false);
-    const [modalVisible, setModalVisible] = useState(false);
+    const [cancelModalVisible, setCancelModalVisible] = useState(false);
+    const [confirmModalVisible, setConfirmModalVisible] = useState(false);
+    // const [modalVisible, setModalVisible] = useState(false);
     const [selectedContract, setSelectedContract] = useState<IContract | null>(null);
     const ITEMS_PER_PAGE = 10;
     let debounceTimeout: NodeJS.Timeout | null = null;
@@ -294,7 +297,7 @@ const ManageContract = () => {
 
     const loadContracts = async (page: number) => {
         if (!user) {
-            Alert.alert('Error', 'User not found. Please log in again.');
+            Alert.alert('Lỗi', 'Không thể tải dữ liệu. Vui lòng thử lại sau.');
             return;
         }
 
@@ -333,11 +336,11 @@ const ManageContract = () => {
                 setTotalContracts(total);
             } else {
                 console.error('Total contracts is undefined');
-                Alert.alert('Error', 'Total contracts is undefined.');
+
             }
         } catch (error) {
             console.error('Error fetching contracts:', error);
-            Alert.alert('Error', 'Có lỗi xảy ra khi tải dữ liệu.');
+            Alert.alert('Lỗi', 'Có lỗi xảy ra khi tải dữ liệu.');
         } finally {
             setLoading(false);
             setIsLoadingMore(false);
@@ -378,8 +381,25 @@ const ManageContract = () => {
 
     const handleCancelContract = (contract: IContract) => {
         setSelectedContract(contract);
-        setModalVisible(true);
+        if (contract.status === 'WAITING') {
+            // Mở modal xác nhận hủy trước khi đặt cọc
+            setConfirmModalVisible(true);
+        } else if (contract.status === 'DEPOSITED' || contract.status === 'ONGOING') {
+            // Mở modal hủy sau khi đặt cọc
+            setCancelModalVisible(true);
+        } else {
+            Alert.alert('Không thể hủy', 'Hợp đồng không nằm trong trạng thái có thể hủy.');
+        }
     };
+
+    // const handleCancelContract = (contract: IContract) => {
+    //     setSelectedContract(contract);
+    //     if (contract.status === 'WAITING') {
+    //         setConfirmModalVisible(true);
+    //     } else {
+    //         setCancelModalVisible(true);
+    //     }
+    // };
 
     const confirmCancelContract = async (cancelDate: Date, reason: string) => {
         if (selectedContract) {
@@ -394,53 +414,27 @@ const ManageContract = () => {
             } catch (error) {
                 Alert.alert('Lỗi', 'Có lỗi xảy ra khi gửi yêu cầu hủy hợp đồng');
             } finally {
-                setModalVisible(false);
+                setCancelModalVisible(false);
                 setSelectedContract(null);
             }
         }
     };
 
+    const confirmCancelBeforeDeposit = async () => {
+        if (selectedContract) {
+            try {
+                await cancelContractBeforeDeposit(selectedContract.contractId);
+                Alert.alert('Thành công', 'Hợp đồng đã được hủy trước khi đặt cọc');
+                // setContracts((prevContracts) => prevContracts.filter((contract) => contract.contractId !== selectedContract.contractId));
+            } catch (error: any) {
+                Alert.alert('Lỗi', 'Có lỗi xảy ra khi hủy hợp đồng');
+            } finally {
+                setConfirmModalVisible(false);
+                setSelectedContract(null);
+            }
+        }
+    };
 
-    // const renderContract = ({ item }: { item: IContract }) => (
-    //     <View key={item.contractId} style={styles.contractCard}>
-    //         <TouchableOpacity onPress={() => navigation.navigate('ContractDetails', { contractId: item.contractId })}>
-
-    //             <View style={styles.containerContract}>
-    //                 <View>
-    //                     {/* <Image source={{ uri: item.property.images[0] }} style={styles.image} /> */}
-    //                 </View>
-    //                 <View style={styles.details}>
-    //                     <Text style={styles.propertyTitle}>{item.property.title}</Text>
-    //                     <Text style={styles.price}>Giá thuê: {item.monthlyRent.toLocaleString()} đ</Text>
-    //                     <Text style={styles.deposit}>Tiền cọc: {item.depositAmount.toLocaleString()} đ</Text>
-    //                     {user && user.userTypes.includes('owner') ? (
-    //                         <Text>Người thuê: {item.renter.name}</Text>
-    //                     ) : (
-    //                         <Text>Chủ nhà: {item.owner.name}</Text>
-    //                     )}
-    //                     <Text style={styles.dates}>
-    //                         Từ: {format(new Date(item.startDate), 'dd/MM/yyyy')}
-    //                     </Text>
-    //                     <Text style={styles.dates}>
-    //                         Đến: {format(new Date(item.endDate), 'dd/MM/yyyy')}
-    //                     </Text>
-    //                     <Text style={styles.status}>Trạng thái: {getStatusInVietnamese(item.status)}</Text>
-
-
-
-    //                 </View>
-
-    //             </View>
-    //         </TouchableOpacity >
-    //         {(item.status === 'WAITING' || item.status === 'DEPOSITED' || item.status === 'ONGOING') && (
-    //             <TouchableOpacity style={[commonStyles.button, { paddingVertical: 10, marginTop: 10 }]} onPress={() => handleCancelContract(item)}>
-    //                 <Text style={commonStyles.buttonText}>Hủy hợp đồng</Text>
-    //             </TouchableOpacity>
-    //         )}
-
-    //     </View>
-
-    // );
 
     const renderContract = ({ item }: { item: IContract }) => {
         const isCancellable = item.status === 'WAITING' || item.status === 'DEPOSITED' || item.status === 'ONGOING';
@@ -515,8 +509,8 @@ const ManageContract = () => {
 
             {selectedContract && (
                 <CancelContractModal
-                    visible={modalVisible}
-                    onClose={() => setModalVisible(false)}
+                    visible={cancelModalVisible}
+                    onClose={() => setCancelModalVisible(false)}
                     onConfirm={confirmCancelContract}
                     contractId={selectedContract.contractId}
                     startDate={selectedContract.startDate}
@@ -525,6 +519,17 @@ const ManageContract = () => {
                     deposit={selectedContract.depositAmount}
                 />
             )}
+
+            {selectedContract && (
+                <CancelBeforeDepositModal
+                    visible={confirmModalVisible}
+                    onClose={() => setConfirmModalVisible(false)}
+                    onConfirm={confirmCancelBeforeDeposit}
+                    contractId={selectedContract.contractId}
+
+                />
+            )}
+
         </View>
     );
 };

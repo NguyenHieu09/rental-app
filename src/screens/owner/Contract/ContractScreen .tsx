@@ -512,12 +512,13 @@ import RenderHtml from 'react-native-render-html';
 import { RootStackParamList } from '../../../types/navigation';
 import { commonStyles } from '../../../styles/theme';
 import { ICreateContractRequest } from '../../../types/contract';
-import { createContract, updateRentalRequestStatus } from '../../../api/contract';
+import { createContractAndApproveRequest, updateRentalRequestStatus } from '../../../api/contract';
 import { Connector, useAccount, useConnect, useDisconnect, useSignMessage } from 'wagmi';
 import { useSelector } from 'react-redux';
 import { RootState } from '../../../redux-toolkit/store';
 import { getOwnerCreateContractMessage } from '../../../utils/contract';
 import { W3mButton } from '@web3modal/wagmi-react-native';
+import { useSignMessageCustom } from '../../../hook/useSignMessageCustom';
 // import { updateRentalRequestStatus } from '../../../api/api';
 
 
@@ -534,51 +535,49 @@ const ContractScreen = () => {
     const { disconnectAsync } = useDisconnect();
     const { address } = useAccount();
     const user = useSelector((state: RootState) => state.user.user);
+    const { handleSign } = useSignMessageCustom();
 
+    // const handleSign = async ({ message }: { message: string }) => {
+    //     const connector: Connector = connectors[0]
 
-    const handleSign = async ({ message }: { message: string }) => {
-        const connector: Connector = connectors[0]
+    //     console.log("user?.walletAddress", user?.walletAddress);
+    //     console.log("address", address);
 
-        console.log("user?.walletAddress", user?.walletAddress);
-        console.log("address", address);
+    //     if (address !== user?.walletAddress) {
+    //         console.log("user?.walletAddress", user?.walletAddress);
+    //         console.log("address", address);
 
-        if (address !== user?.walletAddress) {
-            console.log("user?.walletAddress", user?.walletAddress);
-            console.log("address", address);
+    //         await disconnectAsync({
+    //             connector,
+    //         });
 
-            await disconnectAsync({
-                connector,
-            });
+    //         console.log("disconnect")
 
-            console.log("disconnect")
+    //         await connectAsync({ connector });
 
-            await connectAsync({ connector });
+    //         console.log("connectAsync")
+    //     }
 
-            console.log("connectAsync")
-        }
+    //     if (user?.walletAddress !== address) throw new Error('Địa chỉ ví không khớp');
 
-        if (user?.walletAddress !== address) throw new Error('Địa chỉ ví không khớp');
+    //     console.log("user?.walletAddress", user?.walletAddress);
 
-        console.log("user?.walletAddress", user?.walletAddress);
+    //     const res = await signMessageAsync({
+    //         message,
+    //         account: address,
+    //         connector
+    //     });
 
-        const res = await signMessageAsync({
-            message,
-            account: address,
-            connector
-        });
-
-        return res;
-    };
+    //     return res;
+    // };
 
 
     // Simulate data fetching
     useEffect(() => {
-        // Simulate a delay to fetch data
         const timer = setTimeout(() => {
             setLoading(false);
-        }, 2000); // 2 seconds delay
+        }, 2000);
 
-        // Cleanup the timer
         return () => clearTimeout(timer);
     }, []);
 
@@ -588,8 +587,8 @@ const ContractScreen = () => {
                 ownerId: ownerId,
                 renterId: renterId,
                 propertyId: propertyId,
-                startDate: startDate,
-                endDate: endDate,
+                startDate: startDate.substring(0, 10),
+                endDate: endDate.substring(0, 10),
                 contractTerms: contractContent,
                 monthlyRent: monthlyRent,
                 depositAmount: depositAmount,
@@ -597,18 +596,15 @@ const ContractScreen = () => {
             };
 
             const message = getOwnerCreateContractMessage(contractRequest);
-
             const signature = await handleSign({ message });
 
 
-
-            const response = await createContract({
+            const response = await createContractAndApproveRequest({
                 ...contractRequest,
                 signature,
-            });
-            console.log(response);
+                requestId: requestId,
 
-            // await updateRentalRequestStatus(requestId, 'APPROVED');
+            });
 
             Alert.alert('Thành công', 'Tạo hợp đồng thành công');
             navigation.navigate('ManageRequestRental');
@@ -643,7 +639,7 @@ const ContractScreen = () => {
                 <TouchableOpacity style={[styles.button, { backgroundColor: '#007BFF' }]} onPress={handleCreateContract}>
                     <Text style={commonStyles.buttonText}>Tạo hợp đồng</Text>
                 </TouchableOpacity>
-                <W3mButton />
+                {/* <W3mButton /> */}
             </View>
         </View>
     );
