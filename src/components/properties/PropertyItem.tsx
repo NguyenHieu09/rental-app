@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { View, Text, Image, StyleSheet, TouchableOpacity } from 'react-native';
 import { IProperty } from '../../types/property';
@@ -7,6 +6,8 @@ import { Swipeable } from 'react-native-gesture-handler';
 import { formatPrice } from '../../utils/formattedPrice';
 import { RootStackParamList } from '../../types/navigation';
 import { NavigationProp, useNavigation } from '@react-navigation/native';
+import { getPropertyStatusColor } from '../../utils/colorTag';
+import Tag from '../tag/Tag';
 
 interface PropertyItemProps {
     item: IProperty;
@@ -14,10 +15,10 @@ interface PropertyItemProps {
 }
 
 const statusMapping: { [key: string]: string } = {
-    PENDING: 'Đang chờ phê duyệt',
-    ACTIVE: 'Đã phê duyệt',
-    INACTIVE: 'Không được phê duyệt',
-    REJECTED: 'Bị từ chối bởi quản trị viên',
+    PENDING: 'Đang chờ duyệt',
+    ACTIVE: 'Đã duyệt',
+    INACTIVE: 'Đã ẩn',
+    REJECTED: 'Đã từ chối',
     UNAVAILABLE: 'Đã cho thuê',
 };
 
@@ -32,18 +33,20 @@ const PropertyItem: React.FC<PropertyItemProps> = ({ item, onDelete }) => {
                     style={styles.deleteButton}
                     onPress={() => onDelete(propertyId)}
                 >
-                    <AntDesign name="delete" size={24} color="white" />
+                    <AntDesign name='delete' size={24} color='white' />
                 </TouchableOpacity>
             </View>
-
         );
     };
 
     return (
         <Swipeable renderRightActions={renderRightActions}>
-            <TouchableOpacity style={styles.container} onPress={() => {
-                navigation.navigate('PropertyDetail', { slug: slug });
-            }}>
+            <TouchableOpacity
+                style={styles.container}
+                onPress={() => {
+                    navigation.navigate('PropertyDetail', { slug: slug });
+                }}
+            >
                 <View style={styles.imageContainer}>
                     <Image source={{ uri: images[0] }} style={styles.image} />
                 </View>
@@ -53,12 +56,24 @@ const PropertyItem: React.FC<PropertyItemProps> = ({ item, onDelete }) => {
                         <Text style={styles.location}>{location}</Text>
                     </View>
                     <View style={styles.row}>
-                        <Text style={[{ color: 'red', fontWeight: '400' }]}>
+                        {/* <Text
+                            style={[
+                                {
+                                    color: getPropertyStatusColor(item.status),
+                                    fontWeight: '400',
+                                },
+                            ]}
+                        >
                             {statusMapping[item.status] || item.status}
-                        </Text>
+                        </Text> */}
+                        <Tag color={getPropertyStatusColor(item.status)}>
+                            {statusMapping[item.status] || item.status}
+                        </Tag>
                     </View>
                     <View style={styles.row}>
-                        <Text style={styles.price}>{formatPrice(price)}/tháng</Text>
+                        <Text style={styles.price}>
+                            {formatPrice(price)}/tháng
+                        </Text>
                     </View>
                 </View>
             </TouchableOpacity>
@@ -69,7 +84,7 @@ const PropertyItem: React.FC<PropertyItemProps> = ({ item, onDelete }) => {
 const styles = StyleSheet.create({
     container: {
         flexDirection: 'row',
-        borderRadius: 30,
+        borderRadius: 18,
         overflow: 'hidden',
         backgroundColor: '#F5F4F8',
         elevation: 2,
@@ -79,16 +94,18 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
         alignItems: 'center',
         padding: 10,
+        gap: 8,
     },
     image: {
         width: 150,
         height: 150,
         resizeMode: 'cover',
-        borderRadius: 15,
+        borderRadius: 8,
     },
     details: {
         flex: 1,
         padding: 10,
+        gap: 6,
     },
     title: {
         fontSize: 18,
@@ -116,7 +133,7 @@ const styles = StyleSheet.create({
     },
     buttonContainer: {
         justifyContent: 'center',
-    }
+    },
 });
 
 export default PropertyItem;

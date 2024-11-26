@@ -190,7 +190,6 @@
 //                                 </View>
 //                             )}
 
-
 //                             {cancelRequest.status === 'REJECTED' && isMyRequest && (
 //                                 <View style={styles.buttonContainer}>
 //                                     <TouchableOpacity style={styles.button} onPress={() => handleStatusUpdate('UNILATERAL_CANCELLATION')}>
@@ -246,7 +245,6 @@
 //         </View>
 //     );
 // };
-
 
 // const styles = StyleSheet.create({
 //     container: {
@@ -311,7 +309,11 @@ import React, { useEffect, useState } from 'react';
 import { View, ActivityIndicator, Alert, Text } from 'react-native';
 import { RouteProp, useRoute } from '@react-navigation/native';
 import { createMaterialTopTabNavigator } from '@react-navigation/material-top-tabs';
-import { fetchContractDetails, fetchNotHandledCancelContractRequest, fetchHandledCancelContractRequest } from '../../api/contract';
+import {
+    fetchContractDetails,
+    fetchNotHandledCancelContractRequest,
+    fetchHandledCancelContractRequest,
+} from '../../api/contract';
 import { IContractDetail } from '../../types/contractDetail';
 import { commonStyles } from '../../styles/theme';
 import { ICancelContractResponse } from '../../types/cancelContract';
@@ -319,7 +321,10 @@ import ContractDetailTab from '../../components/contract/ContractDetailTab';
 import NotHandledCancelRequestTab from '../../components/contract/NotHandledCancelRequestTab';
 import HandledCancelRequestTab from '../../components/contract/HandledCancelRequestTab';
 
-type ContractDetailsRouteProp = RouteProp<{ params: { contractId: string } }, 'params'>;
+type ContractDetailsRouteProp = RouteProp<
+    { params: { contractId: string } },
+    'params'
+>;
 
 const Tab = createMaterialTopTabNavigator();
 
@@ -327,8 +332,11 @@ const ContractDetails: React.FC = () => {
     const route = useRoute<ContractDetailsRouteProp>();
     const { contractId } = route.params;
     const [contract, setContract] = useState<IContractDetail | null>(null);
-    const [notHandledCancelRequest, setNotHandledCancelRequest] = useState<ICancelContractResponse | null>(null);
-    const [handledCancelRequest, setHandledCancelRequest] = useState<ICancelContractResponse[] | null>(null);
+    const [notHandledCancelRequest, setNotHandledCancelRequest] =
+        useState<ICancelContractResponse | null>(null);
+    const [handledCancelRequest, setHandledCancelRequest] = useState<
+        ICancelContractResponse[] | null
+    >(null);
     const [loading, setLoading] = useState<boolean>(true);
 
     useEffect(() => {
@@ -337,11 +345,16 @@ const ContractDetails: React.FC = () => {
                 const contractData = await fetchContractDetails(contractId);
                 setContract(contractData);
 
-                const notHandledData = await fetchNotHandledCancelContractRequest(contractId);
+                const notHandledData =
+                    await fetchNotHandledCancelContractRequest(contractId);
                 setNotHandledCancelRequest(notHandledData);
 
-                const handledData = await fetchHandledCancelContractRequest(contractId);
-                setHandledCancelRequest(Array.isArray(handledData) ? handledData : [handledData]);
+                const handledData = await fetchHandledCancelContractRequest(
+                    contractId,
+                );
+                setHandledCancelRequest(
+                    Array.isArray(handledData) ? handledData : [handledData],
+                );
             } catch (error) {
                 Alert.alert('Lỗi', 'Không thể tải chi tiết hợp đồng');
                 console.error('Error loading contract details:', error);
@@ -355,15 +368,25 @@ const ContractDetails: React.FC = () => {
 
     if (loading) {
         return (
-            <View style={[commonStyles.container, { justifyContent: 'center', alignItems: 'center', flex: 1 }]}>
-                <ActivityIndicator size="large" color="#0000ff" />
+            <View
+                style={[
+                    commonStyles.container,
+                    { justifyContent: 'center', alignItems: 'center', flex: 1 },
+                ]}
+            >
+                <ActivityIndicator size='large' color='#0000ff' />
             </View>
         );
     }
 
     if (!contract) {
         return (
-            <View style={[commonStyles.container, { justifyContent: 'center', alignItems: 'center', flex: 1 }]}>
+            <View
+                style={[
+                    commonStyles.container,
+                    { justifyContent: 'center', alignItems: 'center', flex: 1 },
+                ]}
+            >
                 <Text>Không tìm thấy hợp đồng</Text>
             </View>
         );
@@ -371,14 +394,22 @@ const ContractDetails: React.FC = () => {
 
     return (
         <Tab.Navigator>
-            <Tab.Screen name="Chi tiết hợp đồng">
+            <Tab.Screen name='Chi tiết hợp đồng'>
                 {() => <ContractDetailTab contract={contract} />}
             </Tab.Screen>
-            <Tab.Screen name="Yêu cầu hủy chờ xử lý">
-                {() => <NotHandledCancelRequestTab cancelRequest={notHandledCancelRequest} />}
+            <Tab.Screen name='Yêu cầu hủy chờ xử lý'>
+                {() => (
+                    <NotHandledCancelRequestTab
+                        cancelRequest={notHandledCancelRequest}
+                    />
+                )}
             </Tab.Screen>
-            <Tab.Screen name="Yêu cầu hủy đã xử lý">
-                {() => <HandledCancelRequestTab cancelRequest={handledCancelRequest} />}
+            <Tab.Screen name='Yêu cầu hủy đã xử lý'>
+                {() => (
+                    <HandledCancelRequestTab
+                        cancelRequest={handledCancelRequest}
+                    />
+                )}
             </Tab.Screen>
         </Tab.Navigator>
     );

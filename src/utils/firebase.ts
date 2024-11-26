@@ -1,7 +1,6 @@
-import { getDownloadURL, getStorage, ref, uploadBytesResumable } from 'firebase/storage';
 import * as ImagePicker from 'expo-image-picker';
+import { getDownloadURL, ref, uploadBytesResumable } from 'firebase/storage';
 import { storage } from '../config/firebaseConfig';
-
 
 type UploadFileProps = {
     fileUri: string;
@@ -9,7 +8,11 @@ type UploadFileProps = {
     folder?: string;
 };
 
-export const uploadFile = async ({ fileUri, fileName, folder = 'chat' }: UploadFileProps): Promise<string> => {
+export const uploadFile = async ({
+    fileUri,
+    fileName,
+    folder = 'chat',
+}: UploadFileProps): Promise<string> => {
     const response = await fetch(fileUri);
     const blob = await response.blob();
     const contentType = blob.type;
@@ -23,12 +26,14 @@ export const uploadFile = async ({ fileUri, fileName, folder = 'chat' }: UploadF
     return new Promise((resolve, reject) => {
         uploadTask.on(
             'state_changed',
-            () => { },
+            () => {},
             (error) => reject(error),
             async () => {
-                const downloadURL = await getDownloadURL(uploadTask.snapshot.ref);
+                const downloadURL = await getDownloadURL(
+                    uploadTask.snapshot.ref,
+                );
                 resolve(downloadURL);
-            }
+            },
         );
     });
 };
@@ -41,7 +46,9 @@ export const uploadFiles = async ({
     folder?: string;
 }): Promise<string[]> => {
     return Promise.all(
-        files.map((file) => uploadFile({ fileUri: file.uri, fileName: file.name, folder }))
+        files.map((file) =>
+            uploadFile({ fileUri: file.uri, fileName: file.name, folder }),
+        ),
     );
 };
 

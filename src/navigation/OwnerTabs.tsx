@@ -1,43 +1,40 @@
-import React, { useEffect, useState } from 'react';
-import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { IconFill, IconOutline } from '@ant-design/icons-react-native';
-import DashboardOwner from '../screens/owner/dashBoard/DashBoardOwner';
-// import ChatScreen from '../screens/owner/chat/ChatScreen';
-import { Text, View, TouchableOpacity } from 'react-native';
-import ProfileScreen from '../screens/profileScreen/ProfileScreen';
-// import ExploreScreen from '../screens/owner/explore/ExploreScreen';
-import AuthenticationScreen from '../screens/authentication/AuthenticationScreen';
-import AddProperty from '../screens/owner/addProperty/AddPropertyScreen';
-import ExploreScreen from '../screens/owner/statistics/StatisticsScreen';
-import ChatScreen from '../screens/renter/chat/ChatScreen';
-import { AppDispatch, RootState } from '../redux-toolkit/store';
+import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
+import React, { useEffect, useState } from 'react';
+import { Text, TouchableOpacity, View } from 'react-native';
+import Feather from 'react-native-vector-icons/Feather';
 import { useDispatch, useSelector } from 'react-redux';
-import { IConversation } from '../types/chat';
 import { fetchAllConversations } from '../api/api';
-import { addConversations, clearConversations } from '../redux-toolkit/slices/conversationSlice';
-import { RootStackParamList } from '../types/navigation';
-import { NavigationProp, useFocusEffect, useNavigation } from '@react-navigation/native';
+import { addConversations } from '../redux-toolkit/slices/conversationSlice';
+import { AppDispatch, RootState } from '../redux-toolkit/store';
+import AddProperty from '../screens/owner/addProperty/AddPropertyScreen';
+import DashboardOwner from '../screens/owner/dashBoard/DashBoardOwner';
 import StatisticsScreen from '../screens/owner/statistics/StatisticsScreen';
-// import ExploreScreen from '../screens/renter/explore/ExploreScreen';
-// import AuthenticationScreen from '../screens/Authentication/AuthenticationScreen';
-// import ContractScreen from '../screens/owner/Contract/ContractScreen ';
-// import WalletScreen from '../screens/Wallet/WalletScreen';
+import ProfileScreen from '../screens/profileScreen/ProfileScreen';
+import ChatScreen from '../screens/renter/chat/ChatScreen';
+import { IConversation } from '../types/chat';
 
 const Tab = createBottomTabNavigator();
 
 const OwnerTabs: React.FC = () => {
-
     const dispatch = useDispatch<AppDispatch>();
-    const conversations = useSelector((state: RootState) => state.conversations.conversations);
+    const conversations = useSelector(
+        (state: RootState) => state.conversations.conversations,
+    );
 
     const userId = useSelector((state: RootState) => state.user.user?.userId);
     const filteredConversations = conversations.filter((conversation) =>
-        conversation.participants.some((participant) => participant.userId === userId)
+        conversation.participants.some(
+            (participant) => participant.userId === userId,
+        ),
     );
     const [unreadCount, setUnreadCount] = useState(0);
 
     // Tính toán số lượng tin nhắn chưa đọc
-    const calculateUnreadMessages = (conversations: IConversation[], userId: string) => {
+    const calculateUnreadMessages = (
+        conversations: IConversation[],
+        userId: string,
+    ) => {
         return conversations.reduce((totalUnread, conversation) => {
             let unreadCount = 0;
 
@@ -58,7 +55,10 @@ const OwnerTabs: React.FC = () => {
     // Đảm bảo tính toán lại mỗi khi có sự thay đổi trong conversations
     useEffect(() => {
         if (userId) {
-            const unreadMessages = calculateUnreadMessages(filteredConversations, userId);
+            const unreadMessages = calculateUnreadMessages(
+                filteredConversations,
+                userId,
+            );
             setUnreadCount(unreadMessages);
         }
     }, [conversations, userId]);
@@ -90,82 +90,129 @@ const OwnerTabs: React.FC = () => {
     return (
         <Tab.Navigator>
             <Tab.Screen
-                name="DashboardOwner"
+                name='DashboardOwner'
                 component={DashboardOwner}
                 options={{
+                    tabBarLabel: () => null,
                     headerShown: false,
                     tabBarIcon: ({ color, size }) => (
-                        <IconFill name="home" color={color} size={size} />
+                        <IconFill name='home' color={color} size={size} />
                     ),
-                    tabBarLabel: ({ color }) => (
-                        <Text style={{ color, fontSize: 14, fontWeight: '700' }}>Home</Text>
-                    ),
+                    // tabBarLabel: ({ color }) => (
+                    //     <Text
+                    //         style={{ color, fontSize: 14, fontWeight: '700' }}
+                    //     >
+                    //         Trang chủ
+                    //     </Text>
+                    // ),
                 }}
             />
 
             <Tab.Screen
-                name="StatisticsScreen"
+                name='StatisticsScreen'
                 component={StatisticsScreen}
-
                 options={{
+                    tabBarLabel: () => null,
                     headerShown: false,
                     tabBarIcon: ({ color, size }) => (
-                        <IconOutline name="search" color={color} size={size} />
+                        <IconOutline
+                            name='pie-chart'
+                            color={color}
+                            size={size}
+                        />
                     ),
-                    tabBarLabel: ({ color }) => (
-                        <Text style={{ color, fontSize: 14, fontWeight: '700' }}>Find</Text>
-                    ),
+                    // tabBarLabel: ({ color }) => (
+                    //     <Text
+                    //         style={{ color, fontSize: 14, fontWeight: '700' }}
+                    //     >
+                    //         Tổng quan
+                    //     </Text>
+                    // ),
                 }}
             />
 
             <Tab.Screen
-                name="Add"
+                name='Add'
                 component={AddProperty}
                 options={{
+                    tabBarLabel: () => null,
                     // headerShown: false,
                     title: 'Đăng tin',
                     headerTitleAlign: 'center',
                     tabBarButton: (props) => (
-                        <TouchableOpacity {...props} style={{ justifyContent: 'center', alignItems: 'center' }}>
-                            <View style={{ top: -10, width: 50, height: 50, borderRadius: 30, backgroundColor: '#D3D3D3', justifyContent: 'center', alignItems: 'center' }}>
-                                <IconOutline name="plus" color="black" size={24} />
+                        <TouchableOpacity
+                            {...props}
+                            style={{
+                                justifyContent: 'center',
+                                alignItems: 'center',
+                            }}
+                        >
+                            <View
+                                style={{
+                                    top: -10,
+                                    width: 50,
+                                    height: 50,
+                                    borderRadius: 30,
+                                    backgroundColor: '#D3D3D3',
+                                    justifyContent: 'center',
+                                    alignItems: 'center',
+                                }}
+                            >
+                                <IconOutline
+                                    name='plus'
+                                    color='black'
+                                    size={24}
+                                />
                             </View>
                         </TouchableOpacity>
                     ),
                 }}
             />
 
-            < Tab.Screen
-                name="ChatScreen"
+            <Tab.Screen
+                name='ChatScreen'
                 component={ChatScreen}
                 options={{
+                    tabBarLabel: () => null,
                     headerShown: false,
                     tabBarIcon: ({ color, size }) => (
-                        <IconFill name="message" color={color} size={size} />
+                        <Feather
+                            name='message-circle'
+                            color={color}
+                            size={size}
+                        />
                     ),
-                    tabBarLabel: ({ color }) => (
-                        <Text style={{ color, fontSize: 14, fontWeight: '700' }}>Chat</Text>
-                    ),
+                    // tabBarLabel: ({ color }) => (
+                    //     <Text
+                    //         style={{ color, fontSize: 14, fontWeight: '700' }}
+                    //     >
+                    //         Chat
+                    //     </Text>
+                    // ),
                     tabBarBadge: unreadCount > 0 ? unreadCount : undefined, // Hiển thị số lượng tin nhắn chưa đọc
                 }}
             />
 
-            < Tab.Screen
-                name="ProfileScreen"
+            <Tab.Screen
+                name='ProfileScreen'
                 component={ProfileScreen}
                 options={{
+                    tabBarLabel: () => null,
                     headerShown: false,
                     tabBarIcon: ({ color, size }) => (
-                        <IconOutline name="user" color={color} size={size} />
+                        <IconOutline name='user' color={color} size={size} />
                     ),
-                    tabBarLabel: ({ color }) => (
-                        <Text style={{ color, fontSize: 14, fontWeight: '700' }}>Profile</Text>
-                    ),
+                    // tabBarLabel: ({ color }) => (
+                    //     <Text
+                    //         style={{ color, fontSize: 14, fontWeight: '700' }}
+                    //     >
+                    //         Tôi
+                    //     </Text>
+                    // ),
                 }}
             />
-        </Tab.Navigator >
+        </Tab.Navigator>
     );
 };
 
 export default OwnerTabs;
-
