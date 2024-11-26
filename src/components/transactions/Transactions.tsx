@@ -1,13 +1,19 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, FlatList, StyleSheet, ActivityIndicator, Alert } from 'react-native';
+import {
+    ActivityIndicator,
+    Alert,
+    FlatList,
+    StyleSheet,
+    Text,
+    View,
+} from 'react-native';
 import { Card } from 'react-native-paper';
-import { commonStyles } from '../../styles/theme';
-import { fetchTransactions } from '../../api/contract';
-import { RouteProp, useRoute } from '@react-navigation/native';
-import { RootStackParamList } from '../../types/navigation';
-import { ITransaction } from '../../types/transaction';
-import { RootState } from '../../redux-toolkit/store';
 import { useSelector } from 'react-redux';
+import { fetchTransactions } from '../../api/contract';
+import { RootState } from '../../redux-toolkit/store';
+import { commonStyles } from '../../styles/theme';
+import { ITransaction } from '../../types/transaction';
+import { formatDateTime } from '../../utils/datetime';
 import { formatPrice } from '../../utils/formattedPrice';
 
 // Define the type for the route prop
@@ -33,7 +39,11 @@ const Transactions: React.FC = () => {
 
             const skip = page * ITEMS_PER_PAGE;
             // console.log(`Fetching data with skip: ${skip}`);
-            const response = await fetchTransactions('ALL', ITEMS_PER_PAGE, skip);
+            const response = await fetchTransactions(
+                'ALL',
+                ITEMS_PER_PAGE,
+                skip,
+            );
             // console.log('API response:', response);
 
             const { transactions, total } = response;
@@ -41,7 +51,10 @@ const Transactions: React.FC = () => {
             console.log('Total transactions:', total);
 
             if (total !== undefined) {
-                setTransactions((prevTransactions) => [...prevTransactions, ...transactions]);
+                setTransactions((prevTransactions) => [
+                    ...prevTransactions,
+                    ...transactions,
+                ]);
                 setTotalTransactions(total);
             } else {
                 console.error('Total transactions is undefined');
@@ -54,10 +67,14 @@ const Transactions: React.FC = () => {
         } finally {
             setLoading(false);
             setIsLoadingMore(false);
-            console.log('Loading state:', loading, 'Is loading more:', isLoadingMore);
+            console.log(
+                'Loading state:',
+                loading,
+                'Is loading more:',
+                isLoadingMore,
+            );
         }
     };
-
 
     useEffect(() => {
         loadTransactions(0);
@@ -76,31 +93,63 @@ const Transactions: React.FC = () => {
     };
 
     const renderItem = ({ item }: { item: ITransaction }) => {
-        const amountEth = item.amountEth !== null && item.amountEth !== undefined ? item.amountEth.toFixed(4) : '0.0000'; // Format to 4 decimal places
+        const amountEth =
+            item.amountEth !== null && item.amountEth !== undefined
+                ? item.amountEth.toFixed(4)
+                : '0.0000'; // Format to 4 decimal places
         const isOutgoing = item.fromId === user?.userId;
         return (
             <Card style={styles.transactionCard}>
-                <Text style={styles.transactionDescription}>{item.title}</Text>
-
+                <View style={styles.titleWrapper}>
+                    <Text style={styles.transactionDescription}>
+                        {item.title}
+                    </Text>
+                </View>
+                <Text style={styles.transactionDate}>
+                    {formatDateTime(item.updatedAt)}
+                </Text>
                 <View style={styles.transactionContent}>
-                    <Text>Số tiền: {formatPrice(item.amount)}</Text>
+                    <Text
+                        style={[
+                            {
+                                fontSize: 14,
+                            },
+                            isOutgoing ? styles.outColor : styles.inColor,
+                        ]}
+                    >
+                        Số tiền: &nbsp;
+                        <Text style={styles.fw600}>
+                            {isOutgoing ? '-' : '+'}
+                            {formatPrice(item.amount)}
+                        </Text>
+                    </Text>
                     {/* <Text style={parseFloat(amountEth) >= 0 ? styles.transactionAmountPositive : styles.transactionAmountNegative}>
                         {parseFloat(amountEth) >= 0 ? `+ ${amountEth} ETH` : `${amountEth} ETH`}
                     </Text> */}
-                    <Text style={isOutgoing ? styles.transactionAmountNegative : styles.transactionAmountPositive}>
-                        {isOutgoing ? `- ${amountEth} ETH` : `+ ${amountEth} ETH`}
+                    <Text
+                        style={[
+                            isOutgoing
+                                ? styles.transactionAmountNegative
+                                : styles.transactionAmountPositive,
+                            isOutgoing ? styles.outColor : styles.inColor,
+                        ]}
+                    >
+                        {isOutgoing ? `-${amountEth} ETH` : `+${amountEth} ETH`}
                     </Text>
                 </View>
-
-                <Text style={styles.transactionDate}>{new Date(item.updatedAt).toLocaleString()}</Text>
             </Card>
         );
     };
 
     if (loading && currentPage === 0) {
         return (
-            <View style={[commonStyles.container, { justifyContent: 'center', alignItems: 'center', flex: 1 }]}>
-                <ActivityIndicator size="large" color="#0000ff" />
+            <View
+                style={[
+                    commonStyles.container,
+                    { justifyContent: 'center', alignItems: 'center', flex: 1 },
+                ]}
+            >
+                <ActivityIndicator size='large' color='#0000ff' />
             </View>
         );
     }
@@ -115,14 +164,18 @@ const Transactions: React.FC = () => {
                 data={transactions}
                 renderItem={renderItem}
                 keyExtractor={(item) => item.id.toString()}
-                onEndReached={loadMoreTransactions}  // Load more transactions when reaching the end
-                onEndReachedThreshold={0.1}  // Start loading more when 10% away from the end
-                ListFooterComponent={isLoadingMore ? (
-                    <View style={styles.loadingContainer}>
-                        <ActivityIndicator size="small" color="#0000ff" />
-                        <Text style={styles.loadingText}>Đang tải thêm...</Text>
-                    </View>
-                ) : null}
+                onEndReached={loadMoreTransactions} // Load more transactions when reaching the end
+                onEndReachedThreshold={0.1} // Start loading more when 10% away from the end
+                ListFooterComponent={
+                    isLoadingMore ? (
+                        <View style={styles.loadingContainer}>
+                            <ActivityIndicator size='small' color='#0000ff' />
+                            <Text style={styles.loadingText}>
+                                Đang tải thêm...
+                            </Text>
+                        </View>
+                    ) : null
+                }
             />
         </View>
     );
@@ -143,21 +196,29 @@ const styles = StyleSheet.create({
         justifyContent: 'space-between',
         alignItems: 'center',
     },
+    titleWrapper: {
+        marginBottom: 8,
+    },
     transactionDescription: {
         fontSize: 16,
-        flex: 1
+        flex: 1,
+        fontWeight: 600,
+        lineHeight: 24,
     },
     transactionAmountPositive: {
-        color: 'green',
         fontWeight: 'bold',
+        fontSize: 20,
+        lineHeight: 28,
     },
     transactionAmountNegative: {
-        color: 'red',
         fontWeight: 'bold',
+        fontSize: 20,
+        lineHeight: 28,
     },
     transactionDate: {
-        fontSize: 12,
-        color: '#888',
+        fontSize: 14,
+        lineHeight: 22,
+        color: 'rgba(0, 0, 0, 0.45)',
     },
     loadingContainer: {
         paddingVertical: 10,
@@ -169,7 +230,15 @@ const styles = StyleSheet.create({
         color: 'gray',
         fontSize: 16,
     },
+    fw600: {
+        fontWeight: 600,
+    },
+    outColor: {
+        color: '#ff4d4f',
+    },
+    inColor: {
+        color: '#52c41a',
+    },
 });
 
 export default Transactions;
-

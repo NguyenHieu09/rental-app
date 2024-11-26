@@ -1,17 +1,14 @@
-import axios from 'axios';
 import { API_URL } from '@env';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { IFilterProperty } from '../types/property';
-import { IGenerateContractRequest } from '../types/rentalRequest';
-import { IUser } from '../types/user';
+import axios from 'axios';
 import { IConversation } from '../types/chat';
+import { IFilterProperty } from '../types/property';
 import { ICreatePropertyInteraction } from '../types/propertyInteraction';
 import { ICreateReview } from '../types/review';
-
+import { IUser } from '../types/user';
 
 const API_BASE_URL = `${API_URL}/estate-manager-service`;
-console.log(API_BASE_URL);
-
+console.log('API_BASE_URL', API_BASE_URL);
 
 export const fetchProperties = async () => {
     try {
@@ -19,7 +16,7 @@ export const fetchProperties = async () => {
         return response.data;
     } catch (error) {
         console.error('Error fetching properties:', error);
-        throw error;
+        throw (error as any).response;
     }
 };
 
@@ -36,46 +33,69 @@ export const fetchUserData = async (token: string, email: string) => {
         return userResponse.data;
     } catch (error) {
         console.error('Error fetching user data:', error);
-        throw error;
+        throw (error as any).response;
     }
 };
 
-export const loginUser = async (credentials: { email: string; password: string }) => {
+export const loginUser = async (credentials: {
+    email: string;
+    password: string;
+}) => {
     try {
         console.log('Sending login request with credentials:', credentials);
-        console.log(API_BASE_URL)
-        const loginResponse = await axios.post(`${API_BASE_URL}/auth/login`, credentials);
+        console.log(API_BASE_URL);
+        const loginResponse = await axios.post(
+            `${API_BASE_URL}/auth/login`,
+            credentials,
+        );
         console.log('Login response:', loginResponse.data);
         return loginResponse.data;
     } catch (error) {
-        console.error('Login error:', error);
-        throw error;
+        throw (error as any).response;
     }
 };
 
-export const registerUser = async (registrationData: { name: string; email: string; password: string; userType: string; otp: string }) => {
+export const registerUser = async (registrationData: {
+    name: string;
+    email: string;
+    password: string;
+    userType: string;
+    otp: string;
+}) => {
     try {
-        console.log('Sending registration request with data:', registrationData);
-        const registerResponse = await axios.post(`${API_BASE_URL}/auth/register`, registrationData);
+        console.log(
+            'Sending registration request with data:',
+            registrationData,
+        );
+        const registerResponse = await axios.post(
+            `${API_BASE_URL}/auth/register`,
+            registrationData,
+        );
         console.log('Registration response:', registerResponse.data);
         return registerResponse.data;
     } catch (error) {
         console.error('Registration error:', error);
-        throw error;
+        throw (error as any).response;
     }
 };
 
 export const fetchPropertyDetail = async (slug: string) => {
     try {
-        const response = await axios.get(`${API_BASE_URL}/properties/slug/${slug}`);
+        const response = await axios.get(
+            `${API_BASE_URL}/properties/slug/${slug}`,
+        );
         return response.data;
     } catch (error: any) {
-        if (error.response && error.response.data && error.response.data.message) {
+        if (
+            error.response &&
+            error.response.data &&
+            error.response.data.message
+        ) {
             console.error('Error message:', error.response.data.message);
             throw new Error(error.response.data.message);
         } else {
             console.error('Error fetching property detail:', error);
-            throw error;
+            throw (error as any).response;
         }
     }
 };
@@ -88,20 +108,27 @@ export const fetchUnreadNotificationsCount = async () => {
             throw new Error('No token provided');
         }
 
-        const response = await axios.get(`${API_BASE_URL}/notifications/count`, {
-            headers: {
-                Authorization: `Bearer ${token}`,
+        const response = await axios.get(
+            `${API_BASE_URL}/notifications/count`,
+            {
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                },
             },
-        });
+        );
 
         return response.data.data;
     } catch (error: any) {
-        if (error.response && error.response.data && error.response.data.message) {
+        if (
+            error.response &&
+            error.response.data &&
+            error.response.data.message
+        ) {
             console.error('Error message:', error.response.data.message);
             throw new Error(error.response.data.message);
         } else {
             console.error('Error fetching unread notifications count:', error);
-            throw error;
+            throw (error as any).response;
         }
     }
 };
@@ -123,21 +150,26 @@ export const fetchNotifications = async (take: number, skip: number) => {
             },
         });
 
-
         return response.data;
     } catch (error: any) {
-        if (error.response && error.response.data && error.response.data.message) {
+        if (
+            error.response &&
+            error.response.data &&
+            error.response.data.message
+        ) {
             console.error('Error message:', error.response.data.message);
             throw new Error(error.response.data.message);
         } else {
             console.error('Error fetching notifications:', error);
-            throw error;
+            throw (error as any).response;
         }
     }
 };
 
-
-export const updateNotificationStatus = async (notificationIds: string[], status: string) => {
+export const updateNotificationStatus = async (
+    notificationIds: string[],
+    status: string,
+) => {
     try {
         const token = await AsyncStorage.getItem('accessToken');
 
@@ -145,31 +177,42 @@ export const updateNotificationStatus = async (notificationIds: string[], status
             throw new Error('No token provided');
         }
 
-        const response = await axios.post(`${API_BASE_URL}/notifications/update-status`, {
-            notificationIds,
-            status,
-        }, {
-            headers: {
-                Authorization: `Bearer ${token}`,
+        const response = await axios.post(
+            `${API_BASE_URL}/notifications/update-status`,
+            {
+                notificationIds,
+                status,
             },
-        });
+            {
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                },
+            },
+        );
 
         console.log('Update notification status response:', response.data);
 
-
         return response.data;
     } catch (error: any) {
-        if (error.response && error.response.data && error.response.data.message) {
+        if (
+            error.response &&
+            error.response.data &&
+            error.response.data.message
+        ) {
             console.error('Error message:', error.response.data.message);
             throw new Error(error.response.data.message);
         } else {
             console.error('Error updating notification status:', error);
-            throw error;
+            throw (error as any).response;
         }
     }
 };
 
-export const fetchPropertiesWithFilters = async (filters: IFilterProperty, take: number, skip: number) => {
+export const fetchPropertiesWithFilters = async (
+    filters: IFilterProperty,
+    take: number,
+    skip: number,
+) => {
     try {
         const token = await AsyncStorage.getItem('accessToken');
 
@@ -191,18 +234,24 @@ export const fetchPropertiesWithFilters = async (filters: IFilterProperty, take:
 
         return { properties, total };
     } catch (error: any) {
-        if (error.response && error.response.data && error.response.data.message) {
+        if (
+            error.response &&
+            error.response.data &&
+            error.response.data.message
+        ) {
             console.error('Error message:', error.response.data.message);
             throw new Error(error.response.data.message);
         } else {
             console.error('Error fetching properties with filters:', error);
-            throw error;
+            throw (error as any).response;
         }
     }
 };
 
-
-export const updateWalletAddress = async (userId: string, walletAddress: string) => {
+export const updateWalletAddress = async (
+    userId: string,
+    walletAddress: string,
+) => {
     try {
         const token = await AsyncStorage.getItem('accessToken');
 
@@ -210,20 +259,28 @@ export const updateWalletAddress = async (userId: string, walletAddress: string)
             throw new Error('No token provided');
         }
 
-        const response = await axios.post(`${API_BASE_URL}/users/wallet`, { userId, wallet_address: walletAddress }, {
-            headers: {
-                Authorization: `Bearer ${token}`,
+        const response = await axios.post(
+            `${API_BASE_URL}/users/wallet`,
+            { userId, wallet_address: walletAddress },
+            {
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                },
             },
-        });
+        );
 
         return response.data;
     } catch (error: any) {
-        if (error.response && error.response.data && error.response.data.message) {
+        if (
+            error.response &&
+            error.response.data &&
+            error.response.data.message
+        ) {
             console.error('Error message:', error.response.data.message);
             throw new Error(error.response.data.message);
         } else {
             console.error('Error updating wallet address:', error);
-            throw error;
+            throw (error as any).response;
         }
     }
 };
@@ -244,12 +301,16 @@ export const fetchPropertyAttributes = async () => {
 
         return response.data;
     } catch (error: any) {
-        if (error.response && error.response.data && error.response.data.message) {
+        if (
+            error.response &&
+            error.response.data &&
+            error.response.data.message
+        ) {
             console.error('Error message:', error.response.data.message);
             throw new Error(error.response.data.message);
         } else {
             console.error('Error fetching property attributes:', error);
-            throw error;
+            throw (error as any).response;
         }
     }
 };
@@ -270,12 +331,16 @@ export const fetchPropertyTypes = async () => {
 
         return response.data;
     } catch (error: any) {
-        if (error.response && error.response.data && error.response.data.message) {
+        if (
+            error.response &&
+            error.response.data &&
+            error.response.data.message
+        ) {
             console.error('Error message:', error.response.data.message);
             throw new Error(error.response.data.message);
         } else {
             console.error('Error fetching property types:', error);
-            throw error;
+            throw (error as any).response;
         }
     }
 };
@@ -288,12 +353,16 @@ export const createProperty = async (formData: FormData) => {
             throw new Error('No token provided');
         }
 
-        const response = await axios.post(`${API_BASE_URL}/properties`, formData, {
-            headers: {
-                Authorization: `Bearer ${token}`,
-                'Content-Type': 'multipart/form-data',
+        const response = await axios.post(
+            `${API_BASE_URL}/properties`,
+            formData,
+            {
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                    'Content-Type': 'multipart/form-data',
+                },
             },
-        });
+        );
 
         // Kiểm tra mã trạng thái HTTP
         if (response.status === 201) {
@@ -302,17 +371,24 @@ export const createProperty = async (formData: FormData) => {
             return { success: false, message: 'Failed to create property' };
         }
     } catch (error: any) {
-        if (error.response && error.response.data && error.response.data.message) {
+        if (
+            error.response &&
+            error.response.data &&
+            error.response.data.message
+        ) {
             console.error('Error message:', error.response.data.message);
             throw new Error(error.response.data.message);
         } else {
             console.error('Error creating property:', error);
-            throw error;
+            throw (error as any).response;
         }
     }
 };
 
-export const verifyUser = async (frontUri: string, backUri: string): Promise<IUser> => {
+export const verifyUser = async (
+    frontUri: string,
+    backUri: string,
+): Promise<IUser> => {
     const formData = new FormData();
     formData.append('front', {
         uri: frontUri,
@@ -348,7 +424,12 @@ export const verifyUser = async (frontUri: string, backUri: string): Promise<IUs
     return await response.json();
 };
 
-export const fetchNewestProperties = async (take: number, skip: number, district?: string, city?: string) => {
+export const fetchNewestProperties = async (
+    take: number,
+    skip: number,
+    district?: string,
+    city?: string,
+) => {
     try {
         const token = await AsyncStorage.getItem('accessToken');
 
@@ -379,12 +460,16 @@ export const fetchNewestProperties = async (take: number, skip: number, district
 
         return { properties, total };
     } catch (error: any) {
-        if (error.response && error.response.data && error.response.data.message) {
+        if (
+            error.response &&
+            error.response.data &&
+            error.response.data.message
+        ) {
             console.error('Error message:', error.response.data.message);
             throw new Error(error.response.data.message);
         } else {
             console.error('Error fetching newest properties:', error);
-            throw error;
+            throw (error as any).response;
         }
     }
 };
@@ -397,11 +482,14 @@ export const deleteProperty = async (propertyId: string) => {
             throw new Error('No token provided');
         }
 
-        const response = await axios.delete(`${API_BASE_URL}/properties/${propertyId}`, {
-            headers: {
-                Authorization: `Bearer ${token}`,
+        const response = await axios.delete(
+            `${API_BASE_URL}/properties/${propertyId}`,
+            {
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                },
             },
-        });
+        );
 
         if (response.status === 200) {
             return { success: true, message: 'Property deleted successfully' };
@@ -409,23 +497,32 @@ export const deleteProperty = async (propertyId: string) => {
             return { success: false, message: 'Failed to delete property' };
         }
     } catch (error: any) {
-        if (error.response && error.response.data && error.response.data.message) {
+        if (
+            error.response &&
+            error.response.data &&
+            error.response.data.message
+        ) {
             console.error('Error message:', error.response.data.message);
             throw new Error(error.response.data.message);
         } else {
             console.error('Error deleting property:', error);
-            throw error;
+            throw (error as any).response;
         }
     }
 };
 
 const cleanFilters = (filters: any) => {
     return Object.fromEntries(
-        Object.entries(filters).filter(([_, v]) => v !== undefined && v !== '')
+        Object.entries(filters).filter(([_, v]) => v !== undefined && v !== ''),
     );
 };
 
-export const fetchFilteredProperties = async (take: number, skip: number, filters: any, query?: string) => {
+export const fetchFilteredProperties = async (
+    take: number,
+    skip: number,
+    filters: any,
+    query?: string,
+) => {
     try {
         const token = await AsyncStorage.getItem('accessToken');
 
@@ -450,12 +547,16 @@ export const fetchFilteredProperties = async (take: number, skip: number, filter
 
         return response.data;
     } catch (error: any) {
-        if (error.response && error.response.data && error.response.data.message) {
+        if (
+            error.response &&
+            error.response.data &&
+            error.response.data.message
+        ) {
             console.error('Error message:', error.response.data.message);
             throw new Error(error.response.data.message);
         } else {
             console.error('Error fetching filtered properties:', error);
-            throw error;
+            throw (error as any).response;
         }
     }
 };
@@ -476,18 +577,23 @@ export const fetchAllConversations = async (): Promise<IConversation[]> => {
 
         return response.data.data;
     } catch (error: any) {
-        if (error.response && error.response.data && error.response.data.message) {
+        if (
+            error.response &&
+            error.response.data &&
+            error.response.data.message
+        ) {
             console.error('Error message:', error.response.data.message);
             throw new Error(error.response.data.message);
         } else {
             console.error('Error fetching conversations:', error);
-            throw error;
+            throw (error as any).response;
         }
     }
 };
 
-
-export const createPropertyToFavorites = async (data: ICreatePropertyInteraction) => {
+export const createPropertyToFavorites = async (
+    data: ICreatePropertyInteraction,
+) => {
     try {
         const token = await AsyncStorage.getItem('accessToken');
 
@@ -505,17 +611,21 @@ export const createPropertyToFavorites = async (data: ICreatePropertyInteraction
                 headers: {
                     Authorization: `Bearer ${token}`,
                 },
-            }
+            },
         );
 
         return response.data;
     } catch (error: any) {
-        if (error.response && error.response.data && error.response.data.message) {
+        if (
+            error.response &&
+            error.response.data &&
+            error.response.data.message
+        ) {
             console.error('Error message:', error.response.data.message);
             throw new Error(error.response.data.message);
         } else {
             console.error('Error adding property to favorites:', error);
-            throw error;
+            throw (error as any).response;
         }
     }
 };
@@ -538,21 +648,24 @@ export const getFavoriteProperties = async (take: number, skip: number) => {
                 headers: {
                     Authorization: `Bearer ${token}`,
                 },
-            }
+            },
         );
 
         return response.data; // Trả về danh sách yêu thích
     } catch (error: any) {
-        if (error.response && error.response.data && error.response.data.message) {
+        if (
+            error.response &&
+            error.response.data &&
+            error.response.data.message
+        ) {
             console.error('Error message:', error.response.data.message);
             throw new Error(error.response.data.message);
         } else {
             console.error('Error fetching favorite properties:', error);
-            throw error;
+            throw (error as any).response;
         }
     }
 };
-
 
 export const fetchPropertyReviews = async (slug: string) => {
     try {
@@ -562,24 +675,30 @@ export const fetchPropertyReviews = async (slug: string) => {
             throw new Error('No token provided');
         }
 
-        const response = await axios.get(`${API_BASE_URL}/reviews/property/${slug}`, {
-            headers: {
-                Authorization: `Bearer ${token}`,
+        const response = await axios.get(
+            `${API_BASE_URL}/reviews/property/${slug}`,
+            {
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                },
             },
-        });
+        );
 
         return response.data; // Trả về danh sách đánh giá
     } catch (error: any) {
-        if (error.response && error.response.data && error.response.data.message) {
+        if (
+            error.response &&
+            error.response.data &&
+            error.response.data.message
+        ) {
             console.error('Error message:', error.response.data.message);
             throw new Error(error.response.data.message);
         } else {
             console.error('Error fetching property reviews:', error);
-            throw error;
+            throw (error as any).response;
         }
     }
 };
-
 
 export const fetchContractReviews = async (contractId: string) => {
     try {
@@ -589,25 +708,32 @@ export const fetchContractReviews = async (contractId: string) => {
             throw new Error('No token provided');
         }
 
-        const response = await axios.get(`${API_BASE_URL}/reviews/contract/${contractId}`, {
-            headers: {
-                Authorization: `Bearer ${token}`,
+        const response = await axios.get(
+            `${API_BASE_URL}/reviews/contract/${contractId}`,
+            {
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                },
             },
-        });
+        );
 
         return response.data; // Return the list of reviews
     } catch (error: any) {
-        if (error.response && error.response.data && error.response.data.message) {
+        if (
+            error.response &&
+            error.response.data &&
+            error.response.data.message
+        ) {
             console.error('Error message:', error.response.data.message);
             throw new Error(error.response.data.message);
         } else {
             console.error('Error fetching contract reviews:', error);
-            throw error;
+            throw (error as any).response;
         }
     }
 };
 
-export const createReview = async (reviewData: ICreateReview) => {
+export const createReview = async (formData: FormData) => {
     try {
         const token = await AsyncStorage.getItem('accessToken');
 
@@ -615,20 +741,26 @@ export const createReview = async (reviewData: ICreateReview) => {
             throw new Error('No token provided');
         }
 
-        const response = await axios.post(`${API_BASE_URL}/reviews`, reviewData, {
+        const response = await axios.post(`${API_BASE_URL}/reviews`, formData, {
             headers: {
                 Authorization: `Bearer ${token}`,
+                'Content-Type': 'multipart/form-data',
             },
         });
 
         return response.data; // Return the created review
     } catch (error: any) {
-        if (error.response && error.response.data && error.response.data.message) {
+        console.log('🚀 ~ createReview ~ error:', JSON.stringify(error));
+        if (
+            error.response &&
+            error.response.data &&
+            error.response.data.message
+        ) {
             console.error('Error message:', error.response.data.message);
             throw new Error(error.response.data.message);
         } else {
             console.error('Error creating review:', error);
-            throw error;
+            throw (error as any).response;
         }
     }
 };
@@ -641,21 +773,27 @@ export const fetchPropertyOverview = async () => {
             throw new Error('No token provided');
         }
 
-        const response = await axios.get(`${API_BASE_URL}/dashboard/owner/overview`, {
-            headers: {
-                Authorization: `Bearer ${token}`,
+        const response = await axios.get(
+            `${API_BASE_URL}/dashboard/owner/overview`,
+            {
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                },
             },
-        });
+        );
 
         return response.data;
     } catch (error: any) {
-        if (error.response && error.response.data && error.response.data.message) {
+        if (
+            error.response &&
+            error.response.data &&
+            error.response.data.message
+        ) {
             console.error('Error message:', error.response.data.message);
             throw new Error(error.response.data.message);
         } else {
             console.error('Error fetching owner dashboard overview:', error);
-            throw error;
+            throw (error as any).response;
         }
     }
 };
-

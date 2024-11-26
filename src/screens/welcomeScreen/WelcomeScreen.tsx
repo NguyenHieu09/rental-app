@@ -1,26 +1,28 @@
 import { NavigationProp, useNavigation } from '@react-navigation/native';
 import React from 'react';
-import { View, Text, StyleSheet, Image, TouchableOpacity } from 'react-native';
+import { Image, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { RootStackParamList } from '../../types/navigation';
 
 const WelcomeScreen: React.FC = () => {
     const navigation = useNavigation<NavigationProp<RootStackParamList>>();
 
     const handleStart = () => {
-        navigation.navigate('Register');
+        navigation.navigate('Login');
     };
     return (
         <View style={styles.container}>
             <Image
-                source={require('../../../assets/img/image01.png')}
+                source={require('../../../assets/img/logo.png')}
                 style={styles.image}
             />
             <Text style={styles.title}>Chào mừng đến với</Text>
-            <Text style={styles.title}>Smart Home App</Text>
+            <Text style={styles.title}>SmartRent</Text>
             <Text style={styles.subtitle}>
                 Hãy để chúng tôi đồng hành cùng bạn
             </Text>
-            <Text style={styles.footer}>trong hành trình tìm kiếm tổ ấm của mình.</Text>
+            <Text style={styles.footer}>
+                trong hành trình tìm kiếm tổ ấm của mình.
+            </Text>
             <TouchableOpacity style={styles.button} onPress={handleStart}>
                 <Text style={styles.buttonText}>Bắt đầu</Text>
             </TouchableOpacity>

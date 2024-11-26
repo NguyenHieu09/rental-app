@@ -1,24 +1,19 @@
-
-
+import {
+    NavigationProp,
+    useFocusEffect,
+    useNavigation,
+} from '@react-navigation/native';
 import React, { useCallback, useEffect, useState } from 'react';
-import * as Location from 'expo-location';
-import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
-import { useDispatch, useSelector } from 'react-redux';
-import { AppDispatch, RootState } from '../../../redux-toolkit/store';
-import { logoutUserAsync } from '../../../redux-toolkit/slices/userSlice';
-import { useNavigation, NavigationProp, useFocusEffect } from '@react-navigation/native';
-import { RootStackParamList } from '../../../types/navigation'; // Import the type
-import HomeHeader from '../../../components/homeHeader/HomeHeader'; // Import HomeHeader
-import { commonStyles } from '../../../styles/theme';
-import { fetchPropertiesWithFilters, fetchPropertyOverview } from '../../../api/api'; // Import fetchPropertiesWithFilters and fetchRentalRequestsForOwner
-import { IProperty, IFilterProperty } from '../../../types/property';
-import { W3mButton } from '@web3modal/wagmi-react-native';
-import { fetchContractOverview, fetchContractsForOwner, fetchRentalRequestsForOwner } from '../../../api/contract';
+import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import FileComponent from '../../../components/chat/FileComponent';
+import { useDispatch, useSelector } from 'react-redux';
+import { fetchPropertyOverview } from '../../../api/api'; // Import fetchPropertiesWithFilters and fetchRentalRequestsForOwner
+import { fetchContractOverview } from '../../../api/contract';
+import HomeHeader from '../../../components/homeHeader/HomeHeader'; // Import HomeHeader
+import { AppDispatch, RootState } from '../../../redux-toolkit/store';
+import { commonStyles } from '../../../styles/theme';
+import { RootStackParamList } from '../../../types/navigation'; // Import the type
 import { formatPrice } from '../../../utils/formattedPrice';
-import MyComponent from '../../../components/test/MyComponent';
-
 
 const DashboardOwner: React.FC = () => {
     const dispatch = useDispatch<AppDispatch>();
@@ -27,15 +22,15 @@ const DashboardOwner: React.FC = () => {
 
     const [error, setError] = useState<string | null>(null);
 
-
     const [totalProperties, setTotalProperties] = useState(0);
-    const [countUnavailableProperties, setCountUnavailableProperties] = useState<number>(0);
+    const [countUnavailableProperties, setCountUnavailableProperties] =
+        useState<number>(0);
     const [countRentalRequest, setCountRentalRequest] = useState<number>(0);
-    const [countExtensionRequest, setCountExtensionRequest] = useState<number>(0);
+    const [countExtensionRequest, setCountExtensionRequest] =
+        useState<number>(0);
     const [countCancelRequest, setCountCancelRequest] = useState<number>(0);
     const [avgRevenueVND, setAvgRevenueVND] = useState<number>(0);
     const [avgRevenueETH, setAvgRevenueETH] = useState<number>(0);
-
 
     const loadPropertyOverview = async () => {
         try {
@@ -59,7 +54,6 @@ const DashboardOwner: React.FC = () => {
         }
     }, [user, loading, navigation]);
 
-
     const loadContractOverview = async () => {
         try {
             const data = await fetchContractOverview();
@@ -79,17 +73,16 @@ const DashboardOwner: React.FC = () => {
         useCallback(() => {
             loadPropertyOverview();
             loadContractOverview();
-        }, [])
+        }, []),
     );
 
     const handleViewProperties = () => {
-        navigation.navigate('ManageProperty');
+        navigation.navigate('StatisticsScreen');
     };
 
     const handleViewRequestRental = () => {
         navigation.navigate('ManageRequestRental');
     };
-
 
     const handleViewContracts = () => {
         navigation.navigate('ManageContract');
@@ -112,35 +105,62 @@ const DashboardOwner: React.FC = () => {
                 <View style={styles.owner}>
                     <Text style={styles.title}>{user?.name || 'Guest'}</Text>
                     <Text style={styles.revenue}>Doanh Thu Trung Bình</Text>
-                    <Text style={styles.amount}>{formatPrice(avgRevenueVND)}</Text>
-                    <TouchableOpacity style={styles.button} onPress={handleViewProperties}>
-                        <Text style={styles.buttonText}>Xem báo cáo thống kê →</Text>
+                    <Text style={styles.amount}>
+                        {formatPrice(avgRevenueVND)}
+                    </Text>
+                    <TouchableOpacity
+                        style={styles.button}
+                        onPress={handleViewProperties}
+                    >
+                        <Text style={styles.buttonText}>
+                            Xem báo cáo thống kê →
+                        </Text>
                     </TouchableOpacity>
                 </View>
 
                 <Text style={styles.summaryTitle}>Tóm Tắt</Text>
                 <View style={styles.summaryContainer}>
-                    <TouchableOpacity style={styles.card} onPress={handleViewProperties}>
+                    <TouchableOpacity
+                        style={styles.card}
+                        onPress={handleViewProperties}
+                    >
                         <Text style={styles.cardText}>{totalProperties}</Text>
                         <Text style={styles.cardLabel}>Tổng số căn hộ</Text>
                     </TouchableOpacity>
-                    <TouchableOpacity style={styles.card} onPress={handleViewContracts}>
-                        <Text style={styles.cardText}>{countUnavailableProperties}</Text>
+                    <TouchableOpacity
+                        style={styles.card}
+                        onPress={handleViewContracts}
+                    >
+                        <Text style={styles.cardText}>
+                            {countUnavailableProperties}
+                        </Text>
                         <Text style={styles.cardLabel}>Đang cho thuê</Text>
                     </TouchableOpacity>
-                    <TouchableOpacity style={styles.card} onPress={handleViewRequestRental}>
-                        <Text style={styles.cardText}>{countRentalRequest}</Text>
+                    <TouchableOpacity
+                        style={styles.card}
+                        onPress={handleViewRequestRental}
+                    >
+                        <Text style={styles.cardText}>
+                            {countRentalRequest}
+                        </Text>
                         <Text style={styles.cardLabel}>Yêu cầu thuê nhà</Text>
                     </TouchableOpacity>
 
-
-                    <TouchableOpacity style={styles.card} >
-                        <Text style={styles.cardText}>{countCancelRequest}</Text>
-                        <Text style={styles.cardLabel}>Yêu cầu{`\n`}hủy hợp đồng</Text>
-
+                    <TouchableOpacity style={styles.card}>
+                        <Text style={styles.cardText}>
+                            {countCancelRequest}
+                        </Text>
+                        <Text style={styles.cardLabel}>
+                            Yêu cầu{`\n`}hủy hợp đồng
+                        </Text>
                     </TouchableOpacity>
-                    <TouchableOpacity style={styles.card} onPress={handleViewRequestRental}>
-                        <Text style={styles.cardText}>{countExtensionRequest}</Text>
+                    <TouchableOpacity
+                        style={styles.card}
+                        onPress={handleViewRequestRental}
+                    >
+                        <Text style={styles.cardText}>
+                            {countExtensionRequest}
+                        </Text>
                         <Text style={styles.cardLabel}>Yêu cầu gia hạn</Text>
                     </TouchableOpacity>
 
@@ -150,12 +170,8 @@ const DashboardOwner: React.FC = () => {
                         <Text style={styles.cardLabel}>Doanh thu{`\n`}trung bình</Text>
                     </TouchableOpacity> */}
 
-
                     {/* <W3mButton /> */}
-
-
                 </View>
-
             </View>
         </SafeAreaView>
     );
