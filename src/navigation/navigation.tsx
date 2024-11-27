@@ -182,6 +182,9 @@ import NotificationScreen from '../screens/Notification/NotificationScreen';
 import Transactions from '../components/transactions/Transactions';
 import PropertyDetail from '../components/properties/PropertyDetail';
 import AuthenticationScreen from '../screens/authentication/AuthenticationScreen';
+import AccountInfo from '../screens/accountInfo/AccountInfo';
+import UpdatePassword from '../components/profile/UpdatePassword';
+import PersonalInfo from '../components/profile/PersonalInfo';
 
 const Stack = createStackNavigator();
 
@@ -315,6 +318,9 @@ const Navigation: React.FC = () => {
                         // ),
                     }}
                 />
+                <Stack.Screen name="AccountInfo" component={AccountInfo} options={{ title: 'Tài khoản và bảo mật' }} />
+                <Stack.Screen name="UpdatePassword" component={UpdatePassword} options={{ title: 'Tài khoản và bảo mật' }} />
+                <Stack.Screen name="PersonalInfo" component={PersonalInfo} options={{ title: 'Tài khoản và bảo mật' }} />
 
             </Stack.Navigator>
         </NavigationContainer>
