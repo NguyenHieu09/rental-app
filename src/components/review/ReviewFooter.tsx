@@ -160,6 +160,7 @@ const ReviewFooter = ({
         <View style={styles.container}>
             {isFirstReview && (
                 <StarRating
+                    enableHalfStar={false}
                     rating={rating}
                     onChange={handleChangeRating}
                     starSize={20}

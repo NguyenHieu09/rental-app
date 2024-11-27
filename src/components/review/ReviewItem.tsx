@@ -189,6 +189,7 @@ const ReviewItem = ({
                         </Text>
                         {isFirst && (
                             <StarRating
+                                enableHalfStar={false}
                                 rating={child.rating / 2}
                                 onChange={() => {}}
                                 starSize={20}
@@ -196,7 +197,7 @@ const ReviewItem = ({
                             />
                         )}
                         <Text style={styles.date}>
-                            {formatDateTime(child.createdAt)}
+                            {formatDateTime(child.createdAt, true)}
                         </Text>
                         {child.content && (
                             <Text style={styles.comment}>{child.content}</Text>

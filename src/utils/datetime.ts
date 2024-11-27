@@ -1,5 +1,7 @@
-export const formatDateTime = (date: string) => {
-    const parsedDate = new Date(date); // Chuyển chuỗi thành đối tượng Date
+export const formatDateTime = (date: string, toGMT7?: boolean) => {
+    // const parsedDate = new Date(date); // Chuyển chuỗi thành đối tượng Date
+    const parsedDate = new Date(date);
+    if (toGMT7) parsedDate.setHours(parsedDate.getHours() + 7);
 
     // Tạo các thành phần ngày tháng năm và giờ phút giây
     const day = parsedDate.getUTCDate().toString().padStart(2, '0');
@@ -14,8 +16,9 @@ export const formatDateTime = (date: string) => {
     return `${hours}:${minutes}:${seconds} ${day}/${month}/${year}`;
 };
 
-export const formatDate = (date: string) => {
+export const formatDate = (date: string, toGMT7?: boolean) => {
     const parsedDate = new Date(date);
+    if (toGMT7) parsedDate.setHours(parsedDate.getHours() + 7);
 
     const day = parsedDate.getUTCDate().toString().padStart(2, '0');
     const month = (parsedDate.getUTCMonth() + 1).toString().padStart(2, '0');
