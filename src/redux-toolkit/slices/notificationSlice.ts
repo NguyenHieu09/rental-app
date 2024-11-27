@@ -1,11 +1,7 @@
-
-
-
-import { createAsyncThunk, createSlice, PayloadAction } from '@reduxjs/toolkit';
-import { ITable } from '../../types/table';
+import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { INotification, NotificationStatus } from '../../types/notification';
+import { ITable } from '../../types/table';
 import { initDataTable } from '../../utils/initDataTable';
-import { fetchNotifications } from '../../api/api';
 
 interface NotificationState {
     notifications: ITable<INotification>;
@@ -21,12 +17,14 @@ const initialState: NotificationState = {
     count: 0,
 };
 
-
 const notificationSlice = createSlice({
     name: 'notifications',
     initialState,
     reducers: {
-        setNotifications: (state, action: PayloadAction<ITable<INotification>>) => {
+        setNotifications: (
+            state,
+            action: PayloadAction<ITable<INotification>>,
+        ) => {
             const newNotifications = action.payload.data;
             const lastNotificationId = state.notifications.data.at(-1)?.id;
             if (lastNotificationId !== newNotifications.at(-1)?.id) {
@@ -40,9 +38,14 @@ const notificationSlice = createSlice({
         setLoading: (state, action: PayloadAction<boolean>) => {
             state.loading = action.payload;
         },
-        updateStatus: (state, action: PayloadAction<{ id: string; status: NotificationStatus }>) => {
+        updateStatus: (
+            state,
+            action: PayloadAction<{ id: string; status: NotificationStatus }>,
+        ) => {
             const { id, status } = action.payload;
-            const notification = state.notifications.data.find((n) => n.id === id);
+            const notification = state.notifications.data.find(
+                (n) => n.id === id,
+            );
             if (notification) {
                 notification.status = status;
                 state.readNotificationsIds.push(id);
@@ -56,7 +59,9 @@ const notificationSlice = createSlice({
         },
         readNotification: (state, action: PayloadAction<string>) => {
             const id = action.payload;
-            const notification = state.notifications.data.find((n) => n.id === id);
+            const notification = state.notifications.data.find(
+                (n) => n.id === id,
+            );
             if (notification) {
                 notification.status = 'READ';
                 state.count = Math.max(state.count - 1, 0);
@@ -79,7 +84,6 @@ const notificationSlice = createSlice({
             state.count = 0;
         },
     },
-
 });
 
 export const {

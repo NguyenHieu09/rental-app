@@ -1,6 +1,7 @@
 import { ContractStatus } from '../types/contract';
 import { PropertyStatus } from '../types/property';
 import { RentalRequestStatus } from '../types/rentalRequest';
+import { TransactionStatus } from '../types/transaction';
 
 export const PROCESSING_COLOR = '#1677ff';
 export const SUCCESS_COLOR = '#52c41a';
@@ -35,12 +36,20 @@ export const getContractColor = (status: ContractStatus) => {
     if (status === 'ONGOING') return SUCCESS_COLOR;
     if (status === 'ENDED') return DEFAULT_COLOR;
     if (status === 'OVERDUE') return ERROR_COLOR;
-    if (status === 'CANCELLED') return 'volcano';
-    if (status === 'PENDING_CANCELLATION') return 'cyan';
+    if (status === 'CANCELLED') return VOLCANO_COLOR;
+    if (status === 'PENDING_CANCELLATION') return CYAN_COLOR;
     if (status === 'UNILATERAL_CANCELLATION') return PURPLE_COLOR;
-    if (status === 'APPROVED_CANCELLATION') return 'green';
-    if (status === 'REJECTED_CANCELLATION') return 'red';
-    return 'default';
+    if (status === 'APPROVED_CANCELLATION') return GREEN_COLOR;
+    if (status === 'REJECTED_CANCELLATION') return RED_COLOR;
+    return DEFAULT_COLOR;
+};
+
+export const getTransactionColor = (status: TransactionStatus) => {
+    if (status === 'PENDING') return PROCESSING_COLOR;
+    if (status === 'COMPLETED') return SUCCESS_COLOR;
+    if (status === 'FAILED') return ERROR_COLOR;
+    if (status === 'OVERDUE') return ERROR_COLOR;
+    return DEFAULT_COLOR;
 };
 
 export const getBgColor = (color: string) => {

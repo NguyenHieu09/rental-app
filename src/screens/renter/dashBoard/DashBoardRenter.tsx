@@ -108,6 +108,7 @@ const HomeScreen: React.FC = () => {
             setLoading(true);
             // Fetch properties with city
             if (city) {
+                console.log('🚀 ~ loadProperties ~ city:', city);
                 const dataWithCityAndDistrict = await fetchNewestProperties(
                     ITEMS_PER_PAGE,
                     0,
@@ -242,6 +243,9 @@ const HomeScreen: React.FC = () => {
                     horizontal
                     showsHorizontalScrollIndicator={false}
                     style={styles.featuredContainer}
+                    contentContainerStyle={{
+                        gap: 8,
+                    }}
                 >
                     {properties.map((property: IProperty, index: number) => (
                         <Properties
@@ -301,6 +305,7 @@ const styles = StyleSheet.create({
     featuredContainer: {
         flexDirection: 'row',
         marginBottom: 16,
+        gap: 8,
     },
     grid: {
         flexDirection: 'row',
@@ -308,9 +313,9 @@ const styles = StyleSheet.create({
         justifyContent: 'space-between',
     },
     scrollView: {
-        paddingHorizontal: 10,
         marginTop: 10,
         marginBottom: 10,
+        gap: 8,
     },
     nearbyContainer: {
         marginTop: 10,

@@ -1,4 +1,3 @@
-import { Checkbox } from '@ant-design/react-native';
 import { Picker } from '@react-native-picker/picker';
 import * as ImagePicker from 'expo-image-picker';
 import React, { useEffect, useState } from 'react';
@@ -21,6 +20,8 @@ import {
 import AddressInput from '../../../components/form/AddressInput';
 import { commonStyles } from '../../../styles/theme';
 import { IAttribute } from '../../../types/property';
+import { NavigationProp, useNavigation } from '@react-navigation/native';
+import { RootStackParamList } from '../../../types/navigation';
 
 export const interiorOptions = [
     {
@@ -55,10 +56,8 @@ const AddPropertyScreen: React.FC = () => {
     const [floor, setFloor] = useState('');
     const [deposit, setDeposit] = useState('');
     const [minDuration, setMinDuration] = useState('');
-    const [attributeIds, setAttributeIds] = useState<string[]>([]);
     const [images, setImages] = useState<ImageFile[]>([]);
     const [street, setStreet] = useState('');
-    const [termsAccepted, setTermsAccepted] = useState(false);
 
     const [selectedCity, setSelectedCity] = useState<string | undefined>(
         undefined,
@@ -85,6 +84,7 @@ const AddPropertyScreen: React.FC = () => {
 
     const [propertyTypes, setPropertyTypes] = useState<IAttribute[]>([]);
     const [loading, setLoading] = useState(false);
+    const navigation = useNavigation<NavigationProp<RootStackParamList>>();
 
     useEffect(() => {
         const loadAttributes = async () => {
@@ -145,14 +145,7 @@ const AddPropertyScreen: React.FC = () => {
 
         setLoading(true);
         try {
-            if (
-                !title ||
-                !description ||
-                !price ||
-                !type ||
-                !interior ||
-                !termsAccepted
-            ) {
+            if (!title || !description || !price || !type || !interior) {
                 Alert.alert('Thông báo', 'Vui lòng điền đầy đủ thông tin.');
                 setLoading(false);
                 return;
@@ -199,10 +192,8 @@ const AddPropertyScreen: React.FC = () => {
 
             const response = await createProperty(formData);
             if (response.success) {
-                Alert.alert(
-                    'Thành công',
-                    'Bất động sản đã được thêm thành công.',
-                );
+                Alert.alert('Thành công', 'Đăng tin thành công.');
+                navigation.navigate('ManageProperty');
             } else {
                 Alert.alert('Lỗi', response.message || 'Có lỗi xảy ra.');
             }
@@ -246,7 +237,7 @@ const AddPropertyScreen: React.FC = () => {
                 />
                 <TextInput
                     style={styles.input}
-                    placeholder='Tiền đặt cọc'
+                    placeholder='Tiền cọc'
                     value={deposit}
                     onChangeText={setDeposit}
                     keyboardType='numeric'
@@ -254,14 +245,14 @@ const AddPropertyScreen: React.FC = () => {
 
                 <TextInput
                     style={styles.input}
-                    placeholder='Số phòng ngủ'
+                    placeholder='Phòng ngủ'
                     value={bedroom}
                     onChangeText={setBedroom}
                     keyboardType='numeric'
                 />
                 <TextInput
                     style={styles.input}
-                    placeholder='Số phòng tắm'
+                    placeholder='Phòng tắm, vệ sinh'
                     value={bathroom}
                     onChangeText={setBathroom}
                     keyboardType='numeric'
@@ -336,7 +327,7 @@ const AddPropertyScreen: React.FC = () => {
                     </Picker>
                 </View>
                 <View style={styles.radioContainer}>
-                    <Text style={styles.label}>Chọn tiện ích:</Text>
+                    <Text style={styles.label}>Tiện ích</Text>
                     {attributes.map((attribute) => (
                         <View key={attribute.id} style={styles.radioButton}>
                             <RadioButton
@@ -411,7 +402,7 @@ const AddPropertyScreen: React.FC = () => {
                         </View>
                     ))}
                 </View>
-                <View style={styles.termsContainer}>
+                {/* <View style={styles.termsContainer}>
                     <Checkbox
                         checked={termsAccepted}
                         onChange={(event) =>
@@ -422,7 +413,7 @@ const AddPropertyScreen: React.FC = () => {
                     <Text style={styles.termsText}>
                         Tôi đồng ý với các điều khoản và điều kiện của SmartRent
                     </Text>
-                </View>
+                </View> */}
                 <TouchableOpacity
                     style={[styles.submitButton, commonStyles.button]}
                     onPress={handleUpload}
@@ -434,7 +425,7 @@ const AddPropertyScreen: React.FC = () => {
                             commonStyles.buttonText,
                         ]}
                     >
-                        {loading ? 'Đang tải...' : 'GỬI'}
+                        {loading ? 'Đang tải...' : 'Đăng tin'}
                     </Text>
                 </TouchableOpacity>
             </ScrollView>

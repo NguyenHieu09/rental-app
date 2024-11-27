@@ -54,15 +54,12 @@ export const createContractAndApproveRequest = async (
             throw new Error('No token provided');
         }
 
-        const { requestId, ...contractRequest } = params;
-
         const response = await axios.post<IContract>(
             `${API_CONTRACT_URL}/contracts`,
-            contractRequest,
+            params,
             {
                 headers: {
                     Authorization: `Bearer ${token}`,
-                    'X-Request-ID': requestId,
                 },
             },
         );

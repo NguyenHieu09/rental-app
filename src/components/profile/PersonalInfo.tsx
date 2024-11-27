@@ -1,9 +1,15 @@
-
-
 // PersonalInfo.tsx
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, Image, TextInput, TouchableOpacity, Alert } from 'react-native';
-import { useSelector } from 'react-redux';
+import {
+    View,
+    Text,
+    StyleSheet,
+    Image,
+    TextInput,
+    TouchableOpacity,
+    Alert,
+} from 'react-native';
+import { useDispatch, useSelector } from 'react-redux';
 import { RootState } from '../../redux-toolkit/store';
 import { COLORS, commonStyles, SIZES } from '../../styles/theme';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -11,6 +17,7 @@ import { getFirstAndLastName } from '../../utils/avatar';
 import * as ImagePicker from 'expo-image-picker';
 import * as ImageManipulator from 'expo-image-manipulator';
 import { updateUserInfo } from '../../api/api';
+import { saveUser } from '../../redux-toolkit/slices/userSlice';
 
 const PersonalInfo = () => {
     const user = useSelector((state: RootState) => state.user.user);
@@ -19,6 +26,7 @@ const PersonalInfo = () => {
     const [phoneNumber, setPhoneNumber] = useState(user?.phoneNumber || '');
     const [avatar, setAvatar] = useState(user?.avatar || '');
     const [localAvatar, setLocalAvatar] = useState<string | null>(null);
+    const dispatch = useDispatch();
 
     const handleSave = async () => {
         try {
@@ -31,8 +39,8 @@ const PersonalInfo = () => {
             }
             console.log('avatarUrl', avatarUrl);
 
-
-            await updateUserInfo(phoneNumber, avatarUrl, name);
+            const user = await updateUserInfo(phoneNumber, avatarUrl, name);
+            dispatch(saveUser(user));
             Alert.alert('Thành công', 'Thông tin đã được cập nhật');
         } catch (error) {
             Alert.alert('Lỗi', 'Không thể cập nhật thông tin');
@@ -58,7 +66,7 @@ const PersonalInfo = () => {
         const manipResult = await ImageManipulator.manipulateAsync(
             uri,
             [{ resize: { width: 600 } }],
-            { compress: 0.7, format: ImageManipulator.SaveFormat.JPEG }
+            { compress: 0.7, format: ImageManipulator.SaveFormat.JPEG },
         );
         return manipResult.uri;
     };
@@ -68,19 +76,26 @@ const PersonalInfo = () => {
             <View style={commonStyles.header}>
                 <TouchableOpacity onPress={handleAvatarUpdate}>
                     {localAvatar ? (
-                        <Image source={{ uri: localAvatar }} style={styles.avatar} />
+                        <Image
+                            source={{ uri: localAvatar }}
+                            style={styles.avatar}
+                        />
                     ) : avatar ? (
                         <Image source={{ uri: avatar }} style={styles.avatar} />
                     ) : (
                         user?.name && (
                             <View style={styles.nameInitials}>
-                                <Text style={styles.initials}>{getFirstAndLastName(user.name)}</Text>
+                                <Text style={styles.initials}>
+                                    {getFirstAndLastName(user.name)}
+                                </Text>
                             </View>
                         )
                     )}
                 </TouchableOpacity>
                 <Text style={styles.name}>{user?.name || 'Guest'}</Text>
-                <Text style={styles.email}>{user?.email || 'guest@example.com'}</Text>
+                <Text style={styles.email}>
+                    {user?.email || 'guest@example.com'}
+                </Text>
             </View>
             <View style={styles.infoContainer}>
                 <Text style={styles.label}>Tên:</Text>
@@ -95,7 +110,7 @@ const PersonalInfo = () => {
                     style={styles.input}
                     value={email}
                     onChangeText={setEmail}
-                    keyboardType="email-address"
+                    keyboardType='email-address'
                     editable={false}
                 />
                 <Text style={styles.label}>Số điện thoại:</Text>
@@ -103,9 +118,12 @@ const PersonalInfo = () => {
                     style={styles.input}
                     value={phoneNumber}
                     onChangeText={setPhoneNumber}
-                    keyboardType="phone-pad"
+                    keyboardType='phone-pad'
                 />
-                <TouchableOpacity style={[commonStyles.button]} onPress={handleSave}>
+                <TouchableOpacity
+                    style={[commonStyles.button]}
+                    onPress={handleSave}
+                >
                     <Text style={commonStyles.buttonText}>Lưu thay đổi</Text>
                 </TouchableOpacity>
             </View>

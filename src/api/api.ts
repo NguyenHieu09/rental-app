@@ -81,7 +81,6 @@ export const registerUser = async (registrationData: {
     }
 };
 
-
 // export const updateUserInfo = async (phoneNumber: string, avatar: string) => {
 //     try {
 //         const token = await AsyncStorage.getItem('accessToken');
@@ -113,7 +112,11 @@ export const registerUser = async (registrationData: {
 // };
 
 // api.ts
-export const updateUserInfo = async (phoneNumber: string, avatarUri: string, name: string) => {
+export const updateUserInfo = async (
+    phoneNumber: string,
+    avatarUri: string,
+    name: string,
+) => {
     const formData = new FormData();
     formData.append('phoneNumber', phoneNumber);
     formData.append('name', name);
@@ -146,7 +149,10 @@ export const updateUserInfo = async (phoneNumber: string, avatarUri: string, nam
     return await response.json();
 };
 
-export const updateUserPassword = async (oldPassword: string, newPassword: string) => {
+export const updateUserPassword = async (
+    oldPassword: string,
+    newPassword: string,
+) => {
     try {
         const token = await AsyncStorage.getItem('accessToken');
 
@@ -154,7 +160,10 @@ export const updateUserPassword = async (oldPassword: string, newPassword: strin
             throw new Error('No token provided');
         }
 
-        console.log('Updating password with URL:', `${API_BASE_URL}/users/update-password`);
+        console.log(
+            'Updating password with URL:',
+            `${API_BASE_URL}/users/update-password`,
+        );
         console.log('Old Password:', oldPassword);
         console.log('New Password:', newPassword);
 
@@ -165,7 +174,7 @@ export const updateUserPassword = async (oldPassword: string, newPassword: strin
                 headers: {
                     Authorization: `Bearer ${token}`,
                 },
-            }
+            },
         );
 
         if (response.status === 200) {
@@ -174,7 +183,11 @@ export const updateUserPassword = async (oldPassword: string, newPassword: strin
             return { success: false, message: 'Failed to update password' };
         }
     } catch (error: any) {
-        if (error.response && error.response.data && error.response.data.message) {
+        if (
+            error.response &&
+            error.response.data &&
+            error.response.data.message
+        ) {
             console.error('Error message:', error.response.data.message);
             throw new Error(error.response.data.message);
         } else {
@@ -288,6 +301,42 @@ export const updateNotificationStatus = async (
                 notificationIds,
                 status,
             },
+            {
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                },
+            },
+        );
+
+        console.log('Update notification status response:', response.data);
+
+        return response.data;
+    } catch (error: any) {
+        if (
+            error.response &&
+            error.response.data &&
+            error.response.data.message
+        ) {
+            console.error('Error message:', error.response.data.message);
+            throw new Error(error.response.data.message);
+        } else {
+            console.error('Error updating notification status:', error);
+            throw (error as any).response;
+        }
+    }
+};
+
+export const readAll = async () => {
+    try {
+        const token = await AsyncStorage.getItem('accessToken');
+
+        if (!token) {
+            throw new Error('No token provided');
+        }
+
+        const response = await axios.post(
+            `${API_BASE_URL}/notifications/read-all`,
+            {},
             {
                 headers: {
                     Authorization: `Bearer ${token}`,

@@ -3,17 +3,19 @@ import {
     useFocusEffect,
     useNavigation,
 } from '@react-navigation/native';
+import { format } from 'date-fns';
 import React, { useCallback, useEffect, useState } from 'react';
 import {
-    View,
-    Text,
-    StyleSheet,
-    Image,
-    FlatList,
-    TouchableOpacity,
     ActivityIndicator,
     Alert,
+    FlatList,
+    StyleSheet,
+    Text,
+    TouchableOpacity,
+    View,
 } from 'react-native';
+import { useSelector } from 'react-redux';
+import { useAccount, useConnect, useDisconnect } from 'wagmi';
 import {
     cancelContractBeforeDeposit,
     createCancelContractRequest,
@@ -21,20 +23,20 @@ import {
     fetchContractsForOwner,
     fetchRentalContractsForRenter,
 } from '../../../api/contract';
+import Button from '../../../components/button/Button';
+import CancelBeforeDepositModal from '../../../components/modal/CancelBeforeDepositModal';
+import CancelContractModal from '../../../components/modal/CancelContractModal';
+import ConnectWalletModal from '../../../components/modal/ConnectWalletModal';
+import ExtendContractModal from '../../../components/modal/ExtendContractModal';
+import Tag from '../../../components/tag/Tag';
+import { useSignMessageCustom } from '../../../hook/useSignMessageCustom';
 import { RootState } from '../../../redux-toolkit/store';
 import { commonStyles } from '../../../styles/theme';
-import { RootStackParamList } from '../../../types/navigation';
-import { format } from 'date-fns';
-import { IContract, ContractStatus } from '../../../types/contract';
-import CancelContractModal from '../../../components/modal/CancelContractModal';
-import { useSelector } from 'react-redux';
-import { useSignMessageCustom } from '../../../hook/useSignMessageCustom';
-import { useAccount, useConnect, useDisconnect } from 'wagmi';
+import { ContractStatus, IContract } from '../../../types/contract';
 import { ContractExtensionRequestType } from '../../../types/extensionRequest';
+import { RootStackParamList } from '../../../types/navigation';
+import { getContractColor } from '../../../utils/colorTag';
 import { formatPrice } from '../../../utils/formattedPrice';
-import CancelBeforeDepositModal from '../../../components/modal/CancelBeforeDepositModal';
-import ExtendContractModal from '../../../components/modal/ExtendContractModal';
-import ConnectWalletModal from '../../../components/modal/ConnectWalletModal';
 
 const getStatusInVietnamese = (status: ContractStatus): string => {
     switch (status) {
@@ -408,49 +410,32 @@ const ManageContract = () => {
                 </TouchableOpacity>
 
                 {/* <W3mButton /> */}
-                <View style={styles.buttonContainer}>
-                    <TouchableOpacity
-                        style={[
-                            styles.cancelBtn,
-                            {
-                                backgroundColor: '#007BFF',
-                            },
-                            !isCancellable && styles.disabledButton,
-                        ]}
-                        disabled={!isCancellable}
-                        onPress={() =>
-                            isCancellable && handleExtendContract(item)
-                        }
-                    >
-                        <Text style={[commonStyles.buttonText]}>
-                            Gia hạn hợp đồng
-                        </Text>
-                    </TouchableOpacity>
-                    <TouchableOpacity
-                        style={[
-                            styles.cancelBtn,
-                            isCancellable
-                                ? styles.cancelBtnActive
-                                : styles.cancelBtnDisabled, // Thêm kiểu cho nút bị vô hiệu hóa
-                        ]}
-                        onPress={() =>
-                            isCancellable && handleCancelContract(item)
-                        } // Chỉ xử lý hủy khi nút không bị vô hiệu
-                        disabled={!isCancellable} // Vô hiệu hóa nút khi không thể hủy
-                    >
-                        <Text
-                            style={[
-                                commonStyles.buttonText,
-                                isCancellable
-                                    ? commonStyles.errorColor
-                                    : {
-                                          color: 'rgba(0,0,0,0.25)',
-                                      },
-                            ]}
+                <View style={styles.footer}>
+                    <Tag color={getContractColor(item.status)}>
+                        {getStatusInVietnamese(item.status)}
+                    </Tag>
+                    <View style={styles.buttonContainer}>
+                        <Button
+                            variant='outlined'
+                            type='danger'
+                            onPress={() =>
+                                isCancellable && handleCancelContract(item)
+                            } // Chỉ xử lý hủy khi nút không bị vô hiệu
+                            disabled={!isCancellable} // Vô hiệu hóa nút khi không thể hủy>
                         >
-                            Hủy hợp đồng
-                        </Text>
-                    </TouchableOpacity>
+                            Huỷ hợp đồng
+                        </Button>
+                        <Button
+                            type='primary'
+                            variant='fill'
+                            disabled={!isCancellable}
+                            onPress={() =>
+                                isCancellable && handleExtendContract(item)
+                            }
+                        >
+                            Gia hạn hợp đồng
+                        </Button>
+                    </View>
                 </View>
             </View>
         );
@@ -568,9 +553,9 @@ const styles = StyleSheet.create({
     deposit: {},
     dates: {},
     buttonContainer: {
-        // flexDirection: 'row',
+        flexDirection: 'row',
+        gap: 8,
         // justifyContent: 'space-between',
-        marginTop: 10,
     },
     loadingContainer: {
         paddingVertical: 10,
@@ -589,7 +574,7 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         justifyContent: 'space-between',
         alignItems: 'center',
-        marginTop: 12,
+        marginTop: 10,
     },
     cancelBtn: {
         borderWidth: 1,

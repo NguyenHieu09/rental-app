@@ -1,6 +1,15 @@
-
 import React, { useEffect, useState } from 'react';
-import { Modal, View, Text, ScrollView, TouchableOpacity, Pressable, StyleSheet, Dimensions, TextInput } from 'react-native';
+import {
+    Modal,
+    View,
+    Text,
+    ScrollView,
+    TouchableOpacity,
+    Pressable,
+    StyleSheet,
+    Dimensions,
+    TextInput,
+} from 'react-native';
 import AddressInput from '../form/AddressInput';
 import { IconOutline } from '@ant-design/icons-react-native';
 import { RadioButton } from 'react-native-paper';
@@ -8,6 +17,7 @@ import { IAttribute } from '../../types/property';
 import { fetchPropertyAttributes } from '../../api/api';
 import { Picker } from '@react-native-picker/picker';
 import MultiSlider from '@ptomasroos/react-native-multi-slider';
+import { formatPrice } from '../../utils/formattedPrice';
 
 export const interiorOptions = [
     {
@@ -34,22 +44,40 @@ const { width, height } = Dimensions.get('window');
 const modalWidth = width;
 const modalHeight = height * 0.8;
 
-const SearchModal: React.FC<SearchModalProps> = ({ visible, onClose, onApplyFilters }) => {
-
-
-    const [selectedCity, setSelectedCity] = useState<string | undefined>(undefined);
-    const [selectedCityName, setSelectedCityName] = useState<string | undefined>(undefined);
-    const [selectedDistrict, setSelectedDistrict] = useState<string | undefined>(undefined);
-    const [selectedDistrictName, setSelectedDistrictName] = useState<string | undefined>(undefined);
-    const [selectedWard, setSelectedWard] = useState<string | undefined>(undefined);
-    const [selectedWardName, setSelectedWardName] = useState<string | undefined>(undefined);
+const SearchModal: React.FC<SearchModalProps> = ({
+    visible,
+    onClose,
+    onApplyFilters,
+}) => {
+    const [selectedCity, setSelectedCity] = useState<string | undefined>(
+        undefined,
+    );
+    const [selectedCityName, setSelectedCityName] = useState<
+        string | undefined
+    >(undefined);
+    const [selectedDistrict, setSelectedDistrict] = useState<
+        string | undefined
+    >(undefined);
+    const [selectedDistrictName, setSelectedDistrictName] = useState<
+        string | undefined
+    >(undefined);
+    const [selectedWard, setSelectedWard] = useState<string | undefined>(
+        undefined,
+    );
+    const [selectedWardName, setSelectedWardName] = useState<
+        string | undefined
+    >(undefined);
     const [street, setStreet] = useState<string>('');
 
     const [attributes, setAttributes] = useState<IAttribute[]>([]);
     const [selectedAttributes, setSelectedAttributes] = useState<string[]>([]);
     const [interior, setInterior] = useState('');
-    const [numberOfBedrooms, setNumberOfBedrooms] = useState<number | undefined>(undefined);
-    const [numberOfBathrooms, setNumberOfBathrooms] = useState<number | undefined>(undefined);
+    const [numberOfBedrooms, setNumberOfBedrooms] = useState<
+        number | undefined
+    >(undefined);
+    const [numberOfBathrooms, setNumberOfBathrooms] = useState<
+        number | undefined
+    >(undefined);
     const [priceRange, setPriceRange] = useState([0, 1000000000]);
 
     useEffect(() => {
@@ -66,9 +94,9 @@ const SearchModal: React.FC<SearchModalProps> = ({ visible, onClose, onApplyFilt
     }, []);
 
     const handleAttributeChange = (value: string) => {
-        setSelectedAttributes(prev => {
+        setSelectedAttributes((prev) => {
             if (prev.includes(value)) {
-                return prev.filter(attr => attr !== value);
+                return prev.filter((attr) => attr !== value);
             } else {
                 return [...prev, value];
             }
@@ -92,18 +120,17 @@ const SearchModal: React.FC<SearchModalProps> = ({ visible, onClose, onApplyFilt
 
     return (
         <Modal
-            animationType="slide"
+            animationType='slide'
             transparent={true}
             visible={visible}
             onRequestClose={onClose}
         >
             <View style={styles.centeredView}>
                 <View style={styles.modalView}>
-
                     <View style={styles.modalHeader}>
                         <Text style={styles.modalTitle}>Bộ lọc</Text>
                         <Pressable onPress={onClose}>
-                            <IconOutline name="close" size={24} color="red" />
+                            <IconOutline name='close' size={24} color='red' />
                         </Pressable>
                     </View>
 
@@ -145,13 +172,19 @@ const SearchModal: React.FC<SearchModalProps> = ({ visible, onClose, onApplyFilt
 
                         <View style={styles.condition}>
                             <Text style={styles.title}>Giá</Text>
-                            <Text>{`Giá tối thiểu: ${priceRange[0].toLocaleString()} đ`}</Text>
-                            <Text>{`Giá tối đa: ${priceRange[1].toLocaleString()} đ`}</Text>
+                            <Text>{`Giá tối thiểu: ${formatPrice(
+                                priceRange[0],
+                            )}`}</Text>
+                            <Text>{`Giá tối đa: ${formatPrice(
+                                priceRange[1],
+                            )}`}</Text>
                             <View style={{ alignItems: 'center' }}>
                                 <MultiSlider
                                     sliderLength={modalWidth - 60}
                                     values={priceRange}
-                                    onValuesChange={(values) => setPriceRange(values)}
+                                    onValuesChange={(values) =>
+                                        setPriceRange(values)
+                                    }
                                     min={0}
                                     max={1000000000}
                                     step={100000}
@@ -168,52 +201,74 @@ const SearchModal: React.FC<SearchModalProps> = ({ visible, onClose, onApplyFilt
                         <View style={styles.condition}>
                             <Text style={styles.title}>Nội thất</Text>
                             <View>
-                                <Text style={styles.label}>
-                                    Số phòng ngủ
-                                </Text>
+                                <Text style={styles.label}>Số phòng ngủ</Text>
                                 <TextInput
                                     style={styles.input}
-                                    placeholder="Nhập số phòng ngủ"
-                                    keyboardType="numeric"
+                                    placeholder='Nhập số phòng ngủ'
+                                    keyboardType='numeric'
                                     value={numberOfBedrooms?.toString()}
-                                    onChangeText={(text) => setNumberOfBedrooms(Number(text))}
+                                    onChangeText={(text) =>
+                                        setNumberOfBedrooms(Number(text))
+                                    }
                                 />
                             </View>
 
                             <View>
-                                <Text style={styles.label}>
-                                    Số phòng tắm
-                                </Text>
+                                <Text style={styles.label}>Số phòng tắm</Text>
                                 <TextInput
                                     style={styles.input}
-                                    placeholder="Nhập số phòng tắm"
-                                    keyboardType="numeric"
+                                    placeholder='Nhập số phòng tắm'
+                                    keyboardType='numeric'
                                     value={numberOfBathrooms?.toString()}
-                                    onChangeText={(text) => setNumberOfBathrooms(Number(text))}
+                                    onChangeText={(text) =>
+                                        setNumberOfBathrooms(Number(text))
+                                    }
                                 />
                             </View>
 
                             <View style={[styles.input, { padding: -10 }]}>
                                 <Picker
                                     selectedValue={interior}
-                                    onValueChange={(itemValue) => setInterior(itemValue)}
+                                    onValueChange={(itemValue) =>
+                                        setInterior(itemValue)
+                                    }
                                 >
-                                    <Picker.Item label="Chọn nội thất" value={undefined} />
+                                    <Picker.Item
+                                        label='Chọn nội thất'
+                                        value={undefined}
+                                    />
                                     {interiorOptions.map((option) => (
-                                        <Picker.Item key={option.value} label={option.label} value={option.value} />
+                                        <Picker.Item
+                                            key={option.value}
+                                            label={option.label}
+                                            value={option.value}
+                                        />
                                     ))}
                                 </Picker>
                             </View>
 
                             <View>
                                 <Text style={styles.label}>Tiện ích</Text>
-                                {attributes.map(attribute => (
-                                    <View key={attribute.id} style={styles.radioButton}>
+                                {attributes.map((attribute) => (
+                                    <View
+                                        key={attribute.id}
+                                        style={styles.radioButton}
+                                    >
                                         <RadioButton
-                                            color="#007BFF"
+                                            color='#007BFF'
                                             value={attribute.id}
-                                            status={selectedAttributes.includes(attribute.id) ? 'checked' : 'unchecked'}
-                                            onPress={() => handleAttributeChange(attribute.id)}
+                                            status={
+                                                selectedAttributes.includes(
+                                                    attribute.id,
+                                                )
+                                                    ? 'checked'
+                                                    : 'unchecked'
+                                            }
+                                            onPress={() =>
+                                                handleAttributeChange(
+                                                    attribute.id,
+                                                )
+                                            }
                                         />
                                         <Text>{attribute.name}</Text>
                                     </View>
@@ -223,29 +278,41 @@ const SearchModal: React.FC<SearchModalProps> = ({ visible, onClose, onApplyFilt
                     </ScrollView>
 
                     <View style={styles.footer}>
-                        <TouchableOpacity onPress={handleRefresh} style={[styles.clearButton, { borderWidth: 1, borderColor: '#ccc' }]}>
+                        <TouchableOpacity
+                            onPress={handleRefresh}
+                            style={[
+                                styles.clearButton,
+                                { borderWidth: 1, borderColor: '#ccc' },
+                            ]}
+                        >
                             <Text>Xoá Lọc</Text>
                         </TouchableOpacity>
-                        <TouchableOpacity onPress={() => {
-                            const selectedAttributeNames = selectedAttributes.map(attrId => {
-                                const attribute = attributes.find(attr => attr.id === attrId);
-                                return attribute ? attribute.name : '';
-                            });
+                        <TouchableOpacity
+                            onPress={() => {
+                                const selectedAttributeNames =
+                                    selectedAttributes.map((attrId) => {
+                                        const attribute = attributes.find(
+                                            (attr) => attr.id === attrId,
+                                        );
+                                        return attribute ? attribute.name : '';
+                                    });
 
-                            const filterCriteria = {
-                                city: selectedCityName,
-                                district: selectedDistrictName,
-                                ward: selectedWardName,
-                                minPrice: priceRange[0],
-                                maxPrice: priceRange[1],
-                                amenities: selectedAttributeNames,
-                                bedroom: numberOfBedrooms,
-                                bathroom: numberOfBathrooms,
-                                furniture: interior,
-                            };
-                            onApplyFilters(filterCriteria);
-                            onClose();
-                        }} style={[styles.applyButton]}>
+                                const filterCriteria = {
+                                    city: selectedCityName,
+                                    district: selectedDistrictName,
+                                    ward: selectedWardName,
+                                    minPrice: priceRange[0],
+                                    maxPrice: priceRange[1],
+                                    amenities: selectedAttributeNames,
+                                    bedroom: numberOfBedrooms,
+                                    bathroom: numberOfBathrooms,
+                                    furniture: interior,
+                                };
+                                onApplyFilters(filterCriteria);
+                                onClose();
+                            }}
+                            style={[styles.applyButton]}
+                        >
                             <Text style={styles.applyButtonText}>Áp dụng</Text>
                         </TouchableOpacity>
                     </View>

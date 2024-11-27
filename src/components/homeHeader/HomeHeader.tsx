@@ -1,32 +1,33 @@
-
-
-import React, { useCallback, useEffect, useState } from 'react';
-import { View, Text, Image, StyleSheet, TouchableOpacity, FlatList, ActivityIndicator } from 'react-native';
-import { IconOutline } from '@ant-design/icons-react-native';
-import { useSelector, useDispatch } from 'react-redux';
-import { fetchNotifications, fetchUnreadNotificationsCount, } from '../../api/api';
-// import { truncate } from '../../utils/avatar';
-import * as Location from 'expo-location';
-import { NavigationProp, useFocusEffect, useNavigation } from '@react-navigation/native';
-import { AppDispatch, RootState } from '../../redux-toolkit/store';
-import { readAllNotifications, setCount, setLoading, setNotifications } from '../../redux-toolkit/slices/notificationSlice';
-import { INotification } from '../../types/notification';
-import { RootStackParamList } from '../../types/navigation';
-import { ITable } from '../../types/table';
-import { commonStyles } from '../../styles/theme';
-import { getFirstAndLastName } from '../../utils/avatar';
+import React, { useCallback } from 'react';
+import { Image, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { useDispatch, useSelector } from 'react-redux';
+import { fetchUnreadNotificationsCount } from '../../api/api';
+import {
+    NavigationProp,
+    useFocusEffect,
+    useNavigation,
+} from '@react-navigation/native';
 import Feather from 'react-native-vector-icons/Feather';
-
+import {
+    setCount,
+    setLoading,
+} from '../../redux-toolkit/slices/notificationSlice';
+import { AppDispatch, RootState } from '../../redux-toolkit/store';
+import { RootStackParamList } from '../../types/navigation';
+import { getFirstAndLastName } from '../../utils/avatar';
 
 interface HomeHeaderProps {
     avatar?: string;
 }
 
 const HomeHeader: React.FC<HomeHeaderProps> = ({ avatar }) => {
-
     const dispatch = useDispatch<AppDispatch>();
-    const totalNotifications = useSelector((state: RootState) => state.notifications.notifications.pageInfo.total);
-    const unreadCount = useSelector((state: RootState) => state.notifications.count);
+    const totalNotifications = useSelector(
+        (state: RootState) => state.notifications.notifications.pageInfo.total,
+    );
+    const unreadCount = useSelector(
+        (state: RootState) => state.notifications.count,
+    );
     const navigation = useNavigation<NavigationProp<RootStackParamList>>();
     // const [location, setLocation] = useState('Gò Vấp, Hồ Chí Minh, Việt Nam');
     const user = useSelector((state: RootState) => state.user.user);
@@ -62,23 +63,19 @@ const HomeHeader: React.FC<HomeHeaderProps> = ({ avatar }) => {
 
             dispatch(setCount(count));
         } catch (error) {
-            console.error("Failed to fetch unread notifications count:", error);
-            alert("Có lỗi xảy ra khi tải số lượng thông báo chưa đọc.");
+            console.error('Failed to fetch unread notifications count:', error);
+            alert('Có lỗi xảy ra khi tải số lượng thông báo chưa đọc.');
         } finally {
             dispatch(setLoading(false));
         }
     };
 
-
-
-
     useFocusEffect(
         useCallback(() => {
             loadUnreadNotificationsCount(); // Tải số lượng thông báo chưa đọc khi component mount
             // getLocation(); // Gọi API để lấy vị trí
-        }, [])
+        }, []),
     );
-
 
     const handleNotificationPress = () => {
         navigation.navigate('NotificationScreen');
@@ -87,14 +84,19 @@ const HomeHeader: React.FC<HomeHeaderProps> = ({ avatar }) => {
     return (
         <View style={styles.container}>
             <View style={styles.locationContainer}>
-                <Text style={styles.textWelcome}>Chào mừng bạn đến với SmartRent!</Text>
+                <Text style={styles.textWelcome}>
+                    Chào mừng bạn đến với SmartRent!
+                </Text>
                 {/* <IconOutline name="environment" size={20} color="#000" /> */}
                 {/* <Text style={styles.locationText} numberOfLines={1}>{location}</Text> */}
                 {/* <IconOutline name="down" size={20} color="#000" /> */}
             </View>
-            <TouchableOpacity style={styles.iconContainer} onPress={handleNotificationPress}>
+            <TouchableOpacity
+                style={styles.iconContainer}
+                onPress={handleNotificationPress}
+            >
                 <View style={styles.bellIconContainer}>
-                    <Feather name="bell" size={24} color="#000" />
+                    <Feather name='bell' size={24} color='#000' />
                     {/* <IconOutline name="bell" size={20} color="#000" /> */}
                     {unreadCount > 0 && (
                         <View style={styles.notificationBadge}>
@@ -104,11 +106,16 @@ const HomeHeader: React.FC<HomeHeaderProps> = ({ avatar }) => {
                 </View>
             </TouchableOpacity>
             {user?.avatar ? (
-                <Image source={{ uri: user.avatar }} style={styles.profileImage} />
+                <Image
+                    source={{ uri: user.avatar }}
+                    style={styles.profileImage}
+                />
             ) : (
                 user?.name && (
                     <View style={styles.nameInitials}>
-                        <Text style={styles.initials}>{getFirstAndLastName(user.name)}</Text>
+                        <Text style={styles.initials}>
+                            {getFirstAndLastName(user.name)}
+                        </Text>
                     </View>
                 )
             )}
@@ -124,7 +131,6 @@ const styles = StyleSheet.create({
         justifyContent: 'space-between',
     },
     locationContainer: {
-
         flexDirection: 'row',
         alignItems: 'center',
     },
@@ -173,7 +179,6 @@ const styles = StyleSheet.create({
         borderRadius: 20,
         justifyContent: 'center',
         alignItems: 'center',
-
     },
     initials: {
         fontSize: 16,
@@ -184,9 +189,7 @@ const styles = StyleSheet.create({
         fontSize: 15,
         color: '#000',
         fontWeight: '500',
-
-    }
-
+    },
 });
 
 export default HomeHeader;

@@ -1,4 +1,4 @@
-// CustomButton.tsx  
+// CustomButton.tsx
 import React from 'react';
 import { View, Text, Image, StyleSheet, TouchableOpacity } from 'react-native';
 
@@ -8,7 +8,11 @@ interface CustomButtonProps {
     onPress: () => void;
 }
 
-const CustomButton: React.FC<CustomButtonProps> = ({ imageSource, label, onPress }) => {
+const CustomButton: React.FC<CustomButtonProps> = ({
+    imageSource,
+    label,
+    onPress,
+}) => {
     return (
         <TouchableOpacity style={styles.container} onPress={onPress}>
             <Image source={imageSource} style={styles.image} />
@@ -23,10 +27,9 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         borderWidth: 1,
         borderColor: '#00BFFF',
-        borderRadius: 20,
+        borderRadius: 10,
         padding: 10,
         backgroundColor: '#fff',
-        marginRight: 10,
     },
     image: {
         width: 40,

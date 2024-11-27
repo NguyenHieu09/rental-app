@@ -77,7 +77,7 @@ const DashboardOwner: React.FC = () => {
     );
 
     const handleViewProperties = () => {
-        navigation.navigate('StatisticsScreen');
+        navigation.navigate('ManageProperty');
     };
 
     const handleViewRequestRental = () => {

@@ -22,7 +22,7 @@ const LoginScreen: React.FC = () => {
     const [password, setPassword] = useState('');
     const navigation = useNavigation<NavigationProp<RootStackParamList>>();
     const dispatch = useDispatch<AppDispatch>();
-    const { loading, user, errorDetails } = useSelector(
+    const { loading, user, errorDetails, error } = useSelector(
         (state: RootState) => state.user,
     );
     const [errors, setErrors] = useState<{
@@ -67,8 +67,6 @@ const LoginScreen: React.FC = () => {
             setErrors({ email: '', password: '' });
             Alert.alert('Đăng nhập', 'Đăng nhập thành công!');
         } catch (err) {
-            console.error('Login failed:', err);
-
             setEmail(emailData);
             setPassword(passwordData);
         }
@@ -141,6 +139,7 @@ const LoginScreen: React.FC = () => {
                 <Text style={styles.errorText}>{errors.password}</Text>
             )}
 
+            {error && <Text style={styles.errorText}>{error}</Text>}
             <TouchableOpacity
                 style={commonStyles.button}
                 onPress={handleLogin}
