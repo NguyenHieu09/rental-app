@@ -1,3 +1,6 @@
+
+
+
 import React, { useEffect, useState } from 'react';
 import { View, Text, StyleSheet, FlatList, ListRenderItem, TouchableOpacity, ActivityIndicator, Alert } from 'react-native';
 import { commonStyles } from '../../../styles/theme';
@@ -5,13 +8,19 @@ import * as Clipboard from 'expo-clipboard';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import { fetchAllTransactionsForRenter, deposit, payMonthlyRent } from '../../../api/contract';
 import { IDepositTransaction, ITransaction, TransactionStatus } from '../../../types/transaction';
+import { useSignMessageCustom } from '../../../hook/useSignMessageCustom';
+import { W3mButton } from '@web3modal/wagmi-react-native';
+import { useAccount, useConnect, useDisconnect } from 'wagmi';
+import ConnectWalletModal from '../../../components/modal/ConnectWalletModal';
+import { RootState } from '../../../redux-toolkit/store';
+import { useSelector } from 'react-redux';
 
 const getStatusInVietnamese = (status: TransactionStatus): string => {
     switch (status) {
         case 'PENDING':
-            return 'Đang chờ thanh toán';
+            return 'Chờ thanh toán';
         case 'COMPLETED':
-            return 'Hoàn thành';
+            return 'Thành công';
         case 'FAILED':
             return 'Thất bại';
         case 'OVERDUE':
@@ -27,14 +36,25 @@ const PaymentScreen: React.FC = () => {
     const [transactions, setTransactions] = useState<ITransaction[]>([]);
     const [loading, setLoading] = useState<boolean>(true);
     const [paymentLoading, setPaymentLoading] = useState<{ [key: string]: boolean }>({});
+    const { handleSign } = useSignMessageCustom();
+    const { address } = useAccount();
+    const { connectAsync, connectors } = useConnect();
+    const { disconnectAsync } = useDisconnect();
+    const [isModalVisible, setModalVisible] = useState(false);
+    const [isConnected, setIsConnected] = useState(false);
+    const user = useSelector((state: RootState) => state.user.user);
+
 
     useEffect(() => {
         const loadTransactions = async () => {
             try {
+                console.log('Fetching transactions...');
                 const data = await fetchAllTransactionsForRenter();
+
                 setTransactions(data);
             } catch (error) {
                 console.error('Error loading transactions:', error);
+                Alert.alert('Lỗi', 'Có lỗi xảy ra khi tải dữ liệu giao dịch.');
             } finally {
                 setLoading(false);
             }
@@ -43,10 +63,40 @@ const PaymentScreen: React.FC = () => {
         loadTransactions();
     }, []);
 
+    useEffect(() => {
+        const verifyWalletAddress = async () => {
+            if (address && user?.walletAddress) {
+                if (address !== user.walletAddress) {
+                    // Địa chỉ ví không khớp
+                    await disconnectAsync();
+                    setIsConnected(false);
+                    setModalVisible(true);
+                    Alert.alert(
+                        'Thông báo',
+                        'Địa chỉ ví không khớp với địa chỉ đã đăng ký. Vui lòng kết nối ví đúng.'
+                    );
+                } else {
+                    // Địa chỉ ví khớp
+                    setIsConnected(true);
+                    setModalVisible(false); // Đóng modal nếu kết nối đúng
+                }
+            } else {
+                // Chưa kết nối ví
+                setIsConnected(false);
+                setModalVisible(true);
+            }
+        };
+
+        verifyWalletAddress();
+    }, [address, user?.walletAddress, disconnectAsync]);
+
+
+
     const handlePayment = async (transaction: ITransaction) => {
         setPaymentLoading((prev) => ({ ...prev, [transaction.id]: true }));
         try {
-            const depositTransaction: IDepositTransaction = { transactionId: transaction.id, contractId: transaction.contractId };
+            const signature = await handleSign({ message: transaction.description });
+            const depositTransaction: IDepositTransaction = { transactionId: transaction.id, contractId: transaction.contractId, signature: signature };
 
             if (transaction.type === 'RENT') {
                 console.log(depositTransaction);
@@ -54,7 +104,7 @@ const PaymentScreen: React.FC = () => {
                 Alert.alert('Thành công', 'Thanh toán tiền thuê tháng thành công');
             } else if (transaction.type === 'DEPOSIT') {
                 await deposit(depositTransaction);
-                Alert.alert('Thanh toán tiền cọc thành công');
+                Alert.alert('Thành công', 'Thanh toán tiền cọc thành công');
             } else {
                 Alert.alert('Không thể thanh toán', 'Chỉ có thể thanh toán các giao dịch loại "RENT" hoặc "DEPOSIT".');
                 return;
@@ -117,6 +167,7 @@ const PaymentScreen: React.FC = () => {
                         <Text style={styles.buttonText}>Thanh toán</Text>
                     )}
                 </TouchableOpacity>
+                {/* <W3mButton /> */}
             </View>
         </View>
     );
@@ -135,6 +186,12 @@ const PaymentScreen: React.FC = () => {
                 data={transactions}
                 renderItem={renderItem}
                 keyExtractor={(item) => item.id.toString()}
+            />
+
+            <ConnectWalletModal
+                visible={isModalVisible}
+                onClose={() => setModalVisible(false)}
+
             />
         </View>
     );

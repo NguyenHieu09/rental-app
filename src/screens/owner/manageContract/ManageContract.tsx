@@ -247,6 +247,10 @@ import { format } from 'date-fns';
 import { IContract, ContractStatus } from '../../../types/contract';
 import CancelContractModal from '../../../components/modal/CancelContractModal';
 import CancelBeforeDepositModal from '../../../components/modal/CancelBeforeDepositModal';
+import { useSignMessageCustom } from '../../../hook/useSignMessageCustom';
+import { useAccount, useConnect, useDisconnect } from 'wagmi';
+import ConnectWalletModal from '../../../components/modal/ConnectWalletModal';
+import { W3mButton } from '@web3modal/wagmi-react-native';
 
 const getStatusInVietnamese = (status: ContractStatus): string => {
     switch (status) {
@@ -283,7 +287,7 @@ const ManageContract = () => {
     const [isLoadingMore, setIsLoadingMore] = useState(false);
     const [cancelModalVisible, setCancelModalVisible] = useState(false);
     const [confirmModalVisible, setConfirmModalVisible] = useState(false);
-    // const [modalVisible, setModalVisible] = useState(false);
+    const [isModalVisible, setModalVisible] = useState(false);
     const [selectedContract, setSelectedContract] = useState<IContract | null>(null);
     const ITEMS_PER_PAGE = 10;
     let debounceTimeout: NodeJS.Timeout | null = null;
@@ -291,6 +295,11 @@ const ManageContract = () => {
 
     const navigation = useNavigation<NavigationProp<RootStackParamList>>();
     const user = useSelector((state: RootState) => state.user.user);
+    const { handleSign } = useSignMessageCustom();
+    const { address } = useAccount();
+    const { connectAsync, connectors } = useConnect();
+    const { disconnectAsync } = useDisconnect();
+    const [isConnected, setIsConnected] = useState(false);
 
     // Set to track unique contract IDs
     const contractIds = new Set<string>();
@@ -354,6 +363,27 @@ const ManageContract = () => {
         }
     }, [user]);
 
+
+    useEffect(() => {
+        // Kiểm tra nếu địa chỉ ví đã kết nối và không khớp với địa chỉ ví người dùng
+        if (address && address !== user?.walletAddress) {
+            setIsConnected(false); // Cập nhật trạng thái không kết nối
+            setModalVisible(true); // Mở modal yêu cầu kết nối ví
+            disconnectAsync(); // Ngắt kết nối ví hiện tại
+        } else if (address && address === user?.walletAddress) {
+            setIsConnected(true); // Địa chỉ ví khớp, kết nối thành công
+            setModalVisible(false); // Đóng modal
+        }
+
+
+        const timer = setTimeout(() => {
+            setLoading(false);
+        }, 2000);
+
+        return () => clearTimeout(timer);
+    }, [address, user?.walletAddress]);
+
+
     useFocusEffect(
         useCallback(() => {
             if (user) {
@@ -404,10 +434,14 @@ const ManageContract = () => {
     const confirmCancelContract = async (cancelDate: Date, reason: string) => {
         if (selectedContract) {
             try {
+                const message = `Hủy hợp đồng ${selectedContract.contractId} vào lúc ${format(cancelDate, 'yyyy-MM-dd')}`;
+                const signature = await handleSign({ message });
+
                 await createCancelContractRequest({
                     contractId: selectedContract.contractId,
                     cancelDate: format(cancelDate, 'yyyy-MM-dd'),
                     reason,
+                    signature: signature
                 });
                 Alert.alert('Thành công', 'Đã gửi yêu cầu hủy hợp đồng thành công');
                 setContracts((prevContracts) => prevContracts.filter((contract) => contract.contractId !== selectedContract.contractId));
@@ -468,7 +502,7 @@ const ManageContract = () => {
 
                 <TouchableOpacity
                     style={[
-                        commonStyles.button,
+                        styles.button,
                         { paddingVertical: 10, marginTop: 10 },
                         !isCancellable && styles.disabledButton, // Thêm kiểu cho nút bị vô hiệu hóa
                     ]}
@@ -479,6 +513,7 @@ const ManageContract = () => {
                         Hủy hợp đồng
                     </Text>
                 </TouchableOpacity>
+                {/* <W3mButton /> */}
             </View>
         );
     };
@@ -529,6 +564,12 @@ const ManageContract = () => {
 
                 />
             )}
+
+            <ConnectWalletModal
+                visible={isModalVisible}
+                onClose={() => setModalVisible(false)}
+
+            />
 
         </View>
     );
@@ -597,6 +638,16 @@ const styles = StyleSheet.create({
     disabledButton: {
         backgroundColor: '#B0BEC5',
     },
+    button: {
+        backgroundColor: '#f44336',
+        width: '100%',
+        height: 40,
+        borderRadius: 5,
+        alignItems: 'center',
+        justifyContent: 'center',
+        marginTop: 10,
+    },
+
 
 });
 
