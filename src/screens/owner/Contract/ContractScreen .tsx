@@ -14,6 +14,7 @@ import { useSelector } from 'react-redux';
 import { RootState } from '../../../redux-toolkit/store';
 import { getOwnerCreateContractMessage } from '../../../utils/contract';
 import ConnectWalletModal from '../../../components/modal/ConnectWalletModal';
+import { W3mButton } from '@web3modal/wagmi-react-native';
 
 
 type ContractScreenRouteProp = RouteProp<RootStackParamList, 'ContractScreen'>;
@@ -26,16 +27,18 @@ const ContractScreen = () => {
     const { contractContent, ownerId, renterId, propertyId, startDate, endDate, monthlyRent, depositAmount } = contractData;
     const navigation = useNavigation<NavigationProp<RootStackParamList>>();
     const { handleSign } = useSignMessageCustom();
-    const { address } = useAccount();
+    const { address, isConnected } = useAccount();
     const user = useSelector((state: RootState) => state.user.user);
-    const [isConnected, setIsConnected] = useState(false);
+
 
     useEffect(() => {
+        console.log('Address:', address);
+        console.log('User Wallet Address:', user?.walletAddress);
+        console.log('Is Connected:', isConnected);
+
         if (address && address === user?.walletAddress) {
-            setIsConnected(true);
             setModalVisible(false);
         } else {
-            setIsConnected(false);
             setModalVisible(true);
         }
 
@@ -44,7 +47,8 @@ const ContractScreen = () => {
         }, 2000);
 
         return () => clearTimeout(timer);
-    }, [address, user?.walletAddress]);
+    }, [address, user?.walletAddress, isConnected]);
+
 
     const handleCreateContract = async () => {
         try {
@@ -107,6 +111,7 @@ const ContractScreen = () => {
                 <TouchableOpacity style={[styles.button, { backgroundColor: '#007BFF' }]} onPress={handleCreateContract}>
                     <Text style={commonStyles.buttonText}>Tạo hợp đồng</Text>
                 </TouchableOpacity>
+
             </View>
             <ConnectWalletModal
                 visible={isModalVisible}

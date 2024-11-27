@@ -238,7 +238,7 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import { View, Text, StyleSheet, Image, FlatList, TouchableOpacity, ActivityIndicator, Alert } from 'react-native';
 import { commonStyles } from '../../../styles/theme';
-import { cancelContractBeforeDeposit, createCancelContractRequest, fetchContractsForOwner, fetchRentalContractsForRenter } from '../../../api/contract';
+import { cancelContractBeforeDeposit, createCancelContractRequest, createExtensionRequest, fetchContractsForOwner, fetchRentalContractsForRenter } from '../../../api/contract';
 import { RootState } from '../../../redux-toolkit/store';
 import { useSelector } from 'react-redux';
 import { NavigationProp, useFocusEffect, useNavigation } from '@react-navigation/native';
@@ -251,6 +251,8 @@ import { useSignMessageCustom } from '../../../hook/useSignMessageCustom';
 import { useAccount, useConnect, useDisconnect } from 'wagmi';
 import ConnectWalletModal from '../../../components/modal/ConnectWalletModal';
 import { W3mButton } from '@web3modal/wagmi-react-native';
+import { ContractExtensionRequestType } from '../../../types/extensionRequest';
+import ExtendContractModal from '../../../components/modal/ExtendContractModal';
 
 const getStatusInVietnamese = (status: ContractStatus): string => {
     switch (status) {
@@ -288,6 +290,7 @@ const ManageContract = () => {
     const [cancelModalVisible, setCancelModalVisible] = useState(false);
     const [confirmModalVisible, setConfirmModalVisible] = useState(false);
     const [isModalVisible, setModalVisible] = useState(false);
+    const [extendModalVisible, setExtendModalVisible] = useState(false);
     const [selectedContract, setSelectedContract] = useState<IContract | null>(null);
     const ITEMS_PER_PAGE = 10;
     let debounceTimeout: NodeJS.Timeout | null = null;
@@ -469,10 +472,39 @@ const ManageContract = () => {
         }
     };
 
+    const handleExtendContract = (contract: IContract) => {
+        setSelectedContract(contract);
+        setExtendModalVisible(true);
+    };
+
+    const confirmExtendContract = async (extensionDate: string, reason: string) => {
+        if (selectedContract) {
+            try {
+                console.log(extensionDate);
+
+                const extensionRequest = {
+                    contractId: selectedContract.contractId,
+                    type: 'EXTEND_CONTRACT' as ContractExtensionRequestType,
+                    extensionDate,
+                    transactionId: null,
+                    reason,
+                };
+
+                await createExtensionRequest(extensionRequest);
+                Alert.alert('Thành công', 'Đã gửi yêu cầu gia hạn hợp đồng thành công');
+            } catch (error: any) {
+                const errorMessage = error.response.data.message || 'Có lỗi xảy ra khi gửi yêu cầu gia hạn hợp đồng';
+                Alert.alert('Lỗi', errorMessage);
+            } finally {
+                setExtendModalVisible(false);
+                setSelectedContract(null);
+            }
+        }
+    };
+
 
     const renderContract = ({ item }: { item: IContract }) => {
         const isCancellable = item.status === 'WAITING' || item.status === 'DEPOSITED' || item.status === 'ONGOING';
-
         return (
             <View key={item.contractId} style={styles.contractCard}>
                 <TouchableOpacity onPress={() => navigation.navigate('ContractDetails', { contractId: item.contractId })}>
@@ -500,20 +532,37 @@ const ManageContract = () => {
                     </View>
                 </TouchableOpacity>
 
-                <TouchableOpacity
-                    style={[
-                        styles.button,
-                        { paddingVertical: 10, marginTop: 10 },
-                        !isCancellable && styles.disabledButton, // Thêm kiểu cho nút bị vô hiệu hóa
-                    ]}
-                    onPress={() => isCancellable && handleCancelContract(item)} // Chỉ xử lý hủy khi nút không bị vô hiệu
-                    disabled={!isCancellable} // Vô hiệu hóa nút khi không thể hủy
-                >
-                    <Text style={[commonStyles.buttonText]}>
-                        Hủy hợp đồng
-                    </Text>
-                </TouchableOpacity>
+
                 {/* <W3mButton /> */}
+                <View style={styles.buttonContainer}>
+                    <TouchableOpacity
+                        style={[
+                            styles.button,
+                            { paddingVertical: 10, marginTop: 10, backgroundColor: '#007BFF' },
+                            !isCancellable && styles.disabledButton,
+                        ]}
+                        disabled={!isCancellable}
+                        onPress={() => isCancellable && handleExtendContract(item)}
+                    >
+                        <Text style={[commonStyles.buttonText]}>
+                            Gia hạn hợp đồng
+                        </Text>
+                    </TouchableOpacity>
+                    <TouchableOpacity
+                        style={[
+                            styles.button,
+                            { paddingVertical: 10, marginTop: 10 },
+                            !isCancellable && styles.disabledButton, // Thêm kiểu cho nút bị vô hiệu hóa
+                        ]}
+                        onPress={() => isCancellable && handleCancelContract(item)} // Chỉ xử lý hủy khi nút không bị vô hiệu
+                        disabled={!isCancellable} // Vô hiệu hóa nút khi không thể hủy
+                    >
+                        <Text style={[commonStyles.buttonText]}>
+                            Hủy hợp đồng
+                        </Text>
+                    </TouchableOpacity>
+
+                </View>
             </View>
         );
     };
@@ -562,6 +611,17 @@ const ManageContract = () => {
                     onConfirm={confirmCancelBeforeDeposit}
                     contractId={selectedContract.contractId}
 
+                />
+            )}
+
+
+            {selectedContract && (
+                <ExtendContractModal
+                    visible={extendModalVisible}
+                    onClose={() => setExtendModalVisible(false)}
+                    onConfirm={confirmExtendContract}
+                    type="EXTEND_CONTRACT"
+                    contract={selectedContract}
                 />
             )}
 
@@ -621,8 +681,8 @@ const styles = StyleSheet.create({
         color: 'gray',
     },
     buttonContainer: {
-        // flexDirection: 'row',
-        // justifyContent: 'space-between',
+        flexDirection: 'row',
+        justifyContent: 'space-between',
         marginTop: 10,
     },
     loadingContainer: {
@@ -640,14 +700,13 @@ const styles = StyleSheet.create({
     },
     button: {
         backgroundColor: '#f44336',
-        width: '100%',
+        width: '48%',
         height: 40,
         borderRadius: 5,
         alignItems: 'center',
         justifyContent: 'center',
         marginTop: 10,
     },
-
 
 });
 

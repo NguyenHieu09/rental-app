@@ -15,7 +15,7 @@ const ConnectWalletModal: React.FC<ConnectWalletModalProps> = ({ visible, onClos
             <View style={styles.modalContainer}>
                 <View style={styles.modalContent}>
                     <Text style={styles.modalTitle}>Kết nối ví</Text>
-                    <Text style={styles.modalDescription}>Bạn cần kết nối ví để tạo hợp đồng.</Text>
+                    <Text style={styles.modalDescription}>Bạn cần kết nối ví để tiếp tục.</Text>
                     <W3mButton label="Kết nối ví" />
                     <TouchableOpacity style={[styles.button]} onPress={onClose}>
                         <Text style={styles.buttonText}>Đóng</Text>
