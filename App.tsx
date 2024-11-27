@@ -1,3 +1,4 @@
+import { BottomSheetModalProvider } from '@gorhom/bottom-sheet';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import '@walletconnect/react-native-compat';
 import {
@@ -9,6 +10,7 @@ import { useFonts } from 'expo-font';
 import 'node-libs-expo/globals';
 import { ActivityIndicator, LogBox, StyleSheet } from 'react-native';
 import 'react-native-gesture-handler';
+import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import 'react-native-get-random-values';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import 'react-native-url-polyfill/auto';
@@ -95,21 +97,29 @@ export default function App() {
     }
 
     return (
-        <Provider store={store}>
-            <WagmiProvider config={wagmiConfig}>
-                <QueryClientProvider client={queryClient}>
-                    <SafeAreaView style={styles.safeArea}>
-                        <Navigation />
-                        <Web3Modal />
-                        <Socket />
-                    </SafeAreaView>
-                </QueryClientProvider>
-            </WagmiProvider>
-        </Provider>
+        <GestureHandlerRootView style={styles.container}>
+            <BottomSheetModalProvider>
+                <Provider store={store}>
+                    <WagmiProvider config={wagmiConfig}>
+                        <QueryClientProvider client={queryClient}>
+                            <SafeAreaView style={styles.safeArea}>
+                                <Navigation />
+                                <Web3Modal />
+                                <Socket />
+                            </SafeAreaView>
+                        </QueryClientProvider>
+                    </WagmiProvider>
+                </Provider>
+            </BottomSheetModalProvider>
+        </GestureHandlerRootView>
     );
 }
 
 const styles = StyleSheet.create({
+    container: {
+        flex: 1,
+        backgroundColor: 'grey',
+    },
     loading: {
         flex: 1,
         justifyContent: 'center',
