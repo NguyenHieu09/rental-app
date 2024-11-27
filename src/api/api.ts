@@ -130,6 +130,44 @@ export const updateUserInfo = async (phoneNumber: string, avatarUri: string, nam
     return await response.json();
 };
 
+export const updateUserPassword = async (oldPassword: string, newPassword: string) => {
+    try {
+        const token = await AsyncStorage.getItem('accessToken');
+
+        if (!token) {
+            throw new Error('No token provided');
+        }
+
+        console.log('Updating password with URL:', `${API_BASE_URL}/users/update-password`);
+        console.log('Old Password:', oldPassword);
+        console.log('New Password:', newPassword);
+
+        const response = await axios.post(
+            `${API_BASE_URL}/users/update-password`,
+            { oldPassword, password: newPassword },
+            {
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                },
+            }
+        );
+
+        if (response.status === 200) {
+            return { success: true, data: response.data };
+        } else {
+            return { success: false, message: 'Failed to update password' };
+        }
+    } catch (error: any) {
+        if (error.response && error.response.data && error.response.data.message) {
+            console.error('Error message:', error.response.data.message);
+            throw new Error(error.response.data.message);
+        } else {
+            console.error('Error updating password:', error);
+            throw error;
+        }
+    }
+};
+
 export const fetchPropertyDetail = async (slug: string) => {
     try {
         const response = await axios.get(`${API_BASE_URL}/properties/slug/${slug}`);

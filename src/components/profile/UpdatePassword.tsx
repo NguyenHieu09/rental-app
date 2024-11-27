@@ -1,27 +1,50 @@
+
+
+
 // UpdatePassword.tsx
 import React, { useState } from 'react';
 import { View, Text, StyleSheet, TextInput, TouchableOpacity, Alert } from 'react-native';
 import { commonStyles } from '../../styles/theme';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { updateUserPassword } from '../../api/api';
+import { RootState } from '../../redux-toolkit/store';
+import { useSelector } from 'react-redux';
 
 const UpdatePassword = () => {
     const [currentPassword, setCurrentPassword] = useState('');
     const [newPassword, setNewPassword] = useState('');
     const [confirmPassword, setConfirmPassword] = useState('');
+    const user = useSelector((state: RootState) => state.user.user);
 
-    const handleUpdatePassword = () => {
+    const handleUpdatePassword = async () => {
+        if (!newPassword) {
+            Alert.alert('Lỗi', 'Mật khẩu mới không được để trống');
+            return;
+        }
+
+        if (newPassword.length < 6) {
+            Alert.alert('Lỗi', 'Mật khẩu mới phải có độ dài ít nhất 6 ký tự');
+            return;
+        }
+
+        const passwordRegex = /^(?=.*[A-Za-z])(?=.*\d).{6,}$/;
+        if (!passwordRegex.test(newPassword)) {
+            Alert.alert('Lỗi', 'Mật khẩu mới phải chứa ít nhất một chữ cái và một số');
+            return;
+        }
+
         if (newPassword !== confirmPassword) {
             Alert.alert('Lỗi', 'Mật khẩu mới và xác nhận mật khẩu không khớp');
             return;
         }
 
-        // Call API to update password
-        // Example:
-        // updatePassword(currentPassword, newPassword)
-        //     .then(() => Alert.alert('Thành công', 'Mật khẩu đã được cập nhật'))
-        //     .catch((error) => Alert.alert('Lỗi', 'Không thể cập nhật mật khẩu'));
-
-        Alert.alert('Thành công', 'Mật khẩu đã được cập nhật');
+        try {
+            await updateUserPassword(currentPassword, newPassword);
+            Alert.alert('Thành công', 'Mật khẩu đã được cập nhật');
+        } catch (error) {
+            Alert.alert('Lỗi', 'Không thể cập nhật mật khẩu');
+            console.error('Error updating password:', error);
+        }
     };
 
     return (
