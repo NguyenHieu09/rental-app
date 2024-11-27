@@ -1,5 +1,6 @@
+import * as ImageManipulator from 'expo-image-manipulator';
 import * as ImagePicker from 'expo-image-picker';
-import React, { Dispatch, SetStateAction, useState } from 'react';
+import React, { Dispatch, SetStateAction, useEffect, useState } from 'react';
 import {
     ActivityIndicator,
     Alert,
@@ -13,26 +14,39 @@ import {
 import StarRating from 'react-native-star-rating-widget';
 import AntDesign from 'react-native-vector-icons/AntDesign';
 import Feather from 'react-native-vector-icons/Feather';
+import { createReview, updateReview } from '../../api/api';
 import { IReview } from '../../types/review';
-import { createReview } from '../../api/api';
+
+export interface IUpdateData {
+    content: string;
+    rating: number;
+    images: string[];
+    reviewId: string;
+    replyId?: string;
+    setEdit: Dispatch<SetStateAction<boolean>>;
+}
+
+const processImage = async (uri: string) => {
+    const manipResult = await ImageManipulator.manipulateAsync(uri);
+    return manipResult.uri;
+};
 
 const ReviewFooter = ({
+    data,
     isFirstReview,
-    isRenter,
     contractId,
     propertyId,
     setReview,
 }: {
+    data?: IUpdateData;
     isFirstReview?: boolean;
-    isRenter?: boolean;
     propertyId: string;
     contractId: string;
     setReview: Dispatch<SetStateAction<IReview | null>>;
 }) => {
     const [selectedImages, setSelectedImages] = useState<string[]>([]);
     const [inputText, setInputText] = useState('');
-    const [images, setImages] = useState<ImagePicker.ImagePickerAsset[]>([]);
-    const [rating, setRating] = useState(5);
+    const [rating, setRating] = useState<number>(5);
     const [loading, setLoading] = useState(false);
 
     const openImageLibrary = async () => {
@@ -50,6 +64,9 @@ const ReviewFooter = ({
             mediaTypes: ImagePicker.MediaTypeOptions.Images,
             allowsEditing: false,
             quality: 1,
+            selectionLimit: 5,
+            allowsMultipleSelection: true,
+            videoQuality: 1,
         });
 
         if (result.canceled) {
@@ -59,7 +76,6 @@ const ReviewFooter = ({
         if (result.assets && result.assets.length > 0) {
             const newImageUris = result.assets.map((asset) => asset.uri);
             setSelectedImages((prev) => [...prev, ...newImageUris]);
-            setImages((prev) => [...prev, ...result.assets]);
         }
     };
 
@@ -78,26 +94,45 @@ const ReviewFooter = ({
 
         setLoading(true);
         try {
-            const formData: FormData = new FormData();
+            const isEdit = !!data;
 
-            // Add images to form data
-            selectedImages.forEach((uri) => {
-                const blob = new Blob([uri], { type: 'image/jpeg' });
-                formData.append('images', blob);
+            const formData = new FormData();
+
+            const imagePromises = selectedImages.map(async (uri) => {
+                if (uri.startsWith('https://firebasestorage.googleapis.com/')) {
+                    formData.append('medias', uri);
+                } else {
+                    const uriNew = await processImage(uri);
+
+                    formData.append(isEdit ? 'new-medias' : 'medias', {
+                        uri: uriNew,
+                        name: 'avatar.jpg',
+                        type: 'image/jpeg',
+                    } as any);
+                }
             });
+
+            // Wait for all images to be processed
+            await Promise.all(imagePromises);
+
             formData.append('content', inputText);
             formData.append('rating', String(rating * 2));
             formData.append('contractId', contractId);
             formData.append('propertyId', propertyId);
+            if (isEdit && data?.replyId) {
+                formData.append('replyId', data.replyId);
+            }
 
-            const review = await createReview(formData);
+            const review = await (isEdit
+                ? updateReview(data.reviewId!, formData)
+                : createReview(formData));
             console.log('🚀 ~ handleSendMessage ~ review:', review);
 
             setInputText(''); // Xóa nội dung văn bản sau khi gửi
             setSelectedImages([]); // Xóa hình ảnh đã chọn
-            setImages([]); // Xóa hình ảnh đã chọn
             setRating(5); // Đặt lại đánh giá mặc định
             setReview(review);
+            data?.setEdit(false);
         } catch (error) {
             console.log('🚀 ~ handleSendMessage ~ error:', error);
         } finally {
@@ -107,12 +142,19 @@ const ReviewFooter = ({
 
     const removeImage = (uri: string) => {
         setSelectedImages((prev) => prev.filter((image) => image !== uri));
-        setImages((prev) => prev.filter((image) => image.uri !== uri));
     };
 
     const handleChangeRating = (rating: number) => {
-        setRating(rating);
+        setRating(Number(rating.toFixed(1)));
     };
+
+    useEffect(() => {
+        if (data) {
+            setInputText(data.content);
+            setRating(data.rating / 2);
+            setSelectedImages(data.images);
+        }
+    }, [data]);
 
     return (
         <View style={styles.container}>

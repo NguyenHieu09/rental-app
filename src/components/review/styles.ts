@@ -65,6 +65,11 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         gap: 8,
     },
+    contentContainer: {
+        flex: 1,
+        padding: 36,
+        alignItems: 'center',
+    },
 });
 
 export default styles;

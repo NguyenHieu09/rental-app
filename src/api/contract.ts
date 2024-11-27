@@ -1,17 +1,21 @@
-import axios from 'axios';
-import { IContract, ICreateContractRequest } from '../types/contract';
 import { API_URL } from '@env';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { IDepositTransaction, ITransaction } from '../types/transaction';
+import axios from 'axios';
+import {
+    ICancelContractRequest,
+    ICancelContractResponse,
+} from '../types/cancelContract';
+import { IContract, ICreateContractRequest } from '../types/contract';
 import { IContractDetail } from '../types/contractDetail';
 import { IGenerateContractRequest } from '../types/rentalRequest';
-import { ICancelContractRequest, ICancelContractResponse } from '../types/cancelContract';
-
+import { IDepositTransaction, ITransaction } from '../types/transaction';
 
 const API_CONTRACT_URL = `${API_URL}/contract-service`;
 
 // Function to fetch contracts from the API
-export const createContract = async (contractRequest: ICreateContractRequest): Promise<IContract> => {
+export const createContract = async (
+    contractRequest: ICreateContractRequest,
+): Promise<IContract> => {
     try {
         const token = await AsyncStorage.getItem('accessToken');
 
@@ -19,15 +23,23 @@ export const createContract = async (contractRequest: ICreateContractRequest): P
             throw new Error('No token provided');
         }
 
-        const response = await axios.post<IContract>(`${API_CONTRACT_URL}/contracts`, contractRequest, {
-            headers: {
-                Authorization: `Bearer ${token}`,
+        const response = await axios.post<IContract>(
+            `${API_CONTRACT_URL}/contracts`,
+            contractRequest,
+            {
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                },
             },
-        });
+        );
 
         return response.data;
     } catch (error: any) {
-        if (error.response && error.response.data && error.response.data.message) {
+        if (
+            error.response &&
+            error.response.data &&
+            error.response.data.message
+        ) {
             console.error('Error message:', error.response.data.message);
             throw new Error(error.response.data.message);
         } else {
@@ -37,7 +49,11 @@ export const createContract = async (contractRequest: ICreateContractRequest): P
     }
 };
 
-export const fetchTransactions = async (type: string, take: number, skip: number) => {
+export const fetchTransactions = async (
+    type: string,
+    take: number,
+    skip: number,
+) => {
     try {
         const token = await AsyncStorage.getItem('accessToken');
 
@@ -62,7 +78,11 @@ export const fetchTransactions = async (type: string, take: number, skip: number
 
         return { transactions, total };
     } catch (error: any) {
-        if (error.response && error.response.data && error.response.data.message) {
+        if (
+            error.response &&
+            error.response.data &&
+            error.response.data.message
+        ) {
             console.error('Error message:', error.response.data.message);
             throw new Error(error.response.data.message);
         } else {
@@ -80,19 +100,26 @@ export const fetchContractsForOwner = async (take: number, skip: number) => {
             throw new Error('No token provided');
         }
 
-        const response = await axios.get(`${API_CONTRACT_URL}/contracts/owner`, {
-            params: { take, skip },
-            headers: {
-                Authorization: `Bearer ${token}`,
+        const response = await axios.get(
+            `${API_CONTRACT_URL}/contracts/owner`,
+            {
+                params: { take, skip },
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                },
             },
-        });
+        );
 
         const contracts = response.data.data;
         const total = response.data.pageInfo.total;
 
         return { contracts, total };
     } catch (error: any) {
-        if (error.response && error.response.data && error.response.data.message) {
+        if (
+            error.response &&
+            error.response.data &&
+            error.response.data.message
+        ) {
             console.error('Error message:', error.response.data.message);
             throw new Error(error.response.data.message);
         } else {
@@ -102,7 +129,10 @@ export const fetchContractsForOwner = async (take: number, skip: number) => {
     }
 };
 
-export const fetchRentalContractsForRenter = async (take: number, skip: number) => {
+export const fetchRentalContractsForRenter = async (
+    take: number,
+    skip: number,
+) => {
     try {
         const token = await AsyncStorage.getItem('accessToken');
 
@@ -110,19 +140,26 @@ export const fetchRentalContractsForRenter = async (take: number, skip: number) 
             throw new Error('No token provided');
         }
 
-        const response = await axios.get(`${API_CONTRACT_URL}/contracts/renter`, {
-            params: { take, skip },
-            headers: {
-                Authorization: `Bearer ${token}`,
+        const response = await axios.get(
+            `${API_CONTRACT_URL}/contracts/renter`,
+            {
+                params: { take, skip },
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                },
             },
-        });
+        );
 
         const contracts = response.data.data;
         const total = response.data.pageInfo.total;
 
         return { contracts, total };
     } catch (error: any) {
-        if (error.response && error.response.data && error.response.data.message) {
+        if (
+            error.response &&
+            error.response.data &&
+            error.response.data.message
+        ) {
             console.error('Error message:', error.response.data.message);
             throw new Error(error.response.data.message);
         } else {
@@ -132,7 +169,9 @@ export const fetchRentalContractsForRenter = async (take: number, skip: number) 
     }
 };
 
-export const fetchAllTransactionsForRenter = async (): Promise<ITransaction[]> => {
+export const fetchAllTransactionsForRenter = async (): Promise<
+    ITransaction[]
+> => {
     try {
         const token = await AsyncStorage.getItem('accessToken');
 
@@ -140,15 +179,22 @@ export const fetchAllTransactionsForRenter = async (): Promise<ITransaction[]> =
             throw new Error('No token provided');
         }
 
-        const response = await axios.get(`${API_CONTRACT_URL}/transactions/renter`, {
-            headers: {
-                Authorization: `Bearer ${token}`,
+        const response = await axios.get(
+            `${API_CONTRACT_URL}/transactions/renter`,
+            {
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                },
             },
-        });
+        );
 
         return response.data;
     } catch (error: any) {
-        if (error.response && error.response.data && error.response.data.message) {
+        if (
+            error.response &&
+            error.response.data &&
+            error.response.data.message
+        ) {
             console.error('Error message:', error.response.data.message);
             throw new Error(error.response.data.message);
         } else {
@@ -158,8 +204,9 @@ export const fetchAllTransactionsForRenter = async (): Promise<ITransaction[]> =
     }
 };
 
-
-export const fetchContractDetails = async (contractId: string): Promise<IContractDetail> => {
+export const fetchContractDetails = async (
+    contractId: string,
+): Promise<IContractDetail> => {
     try {
         const token = await AsyncStorage.getItem('accessToken');
 
@@ -167,15 +214,22 @@ export const fetchContractDetails = async (contractId: string): Promise<IContrac
             throw new Error('No token provided');
         }
 
-        const response = await axios.get<IContractDetail>(`${API_CONTRACT_URL}/contracts/${contractId}`, {
-            headers: {
-                Authorization: `Bearer ${token}`,
+        const response = await axios.get<IContractDetail>(
+            `${API_CONTRACT_URL}/contracts/${contractId}`,
+            {
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                },
             },
-        });
+        );
 
         return response.data;
     } catch (error: any) {
-        if (error.response && error.response.data && error.response.data.message) {
+        if (
+            error.response &&
+            error.response.data &&
+            error.response.data.message
+        ) {
             console.error('Error message:', error.response.data.message);
             throw new Error(error.response.data.message);
         } else {
@@ -193,15 +247,22 @@ export const fetchWalletBalance = async (): Promise<number> => {
             throw new Error('No token provided');
         }
 
-        const response = await axios.get(`${API_CONTRACT_URL}/contracts/wallet-balance`, {
-            headers: {
-                Authorization: `Bearer ${token}`,
+        const response = await axios.get(
+            `${API_CONTRACT_URL}/contracts/wallet-balance`,
+            {
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                },
             },
-        });
+        );
 
         return response.data;
     } catch (error: any) {
-        if (error.response && error.response.data && error.response.data.message) {
+        if (
+            error.response &&
+            error.response.data &&
+            error.response.data.message
+        ) {
             console.error('Error message:', error.response.data.message);
             throw new Error(error.response.data.message);
         } else {
@@ -211,7 +272,9 @@ export const fetchWalletBalance = async (): Promise<number> => {
     }
 };
 
-export const payMonthlyRent = async (rentTransaction: IDepositTransaction): Promise<void> => {
+export const payMonthlyRent = async (
+    rentTransaction: IDepositTransaction,
+): Promise<void> => {
     try {
         const token = await AsyncStorage.getItem('accessToken');
 
@@ -225,7 +288,11 @@ export const payMonthlyRent = async (rentTransaction: IDepositTransaction): Prom
             },
         });
     } catch (error: any) {
-        if (error.response && error.response.data && error.response.data.message) {
+        if (
+            error.response &&
+            error.response.data &&
+            error.response.data.message
+        ) {
             console.error('Error message:', error.response.data.message);
             throw new Error(error.response.data.message);
         } else {
@@ -235,7 +302,9 @@ export const payMonthlyRent = async (rentTransaction: IDepositTransaction): Prom
     }
 };
 
-export const deposit = async (depositTransaction: IDepositTransaction): Promise<void> => {
+export const deposit = async (
+    depositTransaction: IDepositTransaction,
+): Promise<void> => {
     try {
         const token = await AsyncStorage.getItem('accessToken');
 
@@ -243,13 +312,21 @@ export const deposit = async (depositTransaction: IDepositTransaction): Promise<
             throw new Error('No token provided');
         }
 
-        await axios.post(`${API_CONTRACT_URL}/contracts/deposit`, depositTransaction, {
-            headers: {
-                Authorization: `Bearer ${token}`,
+        await axios.post(
+            `${API_CONTRACT_URL}/contracts/deposit`,
+            depositTransaction,
+            {
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                },
             },
-        });
+        );
     } catch (error: any) {
-        if (error.response && error.response.data && error.response.data.message) {
+        if (
+            error.response &&
+            error.response.data &&
+            error.response.data.message
+        ) {
             console.error('Error message:', error.response.data.message);
             throw new Error(error.response.data.message);
         } else {
@@ -259,21 +336,27 @@ export const deposit = async (depositTransaction: IDepositTransaction): Promise<
     }
 };
 
-export const fetchRentalRequestsForOwner = async (take: number, skip: number) => {
+export const fetchRentalRequestsForOwner = async (
+    take: number,
+    skip: number,
+) => {
     try {
         const token = await AsyncStorage.getItem('accessToken');
         if (!token) {
             throw new Error('No token found');
         }
-        const response = await axios.get(`${API_CONTRACT_URL}/rental-requests/owner`, {
-            params: {
-                take,
-                skip,
+        const response = await axios.get(
+            `${API_CONTRACT_URL}/rental-requests/owner`,
+            {
+                params: {
+                    take,
+                    skip,
+                },
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                },
             },
-            headers: {
-                Authorization: `Bearer ${token}`,
-            },
-        });
+        );
         // console.log('Rental requests response:', response.data);
         return response.data;
     } catch (error) {
@@ -302,16 +385,24 @@ export const sendRentalRequest = async (rentalRequestData: {
 
         console.log('Sending rental request with data:', rentalRequestData);
 
-        const response = await axios.post(`${API_CONTRACT_URL}/rental-requests`, rentalRequestData, {
-            headers: {
-                Authorization: `Bearer ${token}`
-            }
-        });
+        const response = await axios.post(
+            `${API_CONTRACT_URL}/rental-requests`,
+            rentalRequestData,
+            {
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                },
+            },
+        );
 
         console.log('Rental request response:', response.data);
         return response.data;
     } catch (error: any) {
-        if (error.response && error.response.data && error.response.data.message) {
+        if (
+            error.response &&
+            error.response.data &&
+            error.response.data.message
+        ) {
             console.error('Error message:', error.response.data.message);
             throw new Error(error.response.data.message);
         } else {
@@ -322,7 +413,10 @@ export const sendRentalRequest = async (rentalRequestData: {
     }
 };
 
-export const updateRentalRequestStatus = async (requestId: string, status: string) => {
+export const updateRentalRequestStatus = async (
+    requestId: string,
+    status: string,
+) => {
     try {
         const token = await AsyncStorage.getItem('accessToken');
 
@@ -330,15 +424,23 @@ export const updateRentalRequestStatus = async (requestId: string, status: strin
             throw new Error('No token provided');
         }
 
-        const response = await axios.patch(`${API_CONTRACT_URL}/rental-requests/owner/status`, { requestId, status }, {
-            headers: {
-                Authorization: `Bearer ${token}`,
+        const response = await axios.patch(
+            `${API_CONTRACT_URL}/rental-requests/owner/status`,
+            { requestId, status },
+            {
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                },
             },
-        });
+        );
 
         return response.data;
     } catch (error: any) {
-        if (error.response && error.response.data && error.response.data.message) {
+        if (
+            error.response &&
+            error.response.data &&
+            error.response.data.message
+        ) {
             console.error('Error message:', error.response.data.message);
             throw new Error(error.response.data.message);
         } else {
@@ -348,8 +450,10 @@ export const updateRentalRequestStatus = async (requestId: string, status: strin
     }
 };
 
-
-export const updateRentalRequestStatusRenter = async (requestId: string, status: string) => {
+export const updateRentalRequestStatusRenter = async (
+    requestId: string,
+    status: string,
+) => {
     try {
         const token = await AsyncStorage.getItem('accessToken');
 
@@ -357,15 +461,23 @@ export const updateRentalRequestStatusRenter = async (requestId: string, status:
             throw new Error('No token provided');
         }
 
-        const response = await axios.patch(`${API_CONTRACT_URL}/rental-requests/renter/status`, { requestId, status }, {
-            headers: {
-                Authorization: `Bearer ${token}`,
+        const response = await axios.patch(
+            `${API_CONTRACT_URL}/rental-requests/renter/status`,
+            { requestId, status },
+            {
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                },
             },
-        });
+        );
 
         return response.data;
     } catch (error: any) {
-        if (error.response && error.response.data && error.response.data.message) {
+        if (
+            error.response &&
+            error.response.data &&
+            error.response.data.message
+        ) {
             console.error('Error message:', error.response.data.message);
             throw new Error(error.response.data.message);
         } else {
@@ -375,7 +487,9 @@ export const updateRentalRequestStatusRenter = async (requestId: string, status:
     }
 };
 
-export const generateContract = async (contractRequest: IGenerateContractRequest) => {
+export const generateContract = async (
+    contractRequest: IGenerateContractRequest,
+) => {
     try {
         const token = await AsyncStorage.getItem('accessToken');
 
@@ -383,15 +497,23 @@ export const generateContract = async (contractRequest: IGenerateContractRequest
             throw new Error('No token provided');
         }
 
-        const response = await axios.post(`${API_CONTRACT_URL}/rental-requests/generate-contract`, contractRequest, {
-            headers: {
-                Authorization: `Bearer ${token}`,
+        const response = await axios.post(
+            `${API_CONTRACT_URL}/rental-requests/generate-contract`,
+            contractRequest,
+            {
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                },
             },
-        });
+        );
 
         return response.data;
     } catch (error: any) {
-        if (error.response && error.response.data && error.response.data.message) {
+        if (
+            error.response &&
+            error.response.data &&
+            error.response.data.message
+        ) {
             console.error('Error message:', error.response.data.message);
             throw new Error(error.response.data.message);
         } else {
@@ -409,15 +531,22 @@ export const fetchRentalRequestsBySlug = async (slug: string) => {
             throw new Error('No token provided');
         }
 
-        const response = await axios.get(`${API_CONTRACT_URL}/rental-requests/owner/${slug}`, {
-            headers: {
-                Authorization: `Bearer ${token}`,
+        const response = await axios.get(
+            `${API_CONTRACT_URL}/rental-requests/owner/${slug}`,
+            {
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                },
             },
-        });
+        );
 
         return response.data;
     } catch (error: any) {
-        if (error.response && error.response.data && error.response.data.message) {
+        if (
+            error.response &&
+            error.response.data &&
+            error.response.data.message
+        ) {
             console.error('Error message:', error.response.data.message);
             throw new Error(error.response.data.message);
         } else {
@@ -427,21 +556,27 @@ export const fetchRentalRequestsBySlug = async (slug: string) => {
     }
 };
 
-export const fetchRentalRequestsForRenter = async (take: number, skip: number) => {
+export const fetchRentalRequestsForRenter = async (
+    take: number,
+    skip: number,
+) => {
     try {
         const token = await AsyncStorage.getItem('accessToken');
         if (!token) {
             throw new Error('No token found');
         }
-        const response = await axios.get(`${API_CONTRACT_URL}/rental-requests/renter`, {
-            params: {
-                take,
-                skip,
+        const response = await axios.get(
+            `${API_CONTRACT_URL}/rental-requests/renter`,
+            {
+                params: {
+                    take,
+                    skip,
+                },
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                },
             },
-            headers: {
-                Authorization: `Bearer ${token}`,
-            },
-        });
+        );
         return response.data;
     } catch (error) {
         console.error('Error fetching rental requests for renter:', error);
@@ -449,8 +584,9 @@ export const fetchRentalRequestsForRenter = async (take: number, skip: number) =
     }
 };
 
-
-export const createCancelContractRequest = async (cancelRequest: ICancelContractRequest): Promise<void> => {
+export const createCancelContractRequest = async (
+    cancelRequest: ICancelContractRequest,
+): Promise<void> => {
     try {
         const token = await AsyncStorage.getItem('accessToken');
 
@@ -458,11 +594,15 @@ export const createCancelContractRequest = async (cancelRequest: ICancelContract
             throw new Error('No token provided');
         }
 
-        const response = await axios.post(`${API_CONTRACT_URL}/contract-cancellation-requests`, cancelRequest, {
-            headers: {
-                Authorization: `Bearer ${token}`,
+        const response = await axios.post(
+            `${API_CONTRACT_URL}/contract-cancellation-requests`,
+            cancelRequest,
+            {
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                },
             },
-        });
+        );
 
         if (response.status === 201) {
             console.log('Cancel contract request successful:');
@@ -470,7 +610,11 @@ export const createCancelContractRequest = async (cancelRequest: ICancelContract
             throw new Error('Failed to create cancel contract request');
         }
     } catch (error: any) {
-        if (error.response && error.response.data && error.response.data.message) {
+        if (
+            error.response &&
+            error.response.data &&
+            error.response.data.message
+        ) {
             console.error('Error message:', error.response.data.message);
             throw new Error(error.response.data.message);
         } else {
@@ -480,8 +624,9 @@ export const createCancelContractRequest = async (cancelRequest: ICancelContract
     }
 };
 
-
-export const fetchNotHandledCancelContractRequest = async (contractId: string): Promise<ICancelContractResponse> => {
+export const fetchNotHandledCancelContractRequest = async (
+    contractId: string,
+): Promise<ICancelContractResponse> => {
     try {
         const token = await AsyncStorage.getItem('accessToken');
 
@@ -489,15 +634,22 @@ export const fetchNotHandledCancelContractRequest = async (contractId: string): 
             throw new Error('No token provided');
         }
 
-        const response = await axios.get(`${API_CONTRACT_URL}/contract-cancellation-requests/not-handled/${contractId}`, {
-            headers: {
-                Authorization: `Bearer ${token}`,
+        const response = await axios.get(
+            `${API_CONTRACT_URL}/contract-cancellation-requests/not-handled/${contractId}`,
+            {
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                },
             },
-        });
+        );
 
         return response.data;
     } catch (error: any) {
-        if (error.response && error.response.data && error.response.data.message) {
+        if (
+            error.response &&
+            error.response.data &&
+            error.response.data.message
+        ) {
             console.error('Error message:', error.response.data.message);
             throw new Error(error.response.data.message);
         } else {
@@ -507,7 +659,9 @@ export const fetchNotHandledCancelContractRequest = async (contractId: string): 
     }
 };
 
-export const fetchHandledCancelContractRequest = async (contractId: string): Promise<ICancelContractResponse> => {
+export const fetchHandledCancelContractRequest = async (
+    contractId: string,
+): Promise<ICancelContractResponse> => {
     try {
         const token = await AsyncStorage.getItem('accessToken');
 
@@ -515,27 +669,40 @@ export const fetchHandledCancelContractRequest = async (contractId: string): Pro
             throw new Error('No token provided');
         }
 
-        const response = await axios.get(`${API_CONTRACT_URL}/contract-cancellation-requests/handled/${contractId}`, {
-            headers: {
-                Authorization: `Bearer ${token}`,
+        const response = await axios.get(
+            `${API_CONTRACT_URL}/contract-cancellation-requests/handled/${contractId}`,
+            {
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                },
             },
-        });
+        );
 
         // console.log(response.data);
 
         return response.data;
     } catch (error: any) {
-        if (error.response && error.response.data && error.response.data.message) {
+        if (
+            error.response &&
+            error.response.data &&
+            error.response.data.message
+        ) {
             console.error('Error message:', error.response.data.message);
             throw new Error(error.response.data.message);
         } else {
-            console.error('Error fetching handled cancel contract request:', error);
+            console.error(
+                'Error fetching handled cancel contract request:',
+                error,
+            );
             throw error;
         }
     }
 };
 
-export const updateCancelContractRequestStatus = async (requestId: number, status: string): Promise<void> => {
+export const updateCancelContractRequestStatus = async (
+    requestId: number,
+    status: string,
+): Promise<void> => {
     try {
         const token = await AsyncStorage.getItem('accessToken');
 
@@ -543,11 +710,15 @@ export const updateCancelContractRequestStatus = async (requestId: number, statu
             throw new Error('No token provided');
         }
 
-        const response = await axios.patch(`${API_CONTRACT_URL}/contract-cancellation-requests/${requestId}`, { status }, {
-            headers: {
-                Authorization: `Bearer ${token}`,
+        const response = await axios.patch(
+            `${API_CONTRACT_URL}/contract-cancellation-requests/${requestId}`,
+            { status },
+            {
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                },
             },
-        });
+        );
 
         if (response.status === 200) {
             console.log('Cancel contract request status updated successfully');
@@ -555,16 +726,22 @@ export const updateCancelContractRequestStatus = async (requestId: number, statu
             throw new Error('Failed to update cancel contract request status');
         }
     } catch (error: any) {
-        if (error.response && error.response.data && error.response.data.message) {
+        if (
+            error.response &&
+            error.response.data &&
+            error.response.data.message
+        ) {
             console.error('Error message:', error.response.data.message);
             throw new Error(error.response.data.message);
         } else {
-            console.error('Error updating cancel contract request status:', error);
+            console.error(
+                'Error updating cancel contract request status:',
+                error,
+            );
             throw error;
         }
     }
 };
-
 
 export const fetchContractOverview = async () => {
     try {
@@ -574,16 +751,22 @@ export const fetchContractOverview = async () => {
             throw new Error('No token provided');
         }
 
-        const response = await axios.get(`${API_CONTRACT_URL}/dashboard/owner/overview`, {
-            headers: {
-                Authorization: `Bearer ${token}`,
+        const response = await axios.get(
+            `${API_CONTRACT_URL}/dashboard/owner/overview`,
+            {
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                },
             },
-        });
-
+        );
 
         return response.data;
     } catch (error: any) {
-        if (error.response && error.response.data && error.response.data.message) {
+        if (
+            error.response &&
+            error.response.data &&
+            error.response.data.message
+        ) {
             console.error('Error message:', error.response.data.message);
             throw new Error(error.response.data.message);
         } else {
@@ -601,15 +784,22 @@ export const fetchIncomeExpenditure = async () => {
             throw new Error('No token provided');
         }
 
-        const response = await axios.get(`${API_CONTRACT_URL}/dashboard/owner/income-expenditure`, {
-            headers: {
-                Authorization: `Bearer ${token}`,
+        const response = await axios.get(
+            `${API_CONTRACT_URL}/dashboard/owner/income-expenditure`,
+            {
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                },
             },
-        });
+        );
 
         return response.data;
     } catch (error: any) {
-        if (error.response && error.response.data && error.response.data.message) {
+        if (
+            error.response &&
+            error.response.data &&
+            error.response.data.message
+        ) {
             console.error('Error message:', error.response.data.message);
             throw new Error(error.response.data.message);
         } else {
@@ -627,15 +817,22 @@ export const fetchContractCancellationRate = async () => {
             throw new Error('No token provided');
         }
 
-        const response = await axios.get(`${API_CONTRACT_URL}/dashboard/owner/contract-cancellation-rate`, {
-            headers: {
-                Authorization: `Bearer ${token}`,
+        const response = await axios.get(
+            `${API_CONTRACT_URL}/dashboard/owner/contract-cancellation-rate`,
+            {
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                },
             },
-        });
+        );
 
         return response.data;
     } catch (error: any) {
-        if (error.response && error.response.data && error.response.data.message) {
+        if (
+            error.response &&
+            error.response.data &&
+            error.response.data.message
+        ) {
             console.error('Error message:', error.response.data.message);
             throw new Error(error.response.data.message);
         } else {
@@ -653,15 +850,22 @@ export const fetchRentalRequestRating = async () => {
             throw new Error('No token provided');
         }
 
-        const response = await axios.get(`${API_CONTRACT_URL}/dashboard/owner/rental-request-rating`, {
-            headers: {
-                Authorization: `Bearer ${token}`,
+        const response = await axios.get(
+            `${API_CONTRACT_URL}/dashboard/owner/rental-request-rating`,
+            {
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                },
             },
-        });
+        );
 
         return response.data;
     } catch (error: any) {
-        if (error.response && error.response.data && error.response.data.message) {
+        if (
+            error.response &&
+            error.response.data &&
+            error.response.data.message
+        ) {
             console.error('Error message:', error.response.data.message);
             throw new Error(error.response.data.message);
         } else {

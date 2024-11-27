@@ -1,11 +1,13 @@
-import { API_URL } from '@env';
+// import { API_URL } from '@env';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import axios from 'axios';
 import { IConversation } from '../types/chat';
 import { IFilterProperty } from '../types/property';
 import { ICreatePropertyInteraction } from '../types/propertyInteraction';
-import { ICreateReview } from '../types/review';
+import { IDeleteReview } from '../types/review';
 import { IUser } from '../types/user';
+
+const API_URL = 'https://kltn-be.iuh-mern.id.vn/api/v1';
 
 const API_BASE_URL = `${API_URL}/estate-manager-service`;
 console.log('API_BASE_URL', API_BASE_URL);
@@ -741,16 +743,23 @@ export const createReview = async (formData: FormData) => {
             throw new Error('No token provided');
         }
 
-        const response = await axios.post(`${API_BASE_URL}/reviews`, formData, {
+        const response = await fetch(`${API_BASE_URL}/reviews`, {
+            method: 'POST',
             headers: {
                 Authorization: `Bearer ${token}`,
-                'Content-Type': 'multipart/form-data',
+                // No need to set 'Content-Type' for FormData
             },
+            body: formData,
         });
 
-        return response.data; // Return the created review
+        if (!response.ok) {
+            const errorText = await response.text();
+            console.error('Response error text:', errorText);
+            throw new Error('Failed to update user info');
+        }
+
+        return await response.json();
     } catch (error: any) {
-        console.log('🚀 ~ createReview ~ error:', JSON.stringify(error));
         if (
             error.response &&
             error.response.data &&
@@ -760,6 +769,81 @@ export const createReview = async (formData: FormData) => {
             throw new Error(error.response.data.message);
         } else {
             console.error('Error creating review:', error);
+            throw (error as any).response;
+        }
+    }
+};
+
+export const updateReview = async (reviewId: string, formData: FormData) => {
+    try {
+        const token = await AsyncStorage.getItem('accessToken');
+
+        if (!token) {
+            throw new Error('No token provided');
+        }
+
+        const response = await fetch(`${API_BASE_URL}/reviews/${reviewId}`, {
+            method: 'PUT',
+            headers: {
+                Authorization: `Bearer ${token}`,
+                // No need to set 'Content-Type' for FormData
+            },
+            body: formData,
+        });
+
+        if (!response.ok) {
+            const errorText = await response.text();
+            console.error('Response error text:', errorText);
+            throw new Error('Failed to update user info');
+        }
+
+        return await response.json();
+    } catch (error: any) {
+        if (
+            error.response &&
+            error.response.data &&
+            error.response.data.message
+        ) {
+            console.error('Error message:', error.response.data.message);
+            throw new Error(error.response.data.message);
+        } else {
+            console.error('Error updating review:', error);
+            throw (error as any).response;
+        }
+    }
+};
+
+export const deleteReview = async ({ reviewId, replyId }: IDeleteReview) => {
+    try {
+        const token = await AsyncStorage.getItem('accessToken');
+
+        if (!token) {
+            throw new Error('No token provided');
+        }
+
+        const response = await axios.delete(
+            `${API_BASE_URL}/reviews/${reviewId}`,
+            {
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                },
+                params: {
+                    ...(replyId && { replyId }),
+                },
+            },
+        );
+
+        return response.data; // Return the created review
+    } catch (error: any) {
+        if (
+            error.response &&
+            error.response.data &&
+            error.response.data.message
+        ) {
+            console.error('Error message:', error.response.data.message);
+            throw new Error(error.response.data.message);
+        } else {
+            console.error('Error deleting review:', error);
             throw (error as any).response;
         }
     }

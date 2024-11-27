@@ -1,8 +1,14 @@
-
-
 import React, { useCallback, useEffect, useState } from 'react';
 import * as Location from 'expo-location';
-import { View, Text, TextInput, ScrollView, ActivityIndicator, StyleSheet, TouchableOpacity } from 'react-native';
+import {
+    View,
+    Text,
+    TextInput,
+    ScrollView,
+    ActivityIndicator,
+    StyleSheet,
+    TouchableOpacity,
+} from 'react-native';
 import { commonStyles, COLORS } from '../../../styles/theme';
 import HomeHeader from '../../../components/homeHeader/HomeHeader';
 import Properties from '../../../components/properties/Properties';
@@ -11,7 +17,11 @@ import CustomButton from '../../../components/customButton/CustomButton';
 import { fetchNewestProperties } from '../../../api/api';
 import { useSelector } from 'react-redux';
 import { RootState } from '../../../redux-toolkit/store';
-import { NavigationProp, useFocusEffect, useNavigation } from '@react-navigation/native';
+import {
+    NavigationProp,
+    useFocusEffect,
+    useNavigation,
+} from '@react-navigation/native';
 import { RootStackParamList } from '../../../types/navigation';
 import { IProperty } from '../../../types/property';
 import AntDesign from 'react-native-vector-icons/AntDesign';
@@ -21,7 +31,7 @@ const HomeScreen: React.FC = () => {
     const [properties, setProperties] = useState<IProperty[]>([]);
     const [nearbyProperties, setNearbyProperties] = useState<IProperty[]>([]);
     const [loading, setLoading] = useState(true);
-    const [city, setCity] = useState<string>('');
+    const [city, setCity] = useState<string>('TP. Hồ Chí Minh');
     const [district, setDistrict] = useState<string>('');
     const ITEMS_PER_PAGE = 10;
     const user = useSelector((state: RootState) => state.user.user);
@@ -31,7 +41,13 @@ const HomeScreen: React.FC = () => {
 
     useEffect(() => {
         const initialize = async () => {
-            await getLocation();
+            console.log('Component mounted, loading properties');
+            await new Promise((res, rej) => {
+                getLocation()
+                    .then(res)
+                    .then(() => res('Error'));
+                setTimeout(() => res('Timeout'), 3000);
+            });
             console.log('Component mounted, loading properties');
             loadProperties(city, district);
         };
@@ -46,7 +62,7 @@ const HomeScreen: React.FC = () => {
             };
 
             refreshScreen();
-        }, [city, district])
+        }, [city, district]),
     );
 
     const getLocation = async () => {
@@ -59,14 +75,19 @@ const HomeScreen: React.FC = () => {
         let { coords } = await Location.getCurrentPositionAsync({});
         const { latitude, longitude } = coords;
 
-        let reverseGeocode = await Location.reverseGeocodeAsync({ latitude, longitude });
+        let reverseGeocode = await Location.reverseGeocodeAsync({
+            latitude,
+            longitude,
+        });
         if (reverseGeocode.length > 0) {
             const { formattedAddress } = reverseGeocode[0];
             if (formattedAddress) {
                 setLocation(formattedAddress || 'Không tìm thấy vị trí');
 
                 console.log(formattedAddress);
-                const addressParts = formattedAddress.split(',').map(part => part.trim());
+                const addressParts = formattedAddress
+                    .split(',')
+                    .map((part) => part.trim());
                 const city = addressParts[addressParts.length - 2] || '';
                 const district = addressParts[addressParts.length - 3] || '';
                 console.log('Extracted City:', city);
@@ -86,16 +107,30 @@ const HomeScreen: React.FC = () => {
         try {
             setLoading(true);
             // Fetch properties with city
-            if (city && district) {
-                const dataWithCityAndDistrict = await fetchNewestProperties(ITEMS_PER_PAGE, 0, district, city);
+            if (city) {
+                const dataWithCityAndDistrict = await fetchNewestProperties(
+                    ITEMS_PER_PAGE,
+                    0,
+                    district,
+                    city,
+                );
                 setNearbyProperties(dataWithCityAndDistrict.properties);
-                console.log('Total properties with city and district:', dataWithCityAndDistrict.total);
+                console.log(
+                    'Total properties with city and district:',
+                    dataWithCityAndDistrict.total,
+                );
             }
 
             // Fetch properties without city
-            const dataWithoutCity = await fetchNewestProperties(ITEMS_PER_PAGE, 0);
+            const dataWithoutCity = await fetchNewestProperties(
+                ITEMS_PER_PAGE,
+                0,
+            );
             setProperties(dataWithoutCity.properties);
-            console.log('Total properties without city:', dataWithoutCity.total);
+            console.log(
+                'Total properties without city:',
+                dataWithoutCity.total,
+            );
         } catch (error) {
             console.error('Error fetching properties:', error);
         } finally {
@@ -119,53 +154,48 @@ const HomeScreen: React.FC = () => {
 
     const locations = [
         {
-            title: "Hà Nội",
-            src: require("../../../../assets/img/ha-noi-location.webp"),
-
+            title: 'Hà Nội',
+            src: require('../../../../assets/img/ha-noi-location.webp'),
         },
         {
-            title: "TP. Hồ Chí Minh",
-            src: require("../../../../assets/img/bat-dong-san-hcm.webp"),
-
+            title: 'TP. Hồ Chí Minh',
+            src: require('../../../../assets/img/bat-dong-san-hcm.webp'),
         },
         {
-            title: "Đà Nẵng",
-            src: require("../../../../assets/img/bat-dong-san-da-nang.webp"),
-
+            title: 'Đà Nẵng',
+            src: require('../../../../assets/img/bat-dong-san-da-nang.webp'),
         },
         {
-            title: "Cần Thơ",
-            src: require("../../../../assets/img/bat-dong-san-can-tho.webp"),
-
+            title: 'Cần Thơ',
+            src: require('../../../../assets/img/bat-dong-san-can-tho.webp'),
         },
         {
-            title: "Bà Rịa - Vũng Tàu",
-            src: require("../../../../assets/img/bat-dong-san-ba-ria-vung-tau.webp"),
-
+            title: 'Bà Rịa - Vũng Tàu',
+            src: require('../../../../assets/img/bat-dong-san-ba-ria-vung-tau.webp'),
         },
         {
-            title: "Bình Dương",
-            src: require("../../../../assets/img/bat-dong-san-binh-duong.webp"),
-
+            title: 'Bình Dương',
+            src: require('../../../../assets/img/bat-dong-san-binh-duong.webp'),
         },
         {
-            title: "Đồng Nai",
-            src: require("../../../../assets/img/bat-dong-san-dong-nai.webp"),
-
+            title: 'Đồng Nai',
+            src: require('../../../../assets/img/bat-dong-san-dong-nai.webp'),
         },
         {
-            title: "Hải Phòng",
-            src: require("../../../../assets/img/bat-dong-san-hai-phong.webp"),
-
+            title: 'Hải Phòng',
+            src: require('../../../../assets/img/bat-dong-san-hai-phong.webp'),
         },
     ];
 
-
-
     if (loading) {
         return (
-            <SafeAreaView style={[commonStyles.container, { justifyContent: 'center', alignItems: 'center', flex: 1 }]}>
-                <ActivityIndicator size="large" color="#0000ff" />
+            <SafeAreaView
+                style={[
+                    commonStyles.container,
+                    { justifyContent: 'center', alignItems: 'center', flex: 1 },
+                ]}
+            >
+                <ActivityIndicator size='large' color='#0000ff' />
             </SafeAreaView>
         );
     }
@@ -177,25 +207,26 @@ const HomeScreen: React.FC = () => {
             <TouchableOpacity style={styles.searchContainer}>
                 <TextInput
                     style={styles.searchInput}
-                    placeholder="Tìm kiếm nhà, căn hộ..."
+                    placeholder='Tìm kiếm nhà, căn hộ...'
                     // value={searchText}
                     onFocus={() => {
-
                         navigation.navigate('ExploreScreen', {});
                     }}
                     onChangeText={(text) => setSearchText(text)}
                 />
                 <TouchableOpacity>
-                    <AntDesign name="search1" size={20} color="#000" />
+                    <AntDesign name='search1' size={20} color='#000' />
                 </TouchableOpacity>
             </TouchableOpacity>
-
 
             <ScrollView scrollEventThrottle={400}>
                 <Text style={styles.sectionTitle}>Địa điểm hàng đầu</Text>
 
-
-                <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.scrollView}>
+                <ScrollView
+                    horizontal
+                    showsHorizontalScrollIndicator={false}
+                    contentContainerStyle={styles.scrollView}
+                >
                     {locations.map((location, index) => (
                         <CustomButton
                             key={index} // hoặc sử dụng một giá trị duy nhất khác như location.title
@@ -206,9 +237,12 @@ const HomeScreen: React.FC = () => {
                     ))}
                 </ScrollView>
 
-
                 <Text style={styles.sectionTitle}>Bất động sản mới nhất</Text>
-                <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.featuredContainer}>
+                <ScrollView
+                    horizontal
+                    showsHorizontalScrollIndicator={false}
+                    style={styles.featuredContainer}
+                >
                     {properties.map((property: IProperty, index: number) => (
                         <Properties
                             key={`${property.propertyId}-${index}`}
@@ -218,16 +252,22 @@ const HomeScreen: React.FC = () => {
                     ))}
                 </ScrollView>
 
-                <Text style={styles.sectionTitle}>Khám phá bất động sản gần đây</Text>
+                <Text style={styles.sectionTitle}>
+                    Khám phá bất động sản gần đây
+                </Text>
                 <View style={styles.nearbyContainer}>
                     <View style={styles.grid}>
-                        {nearbyProperties.map((property: IProperty, index: number) => (
-                            <PropertyCard
-                                key={`${property.propertyId}-${index}`}
-                                property={property}
-                                onPress={() => handlePressProperty(property)}
-                            />
-                        ))}
+                        {nearbyProperties.map(
+                            (property: IProperty, index: number) => (
+                                <PropertyCard
+                                    key={`${property.propertyId}-${index}`}
+                                    property={property}
+                                    onPress={() =>
+                                        handlePressProperty(property)
+                                    }
+                                />
+                            ),
+                        )}
                     </View>
                 </View>
             </ScrollView>
@@ -235,9 +275,16 @@ const HomeScreen: React.FC = () => {
     );
 };
 
-const isCloseToBottom = ({ layoutMeasurement, contentOffset, contentSize }: any) => {
+const isCloseToBottom = ({
+    layoutMeasurement,
+    contentOffset,
+    contentSize,
+}: any) => {
     const paddingToBottom = 20;
-    return layoutMeasurement.height + contentOffset.y >= contentSize.height - paddingToBottom;
+    return (
+        layoutMeasurement.height + contentOffset.y >=
+        contentSize.height - paddingToBottom
+    );
 };
 
 const styles = StyleSheet.create({
@@ -293,7 +340,6 @@ const styles = StyleSheet.create({
         borderRadius: 5,
         marginVertical: 10,
         paddingHorizontal: 10,
-
     },
     searchInput: {
         flex: 1,

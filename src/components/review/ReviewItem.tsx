@@ -1,28 +1,70 @@
-import React, { useState } from 'react';
-import { Image, Text, View } from 'react-native';
+import {
+    BottomSheetBackdrop,
+    BottomSheetBackdropProps,
+    BottomSheetModal,
+    BottomSheetScrollView,
+} from '@gorhom/bottom-sheet';
+import React, {
+    Dispatch,
+    SetStateAction,
+    useCallback,
+    useEffect,
+    useRef,
+    useState,
+} from 'react';
+import {
+    ActivityIndicator,
+    Alert,
+    Image,
+    Text,
+    TouchableOpacity,
+    View,
+} from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import StarRating from 'react-native-star-rating-widget';
+import AntDesign from 'react-native-vector-icons/AntDesign';
+import { useSelector } from 'react-redux';
+import { deleteReview } from '../../api/api';
+import { RootState } from '../../redux-toolkit/store';
 import { IBaseUserEmbed } from '../../types/chat';
-import { IReplyReview } from '../../types/review';
+import { IReplyReview, IReview } from '../../types/review';
 import { getFirstAndLastName } from '../../utils/avatar';
 import { formatDateTime } from '../../utils/datetime';
-import styles from './styles';
-import Popover from 'react-native-popover-view';
-import { TouchableOpacity } from 'react-native';
-import AntDesign from 'react-native-vector-icons/AntDesign';
 import PopoverItem from '../popover/PopoverItem';
+import ReviewFooter from './ReviewFooter';
+import styles from './styles';
 
 const ReviewItem = ({
+    contractId,
+    propertyId,
+    isFirst,
     child,
     owner,
     renter,
+    reviewId,
+    setReview,
 }: {
+    contractId: string;
+    propertyId: string;
+    isFirst?: boolean;
+    reviewId: string;
     child: IReplyReview;
     renter: IBaseUserEmbed;
     owner: IBaseUserEmbed;
+    setReview: Dispatch<SetStateAction<IReview | null>>;
 }) => {
-    const [showPopover, setShowPopover] = useState(false);
+    const [loading, setLoading] = useState(false);
+    const bottomSheetRef = useRef<any>();
+    const { bottom } = useSafeAreaInsets();
+    const userId = useSelector((state: RootState) => state.user.user?.userId);
+    const isMe = userId === child.userId;
+    const [isEdit, setIsEdit] = useState(false);
+
+    const handleSheetChanges = useCallback((index: number) => {
+        console.log('handleSheetChanges', index);
+    }, []);
 
     const getUserDetails = (userId: string) => {
-        // Kiểm tra userId trong renter hoặc owner và trả về thông tin tương ứng
         if (userId === renter.userId) {
             return renter;
         }
@@ -33,20 +75,60 @@ const ReviewItem = ({
     };
 
     const handleShowPopover = () => {
-        setShowPopover(true);
-    };
-
-    const handleHidePopover = () => {
-        setShowPopover(false);
+        bottomSheetRef.current?.present();
     };
 
     const handleClickEdit = () => {
-        setShowPopover(false);
+        setIsEdit(true);
+        handleCloseBottomSheet();
     };
 
-    const handleClickDelete = () => {
-        setShowPopover(false);
+    const handleCancelEdit = () => {
+        setIsEdit(false);
     };
+
+    const handleClickDelete = async () => {
+        setLoading(true);
+
+        try {
+            const { data } = await deleteReview({
+                reviewId,
+                ...(!isFirst && { replyId: child.id }),
+            });
+
+            if (isFirst) setReview(null);
+            else setReview(data);
+        } catch (error) {
+            Alert.alert('Lỗi', 'Đã có lỗi xảy ra khi xoá đánh giá.');
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    const handleCloseBottomSheet = () => {
+        bottomSheetRef.current?.close();
+    };
+
+    const renderBackdrop = useCallback(
+        (props: BottomSheetBackdropProps) => (
+            <BottomSheetBackdrop
+                {...props}
+                pressBehavior='close'
+                appearsOnIndex={0}
+                disappearsOnIndex={-1}
+                opacity={0.5}
+            />
+        ),
+        [],
+    );
+
+    useEffect(() => {
+        return () => {
+            setLoading(false);
+        };
+    }, []);
+
+    if (!userId) return null;
 
     const userDetails = getUserDetails(child.userId);
     return (
@@ -69,47 +151,109 @@ const ReviewItem = ({
                 )}
             </View>
 
-            <View style={styles.info}>
-                <View style={styles.body}>
-                    <Text style={styles.reviewerName}>{userDetails?.name}</Text>
-                    <Text style={styles.date}>
-                        {formatDateTime(child.createdAt)}
-                    </Text>
-                    <Text style={styles.comment}>{child.content}</Text>
-                    {child.medias?.length > 0 &&
-                        child.medias.map((media, index) => (
-                            <Image
-                                key={index}
-                                source={{
-                                    uri: media,
-                                }}
-                                style={styles.media}
-                            />
-                        ))}
-                </View>
-                <Popover
-                    isVisible={showPopover}
-                    onRequestClose={handleHidePopover}
-                    from={
-                        <TouchableOpacity onPress={handleShowPopover}>
-                            <AntDesign name='ellipsis1' size={20} />
-                        </TouchableOpacity>
-                    }
+            {isEdit ? (
+                <View
+                    style={{
+                        flex: 1,
+                    }}
                 >
-                    <View
-                        style={{
-                            minWidth: 224,
+                    <ReviewFooter
+                        data={{
+                            content: child.content,
+                            images: child.medias,
+                            rating: child.rating,
+                            reviewId,
+                            replyId: isFirst ? undefined : child.id,
+                            setEdit: setIsEdit,
                         }}
-                    >
-                        <TouchableOpacity onPress={handleClickEdit}>
-                            <PopoverItem>Sửa</PopoverItem>
-                        </TouchableOpacity>
-                        <TouchableOpacity onPress={handleClickDelete}>
-                            <PopoverItem>Xoá</PopoverItem>
-                        </TouchableOpacity>
+                        contractId={contractId}
+                        propertyId={propertyId}
+                        setReview={setReview}
+                        isFirstReview={isFirst}
+                    />
+                    <TouchableOpacity onPress={handleCancelEdit}>
+                        <Text
+                            style={{
+                                color: '#1677ff',
+                            }}
+                        >
+                            Hủy
+                        </Text>
+                    </TouchableOpacity>
+                </View>
+            ) : (
+                <View style={styles.info}>
+                    <View style={styles.body}>
+                        <Text style={styles.reviewerName}>
+                            {userDetails?.name}
+                        </Text>
+                        {isFirst && (
+                            <StarRating
+                                rating={child.rating / 2}
+                                onChange={() => {}}
+                                starSize={20}
+                                color='#f1c40f'
+                            />
+                        )}
+                        <Text style={styles.date}>
+                            {formatDateTime(child.createdAt)}
+                        </Text>
+                        {child.content && (
+                            <Text style={styles.comment}>{child.content}</Text>
+                        )}
+                        {child.medias?.length > 0 &&
+                            child.medias.map((media, index) => (
+                                <Image
+                                    key={index}
+                                    source={{
+                                        uri: media,
+                                    }}
+                                    style={styles.media}
+                                />
+                            ))}
                     </View>
-                </Popover>
-            </View>
+                    {isMe && (
+                        <TouchableOpacity
+                            onPress={handleShowPopover}
+                            disabled={loading}
+                        >
+                            {loading ? (
+                                <ActivityIndicator
+                                    size='small'
+                                    color='#007AFF'
+                                />
+                            ) : (
+                                <AntDesign
+                                    name='ellipsis1'
+                                    size={24}
+                                    color='#555'
+                                />
+                            )}
+                        </TouchableOpacity>
+                    )}
+                </View>
+            )}
+            <BottomSheetModal
+                enablePanDownToClose
+                ref={bottomSheetRef}
+                index={0}
+                // topInset={top}
+                onChange={handleSheetChanges}
+                backdropComponent={renderBackdrop}
+            >
+                <BottomSheetScrollView
+                    contentContainerStyle={[
+                        { marginTop: 8, paddingBottom: bottom + 12 },
+                    ]}
+                >
+                    <TouchableOpacity onPress={handleClickEdit}>
+                        <PopoverItem>Sửa</PopoverItem>
+                    </TouchableOpacity>
+                    <TouchableOpacity onPress={handleClickDelete}>
+                        <PopoverItem>Xoá</PopoverItem>
+                    </TouchableOpacity>
+                </BottomSheetScrollView>
+            </BottomSheetModal>
         </View>
     );
 };
