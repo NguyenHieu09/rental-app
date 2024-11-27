@@ -1,5 +1,6 @@
 import React, { ReactNode, useMemo } from 'react';
 import {
+    ActivityIndicator,
     GestureResponderEvent,
     StyleProp,
     StyleSheet,
@@ -21,6 +22,7 @@ const Button = ({
     disabled,
     style = {},
     textStyle = {},
+    loading,
     onPress,
 }: {
     children: ReactNode;
@@ -29,6 +31,7 @@ const Button = ({
     disabled?: boolean;
     style?: StyleProp<ViewStyle>;
     textStyle?: StyleProp<TextStyle>;
+    loading?: boolean;
     onPress?: (event: GestureResponderEvent) => void;
 }) => {
     const colorStyle = useMemo(() => {
@@ -92,11 +95,20 @@ const Button = ({
         if (variant === 'outlined')
             switch (type) {
                 case 'primary':
-                    return { borderColor: PRIMARY_COLOR };
+                    return {
+                        backgroundColor: '#fff',
+                        borderColor: PRIMARY_COLOR,
+                    };
                 case 'danger':
-                    return { borderColor: DANGER_COLOR };
+                    return {
+                        backgroundColor: '#fff',
+                        borderColor: DANGER_COLOR,
+                    };
                 default:
-                    return { borderColor: BORDER_COLOR };
+                    return {
+                        backgroundColor: '#fff',
+                        borderColor: BORDER_COLOR,
+                    };
             }
 
         return {};
@@ -104,11 +116,36 @@ const Button = ({
 
     return (
         <TouchableOpacity
-            style={[styles.button, buttonStyle, style]}
-            disabled={disabled}
+            style={[
+                styles.button,
+                buttonStyle,
+                (loading || disabled) && styles.disabled,
+                style,
+            ]}
+            disabled={disabled || loading}
             onPress={onPress}
         >
-            <Text style={[styles.text, colorStyle, textStyle]}>{children}</Text>
+            {loading && (
+                <ActivityIndicator
+                    style={{
+                        position: 'absolute',
+                        left: '50%',
+                    }}
+                    color={(colorStyle as any)?.color || TEXT_COLOR}
+                />
+            )}
+            <Text
+                style={[
+                    styles.text,
+                    colorStyle,
+                    loading && {
+                        color: 'transparent',
+                    },
+                    textStyle,
+                ]}
+            >
+                {children}
+            </Text>
         </TouchableOpacity>
     );
 };
@@ -119,6 +156,8 @@ const styles = StyleSheet.create({
         paddingHorizontal: 15,
         paddingVertical: 4,
         borderRadius: 6,
+        justifyContent: 'center',
+        position: 'relative',
     },
     text: {
         textAlign: 'center',
@@ -133,6 +172,12 @@ const styles = StyleSheet.create({
     },
     defaultText: {
         color: TEXT_COLOR,
+    },
+    opacity0: {
+        opacity: 0,
+    },
+    disabled: {
+        opacity: 0.4,
     },
 });
 

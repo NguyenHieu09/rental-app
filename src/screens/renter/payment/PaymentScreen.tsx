@@ -1,41 +1,41 @@
+import * as Clipboard from 'expo-clipboard';
 import React, { useEffect, useState } from 'react';
 import {
-    View,
-    Text,
-    StyleSheet,
-    FlatList,
-    ListRenderItem,
-    TouchableOpacity,
     ActivityIndicator,
     Alert,
+    FlatList,
+    ListRenderItem,
+    StyleSheet,
+    Text,
+    TouchableOpacity,
+    View,
 } from 'react-native';
-import { commonStyles } from '../../../styles/theme';
-import * as Clipboard from 'expo-clipboard';
+import Markdown from 'react-native-markdown-display';
 import Icon from 'react-native-vector-icons/MaterialIcons';
+import { useSelector } from 'react-redux';
+import { useAccount, useConnect, useDisconnect } from 'wagmi';
 import {
-    fetchAllTransactionsForRenter,
-    deposit,
-    payMonthlyRent,
     createExtensionRequest,
+    deposit,
+    fetchAllTransactionsForRenter,
+    payMonthlyRent,
 } from '../../../api/contract';
+import Button from '../../../components/button/Button';
+import ConnectWalletModal from '../../../components/modal/ConnectWalletModal';
+import ExtendContractModal from '../../../components/modal/ExtendContractModal';
+import Tag from '../../../components/tag/Tag';
+import { useSignMessageCustom } from '../../../hook/useSignMessageCustom';
+import { RootState } from '../../../redux-toolkit/store';
+import { commonStyles } from '../../../styles/theme';
+import { ContractExtensionRequestType } from '../../../types/extensionRequest';
 import {
     IDepositTransaction,
     ITransaction,
     TransactionStatus,
 } from '../../../types/transaction';
-import { useSignMessageCustom } from '../../../hook/useSignMessageCustom';
-import { W3mButton } from '@web3modal/wagmi-react-native';
-import { useAccount, useConnect, useDisconnect } from 'wagmi';
-import ConnectWalletModal from '../../../components/modal/ConnectWalletModal';
-import { RootState } from '../../../redux-toolkit/store';
-import { useSelector } from 'react-redux';
-import ExtendContractModal from '../../../components/modal/ExtendContractModal';
-import { ContractExtensionRequestType } from '../../../types/extensionRequest';
-import Tag from '../../../components/tag/Tag';
 import { getTransactionColor } from '../../../utils/colorTag';
-import { formatPrice } from '../../../utils/formattedPrice';
-import Markdown from 'react-native-markdown-display';
 import { formatDate } from '../../../utils/datetime';
+import { formatPrice } from '../../../utils/formattedPrice';
 
 const getStatusInVietnamese = (status: TransactionStatus): string => {
     if (status === 'PENDING') return 'Chờ thanh toán';
@@ -249,68 +249,22 @@ const PaymentScreen: React.FC = () => {
                             gap: 8,
                         }}
                     >
-                        <TouchableOpacity
-                            style={[
-                                styles.button,
-                                {
-                                    backgroundColor: '#fff',
-                                    borderColor: '#d9d9d9',
-                                    borderWidth: 1,
-                                },
-                                item.status !== 'PENDING' &&
-                                    styles.buttonDisabled,
-                            ]}
+                        <Button
+                            variant='outlined'
                             onPress={() => handleExtend(item)}
                             disabled={item.status !== 'PENDING'}
                         >
-                            <Text
-                                style={[
-                                    styles.buttonText,
-                                    { color: '#000000ed' },
-                                    item.status !== 'PENDING' &&
-                                        styles.buttonTextDisabled, // Áp dụng màu khi disabled
-                                ]}
-                            >
-                                Gia hạn
-                            </Text>
-                        </TouchableOpacity>
-                        <TouchableOpacity
-                            style={[
-                                styles.button,
-                                {
-                                    backgroundColor: '#fff',
-                                    borderColor: '#2196F3',
-                                    borderWidth: 1,
-                                },
-                                item.status !== 'PENDING' &&
-                                    styles.buttonDisabled,
-                            ]}
+                            Gia hạn
+                        </Button>
+                        <Button
+                            type='primary'
+                            variant='outlined'
                             onPress={() => handlePayment(item)}
-                            disabled={
-                                item.status !== 'PENDING' ||
-                                paymentLoading[item.id]
-                            }
+                            disabled={item.status !== 'PENDING'}
+                            loading={paymentLoading[item.id]}
                         >
-                            {paymentLoading[item.id] ? (
-                                <Text
-                                    style={[
-                                        styles.buttonText,
-                                        { color: '#2196F3' },
-                                    ]}
-                                >
-                                    Đang thực hiện...
-                                </Text>
-                            ) : (
-                                <Text
-                                    style={[
-                                        styles.buttonText,
-                                        { color: '#2196F3' },
-                                    ]}
-                                >
-                                    Thanh toán
-                                </Text>
-                            )}
-                        </TouchableOpacity>
+                            Thanh toán
+                        </Button>
                     </View>
                 )}
                 {/* <W3mButton /> */}
