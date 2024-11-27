@@ -549,7 +549,10 @@ const NotHandledCancelRequestTab: React.FC<{ contractId: string }> = ({ contract
             {extensionRequests.length > 0 ? (
                 extensionRequests.map(request => (
                     <View key={request.id} style={styles.extensionRequestContainer}>
-                        <Text style={[styles.label, { textAlign: 'center' }]}>Yêu cầu gia hạn hợp đồng</Text>
+                        <Text style={[styles.label, { textAlign: 'center' }]}>
+                            {request.type === 'EXTEND_PAYMENT' ? 'Yêu cầu gia hạn thanh toán' : 'Yêu cầu gia hạn hợp đồng'}
+                        </Text>
+                        {/* <Text style={[styles.label, { textAlign: 'center' }]}>Yêu cầu gia hạn hợp đồng</Text> */}
                         <Text style={styles.label}>Thời gian gia hạn:</Text>
                         <Text style={styles.value}>{new Date(request.extensionDate).toLocaleDateString()}</Text>
                         <Text style={styles.label}>Lý do:</Text>
