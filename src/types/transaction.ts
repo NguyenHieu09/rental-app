@@ -24,6 +24,7 @@ export type TransactionStatus = 'PENDING' | 'COMPLETED' | 'FAILED' | 'OVERDUE' |
 export interface IDepositTransaction {
     contractId: string;
     transactionId: number;
+    signature: string;
 }
 
 export type ITransactionType = 'ALL' | 'INCOME' | 'OUTCOME';

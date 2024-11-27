@@ -1,13 +1,13 @@
 
 
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { View, Text, Image, StyleSheet, TouchableOpacity, FlatList, ActivityIndicator } from 'react-native';
 import { IconOutline } from '@ant-design/icons-react-native';
 import { useSelector, useDispatch } from 'react-redux';
 import { fetchNotifications, fetchUnreadNotificationsCount, } from '../../api/api';
 // import { truncate } from '../../utils/avatar';
 import * as Location from 'expo-location';
-import { NavigationProp, useNavigation } from '@react-navigation/native';
+import { NavigationProp, useFocusEffect, useNavigation } from '@react-navigation/native';
 import { AppDispatch, RootState } from '../../redux-toolkit/store';
 import { readAllNotifications, setCount, setLoading, setNotifications } from '../../redux-toolkit/slices/notificationSlice';
 import { INotification } from '../../types/notification';
@@ -28,30 +28,30 @@ const HomeHeader: React.FC<HomeHeaderProps> = ({ avatar }) => {
     const totalNotifications = useSelector((state: RootState) => state.notifications.notifications.pageInfo.total);
     const unreadCount = useSelector((state: RootState) => state.notifications.count);
     const navigation = useNavigation<NavigationProp<RootStackParamList>>();
-    const [location, setLocation] = useState('Gò Vấp, Hồ Chí Minh, Việt Nam');
+    // const [location, setLocation] = useState('Gò Vấp, Hồ Chí Minh, Việt Nam');
     const user = useSelector((state: RootState) => state.user.user);
 
     const ITEMS_PER_PAGE = 10;
 
     // Hàm gọi API cho vị trí
-    const getLocation = async () => {
-        let { status } = await Location.requestForegroundPermissionsAsync();
-        if (status !== 'granted') {
-            setLocation('Quyền truy cập vị trí bị từ chối');
-            return;
-        }
+    // const getLocation = async () => {
+    //     let { status } = await Location.requestForegroundPermissionsAsync();
+    //     if (status !== 'granted') {
+    //         setLocation('Quyền truy cập vị trí bị từ chối');
+    //         return;
+    //     }
 
-        let { coords } = await Location.getCurrentPositionAsync({});
-        const { latitude, longitude } = coords;
+    //     let { coords } = await Location.getCurrentPositionAsync({});
+    //     const { latitude, longitude } = coords;
 
-        let reverseGeocode = await Location.reverseGeocodeAsync({ latitude, longitude });
-        if (reverseGeocode.length > 0) {
-            const { formattedAddress } = reverseGeocode[0];
-            setLocation(formattedAddress || 'Không tìm thấy vị trí');
-        } else {
-            setLocation('Không tìm thấy vị trí');
-        }
-    };
+    //     let reverseGeocode = await Location.reverseGeocodeAsync({ latitude, longitude });
+    //     if (reverseGeocode.length > 0) {
+    //         const { formattedAddress } = reverseGeocode[0];
+    //         setLocation(formattedAddress || 'Không tìm thấy vị trí');
+    //     } else {
+    //         setLocation('Không tìm thấy vị trí');
+    //     }
+    // };
 
     const loadUnreadNotificationsCount = async () => {
         dispatch(setLoading(true));
@@ -72,10 +72,12 @@ const HomeHeader: React.FC<HomeHeaderProps> = ({ avatar }) => {
 
 
 
-    useEffect(() => {
-        loadUnreadNotificationsCount(); // Tải số lượng thông báo chưa đọc khi component mount
-        getLocation(); // Gọi API để lấy vị trí
-    }, []);
+    useFocusEffect(
+        useCallback(() => {
+            loadUnreadNotificationsCount(); // Tải số lượng thông báo chưa đọc khi component mount
+            // getLocation(); // Gọi API để lấy vị trí
+        }, [])
+    );
 
 
     const handleNotificationPress = () => {
@@ -85,9 +87,10 @@ const HomeHeader: React.FC<HomeHeaderProps> = ({ avatar }) => {
     return (
         <View style={styles.container}>
             <View style={styles.locationContainer}>
-                <IconOutline name="environment" size={20} color="#000" />
-                <Text style={styles.locationText} numberOfLines={1}>{location}</Text>
-                <IconOutline name="down" size={20} color="#000" />
+                <Text style={styles.textWelcome}>Chào mừng bạn đến với SmartRent!</Text>
+                {/* <IconOutline name="environment" size={20} color="#000" /> */}
+                {/* <Text style={styles.locationText} numberOfLines={1}>{location}</Text> */}
+                {/* <IconOutline name="down" size={20} color="#000" /> */}
             </View>
             <TouchableOpacity style={styles.iconContainer} onPress={handleNotificationPress}>
                 <View style={styles.bellIconContainer}>
@@ -177,6 +180,12 @@ const styles = StyleSheet.create({
         fontWeight: '500',
         color: '#09090b',
     },
+    textWelcome: {
+        fontSize: 15,
+        color: '#000',
+        fontWeight: '500',
+
+    }
 
 });
 

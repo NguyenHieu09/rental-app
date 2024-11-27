@@ -234,6 +234,7 @@ const PropertyScreen: React.FC = () => {
                                 property={property}
                                 ownerId={owner.userId}
                                 userId={user?.userId || ''}
+
                             />
                         </View>
                     );

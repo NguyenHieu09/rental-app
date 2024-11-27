@@ -6,10 +6,13 @@ import { ActivityIndicator, TouchableOpacity } from 'react-native';
 import FontAwesome from 'react-native-vector-icons/FontAwesome';
 import { useDispatch, useSelector } from 'react-redux';
 import ChatDetail from '../components/chat/ChatDetail';
+import PersonalInfo from '../components/profile/PersonalInfo';
+import UpdatePassword from '../components/profile/UpdatePassword';
 import PropertyDetail from '../components/properties/PropertyDetail';
 import Transactions from '../components/transactions/Transactions';
 import { checkLoginStatus } from '../redux-toolkit/slices/userSlice';
 import { AppDispatch, RootState } from '../redux-toolkit/store';
+import AccountInfo from '../screens/accountInfo/AccountInfo';
 import AuthenticationScreen from '../screens/authentication/AuthenticationScreen';
 import ManageCancelContract from '../screens/cancelContract/ManageCancelContract';
 import ContractDetails from '../screens/contractDetails/ContractDetails';
@@ -223,6 +226,21 @@ const Navigation: React.FC = () => {
                         //     </TouchableOpacity>
                         // ),
                     }}
+                />
+                <Stack.Screen
+                    name='AccountInfo'
+                    component={AccountInfo}
+                    options={{ title: 'Tài khoản và bảo mật' }}
+                />
+                <Stack.Screen
+                    name='UpdatePassword'
+                    component={UpdatePassword}
+                    options={{ title: 'Tài khoản và bảo mật' }}
+                />
+                <Stack.Screen
+                    name='PersonalInfo'
+                    component={PersonalInfo}
+                    options={{ title: 'Tài khoản và bảo mật' }}
                 />
             </Stack.Navigator>
         </NavigationContainer>

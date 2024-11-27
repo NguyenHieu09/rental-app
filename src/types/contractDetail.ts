@@ -12,6 +12,7 @@ export interface IContractDetail {
     deleted: boolean;
     status: ContractStatus;
     createdAt: string;
+    endDateActual: string;
     updatedAt: string;
     monthlyRent: number;
     depositAmount: number;

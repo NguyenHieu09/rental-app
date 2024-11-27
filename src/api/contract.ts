@@ -9,12 +9,43 @@ import { IContract, ICreateContractRequest } from '../types/contract';
 import { IContractDetail } from '../types/contractDetail';
 import { IGenerateContractRequest } from '../types/rentalRequest';
 import { IDepositTransaction, ITransaction } from '../types/transaction';
+import {
+    ICreateExtensionRequest,
+    IExtensionRequest,
+    IUpdateExtensionRequestStatus,
+} from '../types/extensionRequest';
 
 const API_CONTRACT_URL = `${API_URL}/contract-service`;
 
 // Function to fetch contracts from the API
-export const createContract = async (
-    contractRequest: ICreateContractRequest,
+// export const createContract = async (contractRequest: ICreateContractRequest): Promise<IContract> => {
+//     try {
+//         const token = await AsyncStorage.getItem('accessToken');
+
+//         if (!token) {
+//             throw new Error('No token provided');
+//         }
+
+//         const response = await axios.post<IContract>(`${API_CONTRACT_URL}/contracts`, contractRequest, {
+//             headers: {
+//                 Authorization: `Bearer ${token}`,
+//             },
+//         });
+
+//         return response.data;
+//     } catch (error: any) {
+//         if (error.response && error.response.data && error.response.data.message) {
+//             console.error('Error message:', error.response.data.message);
+//             throw new Error(error.response.data.message);
+//         } else {
+//             console.error('Error creating contract:', error);
+//             throw error;
+//         }
+//     }
+// };
+
+export const createContractAndApproveRequest = async (
+    params: ICreateContractRequest & { requestId: string },
 ): Promise<IContract> => {
     try {
         const token = await AsyncStorage.getItem('accessToken');
@@ -23,12 +54,15 @@ export const createContract = async (
             throw new Error('No token provided');
         }
 
+        const { requestId, ...contractRequest } = params;
+
         const response = await axios.post<IContract>(
             `${API_CONTRACT_URL}/contracts`,
             contractRequest,
             {
                 headers: {
                     Authorization: `Bearer ${token}`,
+                    'X-Request-ID': requestId,
                 },
             },
         );
@@ -584,6 +618,46 @@ export const fetchRentalRequestsForRenter = async (
     }
 };
 
+export const cancelContractBeforeDeposit = async (
+    contractId: string,
+): Promise<void> => {
+    try {
+        const token = await AsyncStorage.getItem('accessToken');
+
+        if (!token) {
+            throw new Error('No token provided');
+        }
+
+        const response = await axios.post(
+            `${API_CONTRACT_URL}/contracts/cancel-before-deposit`,
+            { contractId },
+            {
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                },
+            },
+        );
+
+        if (response.status === 200) {
+            console.log('Cancel contract before deposit successful');
+        } else {
+            throw new Error('Failed to cancel contract before deposit');
+        }
+    } catch (error: any) {
+        if (
+            error.response &&
+            error.response.data &&
+            error.response.data.message
+        ) {
+            console.error('Error message:', error.response.data.message);
+            throw new Error(error.response.data.message);
+        } else {
+            console.error('Error canceling contract before deposit:', error);
+            throw error;
+        }
+    }
+};
+
 export const createCancelContractRequest = async (
     cancelRequest: ICancelContractRequest,
 ): Promise<void> => {
@@ -870,6 +944,123 @@ export const fetchRentalRequestRating = async () => {
             throw new Error(error.response.data.message);
         } else {
             console.error('Error fetching rental request rating:', error);
+            throw error;
+        }
+    }
+};
+
+export const createExtensionRequest = async (
+    extensionRequest: ICreateExtensionRequest,
+): Promise<void> => {
+    try {
+        const token = await AsyncStorage.getItem('accessToken');
+
+        if (!token) {
+            throw new Error('No token provided');
+        }
+
+        const response = await axios.post(
+            `${API_CONTRACT_URL}/contract-extension-requests`,
+            extensionRequest,
+            {
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                },
+            },
+        );
+
+        if (response.status === 201) {
+            console.log('Extension request created successfully');
+        } else {
+            throw new Error('Failed to create extension request');
+        }
+    } catch (error: any) {
+        if (
+            error.response &&
+            error.response.data &&
+            error.response.data.message
+        ) {
+            console.error('Error message:', error.response.data.message);
+            throw new Error(error.response.data.message);
+        } else {
+            console.error('Error creating extension request:', error);
+            throw error;
+        }
+    }
+};
+
+export const fetchExtensionRequests = async (
+    contractId: string,
+): Promise<IExtensionRequest[]> => {
+    try {
+        const token = await AsyncStorage.getItem('accessToken');
+
+        if (!token) {
+            throw new Error('No token provided');
+        }
+
+        const response = await axios.get<IExtensionRequest[]>(
+            `${API_CONTRACT_URL}/contract-extension-requests/contracts/${contractId}`,
+            {
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                },
+            },
+        );
+
+        return response.data;
+    } catch (error: any) {
+        if (
+            error.response &&
+            error.response.data &&
+            error.response.data.message
+        ) {
+            console.error('Error message:', error.response.data.message);
+            throw new Error(error.response.data.message);
+        } else {
+            console.error('Error fetching extension requests:', error);
+            throw error;
+        }
+    }
+};
+
+export const updateExtensionRequestStatus = async (
+    updateRequest: IUpdateExtensionRequestStatus,
+): Promise<void> => {
+    try {
+        const token = await AsyncStorage.getItem('accessToken');
+
+        if (!token) {
+            throw new Error('No token provided');
+        }
+
+        const { id, status, contractId } = updateRequest;
+
+        const response = await axios.patch(
+            `${API_CONTRACT_URL}/contract-extension-requests`,
+            { id, status, contractId },
+            {
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                },
+            },
+        );
+
+        if (response.status === 200) {
+            console.log('Extension request status updated successfully');
+        } else {
+            throw new Error('Failed to update extension request status');
+        }
+    } catch (error: any) {
+        if (
+            error.response &&
+            error.response.data &&
+            error.response.data.message
+        ) {
+            console.error('Error message:', error.response.data.message);
+            throw new Error(error.response.data.message);
+        } else {
+            console.error('Error updating extension request status:', error);
             throw error;
         }
     }

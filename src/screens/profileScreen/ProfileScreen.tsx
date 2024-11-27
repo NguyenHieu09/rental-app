@@ -59,6 +59,8 @@ const ProfileScreen = () => {
             onPress={() => {
                 if (item.id === '1') {
                     navigation.navigate('WalletManagement');
+                } else if (item.id === '2') {
+                    navigation.navigate('AccountInfo');
                 } else if (item.id === '3') {
                     navigation.navigate('AuthenticationScreen');
                 } else if (item.id === '4') {

@@ -2,6 +2,7 @@ export interface ICancelContractRequest {
     contractId: string;
     cancelDate: string;
     reason: string;
+    signature: string;
 }
 
 export interface IUserRequest {

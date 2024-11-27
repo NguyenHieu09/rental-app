@@ -81,6 +81,109 @@ export const registerUser = async (registrationData: {
     }
 };
 
+
+// export const updateUserInfo = async (phoneNumber: string, avatar: string) => {
+//     try {
+//         const token = await AsyncStorage.getItem('accessToken');
+
+//         if (!token) {
+//             throw new Error('No token provided');
+//         }
+
+//         const response = await axios.put(
+//             `${API_BASE_URL}/users`,
+//             { phoneNumber, avatar },
+//             {
+//                 headers: {
+//                     Authorization: `Bearer ${token}`,
+//                 },
+//             }
+//         );
+
+//         return response.data;
+//     } catch (error: any) {
+//         if (error.response && error.response.data && error.response.data.message) {
+//             console.error('Error message:', error.response.data.message);
+//             throw new Error(error.response.data.message);
+//         } else {
+//             console.error('Error updating user info:', error);
+//             throw error;
+//         }
+//     }
+// };
+
+// api.ts
+export const updateUserInfo = async (phoneNumber: string, avatarUri: string, name: string) => {
+    const formData = new FormData();
+    formData.append('phoneNumber', phoneNumber);
+    formData.append('name', name);
+    formData.append('avatar', {
+        uri: avatarUri,
+        name: 'avatar.jpg',
+        type: 'image/jpeg',
+    } as any);
+
+    const token = await AsyncStorage.getItem('accessToken');
+    if (!token) {
+        throw new Error('No token provided');
+    }
+
+    const response = await fetch(`${API_BASE_URL}/users`, {
+        method: 'PUT',
+        headers: {
+            Authorization: `Bearer ${token}`,
+            // No need to set 'Content-Type' for FormData
+        },
+        body: formData,
+    });
+
+    if (!response.ok) {
+        const errorText = await response.text();
+        console.error('Response error text:', errorText);
+        throw new Error('Failed to update user info');
+    }
+
+    return await response.json();
+};
+
+export const updateUserPassword = async (oldPassword: string, newPassword: string) => {
+    try {
+        const token = await AsyncStorage.getItem('accessToken');
+
+        if (!token) {
+            throw new Error('No token provided');
+        }
+
+        console.log('Updating password with URL:', `${API_BASE_URL}/users/update-password`);
+        console.log('Old Password:', oldPassword);
+        console.log('New Password:', newPassword);
+
+        const response = await axios.post(
+            `${API_BASE_URL}/users/update-password`,
+            { oldPassword, password: newPassword },
+            {
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                },
+            }
+        );
+
+        if (response.status === 200) {
+            return { success: true, data: response.data };
+        } else {
+            return { success: false, message: 'Failed to update password' };
+        }
+    } catch (error: any) {
+        if (error.response && error.response.data && error.response.data.message) {
+            console.error('Error message:', error.response.data.message);
+            throw new Error(error.response.data.message);
+        } else {
+            console.error('Error updating password:', error);
+            throw error;
+        }
+    }
+};
+
 export const fetchPropertyDetail = async (slug: string) => {
     try {
         const response = await axios.get(
