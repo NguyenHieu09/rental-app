@@ -1,29 +1,36 @@
-// ProfileScreen.tsx  
+// ProfileScreen.tsx
+import { IconOutline } from '@ant-design/icons-react-native';
+import { NavigationProp, useNavigation } from '@react-navigation/native';
 import React from 'react';
-import { View, Text, TouchableOpacity, StyleSheet, FlatList, Image, ActivityIndicator } from 'react-native';
+import {
+    ActivityIndicator,
+    FlatList,
+    Image,
+    StyleSheet,
+    Text,
+    TouchableOpacity,
+    View,
+} from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { useDispatch, useSelector } from 'react-redux';
+import { clearChat } from '../../redux-toolkit/slices/chatBotSlice';
+import { clearConversations } from '../../redux-toolkit/slices/conversationSlice';
+import { resetFavorites } from '../../redux-toolkit/slices/favoriteSlice';
+import { resetNotifications } from '../../redux-toolkit/slices/notificationSlice';
+import { logoutUserAsync } from '../../redux-toolkit/slices/userSlice';
 import { AppDispatch, RootState } from '../../redux-toolkit/store';
 import { commonStyles } from '../../styles/theme';
-import { IconOutline } from '@ant-design/icons-react-native';
-import { logoutUserAsync } from '../../redux-toolkit/slices/userSlice';
-import { NavigationProp, useNavigation } from '@react-navigation/native';
 import { RootStackParamList } from '../../types/navigation';
-import { SafeAreaView } from 'react-native-safe-area-context';
-import { resetFavorites } from '../../redux-toolkit/slices/favoriteSlice';
-import { clearConversations } from '../../redux-toolkit/slices/conversationSlice';
-import { resetNotifications } from '../../redux-toolkit/slices/notificationSlice';
 import { getFirstAndLastName } from '../../utils/avatar';
-import { clearChat } from '../../redux-toolkit/slices/chatBotSlice';
 
 const options = [
     { id: '1', title: 'Ví', icon: 'wallet' },
     { id: '2', title: 'Thông tin tài khoản', icon: 'user' },
     { id: '3', title: 'Xác thực tài khoản', icon: 'idcard' },
     { id: '4', title: 'Yêu cầu thuê nhà', icon: 'home' },
-    { id: '5', title: 'Hợp đồng thuê nhà', icon: 'file-text' },
+    { id: '5', title: 'Quản lý hợp đồng', icon: 'file-text' },
     { id: '6', title: 'Thanh toán hóa đơn', icon: 'dollar' },
     { id: '7', title: 'Cài đặt', icon: 'setting' },
-
 ];
 
 const ProfileScreen = () => {
@@ -36,13 +43,17 @@ const ProfileScreen = () => {
         dispatch(resetFavorites());
         dispatch(clearConversations());
         dispatch(resetNotifications());
-        dispatch((clearChat()));
+        dispatch(clearChat());
 
         await dispatch(logoutUserAsync());
 
         navigation.navigate('Login');
     };
-    const renderItem = ({ item }: { item: { id: string, title: string, icon: string } }) => (
+    const renderItem = ({
+        item,
+    }: {
+        item: { id: string; title: string; icon: string };
+    }) => (
         <TouchableOpacity
             style={styles.option}
             onPress={() => {
@@ -59,10 +70,13 @@ const ProfileScreen = () => {
                 } else if (item.id === '6') {
                     navigation.navigate('PaymentScreen');
                 }
-
             }}
         >
-            <IconOutline name={item.icon as any} size={20} style={styles.optionIcon} />
+            <IconOutline
+                name={item.icon as any}
+                size={20}
+                style={styles.optionIcon}
+            />
             <Text style={styles.optionText}>{item.title}</Text>
         </TouchableOpacity>
     );
@@ -77,7 +91,7 @@ const ProfileScreen = () => {
     if (loading) {
         return (
             <View style={commonStyles.container}>
-                <ActivityIndicator size="large" color="#0000ff" />
+                <ActivityIndicator size='large' color='#0000ff' />
             </View>
         );
     }
@@ -86,18 +100,25 @@ const ProfileScreen = () => {
         <SafeAreaView style={commonStyles.container}>
             <View style={commonStyles.header}>
                 {user?.avatar ? (
-                    <Image source={{ uri: user.avatar }} style={styles.avatar} />
+                    <Image
+                        source={{ uri: user.avatar }}
+                        style={styles.avatar}
+                    />
                 ) : (
                     user?.name && (
                         <View style={styles.nameInitials}>
-                            <Text style={styles.initials}>{getFirstAndLastName(user.name)}</Text>
+                            <Text style={styles.initials}>
+                                {getFirstAndLastName(user.name)}
+                            </Text>
                         </View>
                     )
                 )}
 
                 {/* <Image source={{ uri: user?.avatar || 'https://res.cloudinary.com/dxvrdtaky/image/upload/v1727451808/avatar_iirzeq.jpg' }} style={styles.avatar} /> */}
                 <Text style={styles.name}>{user?.name || 'Guest'}</Text>
-                <Text style={styles.email}>{user?.email || 'guest@example.com'}</Text>
+                <Text style={styles.email}>
+                    {user?.email || 'guest@example.com'}
+                </Text>
             </View>
             <FlatList
                 data={options}
@@ -105,7 +126,10 @@ const ProfileScreen = () => {
                 keyExtractor={(item) => item.id}
                 style={styles.list}
             />
-            <TouchableOpacity style={[commonStyles.button, styles.button]} onPress={handleLogout}>
+            <TouchableOpacity
+                style={[commonStyles.button, styles.button]}
+                onPress={handleLogout}
+            >
                 <Text style={commonStyles.buttonText}>Đăng xuất</Text>
             </TouchableOpacity>
         </SafeAreaView>
@@ -161,7 +185,6 @@ const styles = StyleSheet.create({
         fontWeight: '500',
         color: '#09090b',
     },
-
 });
 
 export default ProfileScreen;

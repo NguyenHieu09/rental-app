@@ -1,10 +1,7 @@
-
-
 import React from 'react';
-import { View, Text, Image, StyleSheet, TouchableOpacity } from 'react-native';
-import { truncate } from '../../utils/avatar';
-import { formatPrice } from '../../utils/formattedPrice';
+import { Image, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { IProperty } from '../../types/property';
+import { formatPrice } from '../../utils/formattedPrice';
 
 interface PropertiesProps {
     property: IProperty;
@@ -19,15 +16,21 @@ const Properties: React.FC<PropertiesProps> = ({ property, onPress }) => {
             <Image source={{ uri: property.images[0] }} style={styles.image} />
             <View style={styles.infoContainer}>
                 <View style={styles.header}>
-                    <Text style={styles.title} numberOfLines={1}
-                        ellipsizeMode="tail">{property.title}</Text>
+                    <Text
+                        style={styles.title}
+                        numberOfLines={1}
+                        ellipsizeMode='tail'
+                    >
+                        {property.title}
+                    </Text>
                 </View>
                 <Text
                     style={styles.location}
                     numberOfLines={1}
-                    ellipsizeMode="tail"
+                    ellipsizeMode='tail'
                 >
-                    {property.address.street}, {property.address.ward}, {property.address.district}, {property.address.city}
+                    {property.address.street}, {property.address.ward},{' '}
+                    {property.address.district}, {property.address.city}
                 </Text>
                 {/* <Text style={styles.location}>{property.address.street}, {property.address.ward}, {property.address.district}, {property.address.city}</Text> */}
                 <Text style={styles.price}>{formattedPrice}/tháng</Text>
@@ -47,8 +50,8 @@ const styles = StyleSheet.create({
         shadowOpacity: 0.1,
         shadowRadius: 4,
         elevation: 2,
-        margin: 10,
         width: 250,
+        marginVertical: 8,
         // height: 300
     },
     image: {

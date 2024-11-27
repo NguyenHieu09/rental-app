@@ -1,5 +1,3 @@
-
-
 // import React, { useEffect, useState } from 'react';
 // import { View, ActivityIndicator, Alert, Text } from 'react-native';
 // import { RouteProp, useRoute } from '@react-navigation/native';
@@ -79,7 +77,6 @@
 
 // export default ContractDetails;
 
-
 import React, { useEffect, useState } from 'react';
 import { View, ActivityIndicator, Alert, Text } from 'react-native';
 import { RouteProp, useRoute } from '@react-navigation/native';
@@ -91,7 +88,10 @@ import ContractDetailTab from '../../components/contract/ContractDetailTab';
 import NotHandledCancelRequestTab from '../../components/contract/NotHandledCancelRequestTab';
 import HandledCancelRequestTab from '../../components/contract/HandledCancelRequestTab';
 
-type ContractDetailsRouteProp = RouteProp<{ params: { contractId: string } }, 'params'>;
+type ContractDetailsRouteProp = RouteProp<
+    { params: { contractId: string } },
+    'params'
+>;
 
 const Tab = createMaterialTopTabNavigator();
 
@@ -119,15 +119,25 @@ const ContractDetails: React.FC = () => {
 
     if (loading) {
         return (
-            <View style={[commonStyles.container, { justifyContent: 'center', alignItems: 'center', flex: 1 }]}>
-                <ActivityIndicator size="large" color="#0000ff" />
+            <View
+                style={[
+                    commonStyles.container,
+                    { justifyContent: 'center', alignItems: 'center', flex: 1 },
+                ]}
+            >
+                <ActivityIndicator size='large' color='#0000ff' />
             </View>
         );
     }
 
     if (!contract) {
         return (
-            <View style={[commonStyles.container, { justifyContent: 'center', alignItems: 'center', flex: 1 }]}>
+            <View
+                style={[
+                    commonStyles.container,
+                    { justifyContent: 'center', alignItems: 'center', flex: 1 },
+                ]}
+            >
                 <Text>Không tìm thấy hợp đồng</Text>
             </View>
         );
@@ -135,13 +145,13 @@ const ContractDetails: React.FC = () => {
 
     return (
         <Tab.Navigator>
-            <Tab.Screen name="Chi tiết hợp đồng">
+            <Tab.Screen name='Chi tiết hợp đồng'>
                 {() => <ContractDetailTab contract={contract} />}
             </Tab.Screen>
-            <Tab.Screen name="Yêu cầu chờ xử lý">
+            <Tab.Screen name='Yêu cầu chờ xử lý'>
                 {() => <NotHandledCancelRequestTab contractId={contractId} />}
             </Tab.Screen>
-            <Tab.Screen name="Yêu cầu đã xử lý">
+            <Tab.Screen name='Yêu cầu đã xử lý'>
                 {() => <HandledCancelRequestTab contractId={contractId} />}
             </Tab.Screen>
         </Tab.Navigator>

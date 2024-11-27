@@ -1,33 +1,52 @@
-
-
-
 import React, { useEffect, useState, useCallback } from 'react';
-import { View, Text, StyleSheet, Image, FlatList, TouchableOpacity, ActivityIndicator, Alert } from 'react-native';
+import {
+    View,
+    Text,
+    StyleSheet,
+    Image,
+    FlatList,
+    TouchableOpacity,
+    ActivityIndicator,
+    Alert,
+} from 'react-native';
 import { commonStyles } from '../../../styles/theme';
 // import { fetchRentalRequestsForRenter } from '../../../api/api';
 import { RootState } from '../../../redux-toolkit/store';
 import { useSelector } from 'react-redux';
-import { IGenerateContractRequest, IRentalRequest } from '../../../types/rentalRequest';
-import { useFocusEffect, NavigationProp, useNavigation } from '@react-navigation/native';
+import {
+    IGenerateContractRequest,
+    IRentalRequest,
+} from '../../../types/rentalRequest';
+import {
+    useFocusEffect,
+    NavigationProp,
+    useNavigation,
+} from '@react-navigation/native';
 import { RootStackParamList } from '../../../types/navigation';
 import { format } from 'date-fns';
-import { fetchRentalRequestsForOwner, fetchRentalRequestsForRenter, generateContract, updateRentalRequestStatus, updateRentalRequestStatusRenter } from '../../../api/contract';
+import {
+    fetchRentalRequestsForOwner,
+    fetchRentalRequestsForRenter,
+    generateContract,
+    updateRentalRequestStatus,
+    updateRentalRequestStatusRenter,
+} from '../../../api/contract';
+import Tag from '../../../components/tag/Tag';
+import { getRentalRequestColor } from '../../../utils/colorTag';
+import { formatPrice } from '../../../utils/formattedPrice';
 
-export type RentalRequestStatus = 'PENDING' | 'APPROVED' | 'REJECTED' | 'CANCELLED';
+export type RentalRequestStatus =
+    | 'PENDING'
+    | 'APPROVED'
+    | 'REJECTED'
+    | 'CANCELLED';
 
-const getStatusInVietnamese = (status: RentalRequestStatus): string => {
-    switch (status) {
-        case 'PENDING':
-            return 'Chờ xác nhận';
-        case 'APPROVED':
-            return 'Đã chấp nhận';
-        case 'REJECTED':
-            return 'Đã từ chối';
-        case 'CANCELLED':
-            return 'Đã hủy';
-        default:
-            return status;
-    }
+export const getStatusInVietnamese = (status: RentalRequestStatus): string => {
+    if (status === 'PENDING') return 'Chờ xác nhận';
+    if (status === 'APPROVED') return 'Đã xác nhận';
+    if (status === 'REJECTED') return 'Đã từ chối';
+    if (status === 'CANCELLED') return 'Đã hủy';
+    return 'Không xác định';
 };
 
 const ManageRequestRental = () => {
@@ -52,9 +71,15 @@ const ManageRequestRental = () => {
 
             let response;
             if (user?.userTypes.includes('renter')) {
-                response = await fetchRentalRequestsForRenter(ITEMS_PER_PAGE, skip);
+                response = await fetchRentalRequestsForRenter(
+                    ITEMS_PER_PAGE,
+                    skip,
+                );
             } else {
-                response = await fetchRentalRequestsForOwner(ITEMS_PER_PAGE, skip);
+                response = await fetchRentalRequestsForOwner(
+                    ITEMS_PER_PAGE,
+                    skip,
+                );
             }
 
             // console.log('API response:', response);
@@ -66,7 +91,10 @@ const ManageRequestRental = () => {
                 if (page === 0) {
                     setRentalRequests(data);
                 } else {
-                    setRentalRequests((prevRequests) => [...prevRequests, ...data]);
+                    setRentalRequests((prevRequests) => [
+                        ...prevRequests,
+                        ...data,
+                    ]);
                 }
                 setTotalRequests(pageInfo.total);
             } else {
@@ -79,7 +107,12 @@ const ManageRequestRental = () => {
         } finally {
             setLoading(false);
             setIsLoadingMore(false);
-            console.log('Loading state:', loading, 'Is loading more:', isLoadingMore);
+            console.log(
+                'Loading state:',
+                loading,
+                'Is loading more:',
+                isLoadingMore,
+            );
         }
     };
 
@@ -92,7 +125,7 @@ const ManageRequestRental = () => {
             setRentalRequests([]);
             setCurrentPage(0);
             loadRentalRequests(0);
-        }, [])
+        }, []),
     );
 
     const loadMoreRequests = () => {
@@ -116,51 +149,61 @@ const ManageRequestRental = () => {
             const contractRequest: IGenerateContractRequest = {
                 propertyId: item.property.propertyId,
                 renterId: item.renterId,
-                requestId: item.requestId
+                requestId: item.requestId,
             };
             console.log('Contract Request:', contractRequest);
 
             const contractData = await generateContract(contractRequest);
 
-            navigation.navigate('ContractScreen', { contractData, requestId: item.requestId });
+            navigation.navigate('ContractScreen', {
+                contractData,
+                requestId: item.requestId,
+            });
         } catch (error) {
             console.error('Error fetching rental request details:', error);
-            Alert.alert('Error', 'Có lỗi xảy ra khi lấy thông tin chi tiết yêu cầu thuê.');
+            Alert.alert(
+                'Error',
+                'Có lỗi xảy ra khi lấy thông tin chi tiết yêu cầu thuê.',
+            );
         }
     };
 
     const handleRejectPress = async (item: IRentalRequest) => {
         try {
-            const response = await updateRentalRequestStatus(item.requestId, 'REJECTED');
+            const response = await updateRentalRequestStatus(
+                item.requestId,
+                'REJECTED',
+            );
             // Sau khi cập nhật trạng thái thành công, bạn có thể cập nhật lại danh sách yêu cầu
             setRentalRequests((prevRequests) =>
                 prevRequests.map((request) =>
                     request.requestId === item.requestId
                         ? { ...request, status: 'REJECTED' }
-                        : request
-                )
+                        : request,
+                ),
             );
-            Alert.alert('Thông báo', 'Yêu cầu thuê đã bị từ chối.');
+            Alert.alert('Thông báo', 'Cập nhật trạng thái thành công.');
         } catch (error) {
             console.error('Error rejecting rental request:', error);
             Alert.alert('Error', 'Có lỗi xảy ra khi từ chối yêu cầu.');
         }
     };
 
-
     const handleCancelPress = async (item: IRentalRequest) => {
-
         try {
             // Gọi API để cập nhật trạng thái của yêu cầu
-            const response = await updateRentalRequestStatusRenter(item.requestId, 'CANCELLED');
+            const response = await updateRentalRequestStatusRenter(
+                item.requestId,
+                'CANCELLED',
+            );
 
             // Sau khi cập nhật trạng thái thành công, cập nhật lại danh sách yêu cầu
             setRentalRequests((prevRequests) =>
                 prevRequests.map((request) =>
                     request.requestId === item.requestId
                         ? { ...request, status: 'CANCELLED' }
-                        : request
-                )
+                        : request,
+                ),
             );
 
             // Thông báo thành công
@@ -171,41 +214,69 @@ const ManageRequestRental = () => {
         }
     };
 
-
     const renderRentalRequest = ({ item }: { item: IRentalRequest }) => (
         <View key={item.requestId} style={styles.requestCard}>
             <View style={styles.containerRequest}>
                 <View>
-                    <Image source={{ uri: item.property.images[0] }} style={styles.image} />
+                    <Image
+                        source={{ uri: item.property.images[0] }}
+                        style={styles.image}
+                    />
                 </View>
                 <View style={styles.details}>
-                    <Text style={styles.propertyTitle}>{item.property.title}</Text>
-                    <Text style={styles.price}>Giá thuê: {item.rentalPrice.toLocaleString()} đ</Text>
-                    <Text style={styles.deposit}>Tiền cọc: {item.rentalDeposit.toLocaleString()} đ</Text>
-                    <Text style={styles.dates}>
-                        Từ: {format(new Date(item.rentalStartDate), 'dd/MM/yyyy')}
+                    <Text style={styles.propertyTitle}>
+                        {item.property.title}
+                    </Text>
+                    <Text style={styles.price}>
+                        Giá thuê: {formatPrice(item.rentalPrice)}
+                    </Text>
+                    <Text style={styles.deposit}>
+                        Tiền cọc: {formatPrice(item.rentalDeposit)}
                     </Text>
                     <Text style={styles.dates}>
-                        Đến: {format(new Date(item.rentalEndDate), 'dd/MM/yyyy')}
+                        Ngày bắt đầu:{' '}
+                        {format(new Date(item.rentalStartDate), 'dd/MM/yyyy')}
+                    </Text>
+                    <Text style={styles.dates}>
+                        Ngày kết thúc:{' '}
+                        {format(new Date(item.rentalEndDate), 'dd/MM/yyyy')}
                     </Text>
                 </View>
             </View>
             <View>
                 <View style={styles.buttonContainer}>
-                    <Text style={styles.status}>{getStatusInVietnamese(item.status)}</Text>
+                    <Tag color={getRentalRequestColor(item.status)}>
+                        {getStatusInVietnamese(item.status)}
+                    </Tag>
                     {item.status === 'PENDING' ? (
                         <>
                             {user?.userTypes.includes('renter') ? (
-                                <TouchableOpacity style={[styles.button]} onPress={() => handleCancelPress(item)}>
+                                <TouchableOpacity
+                                    style={[styles.button]}
+                                    onPress={() => handleCancelPress(item)}
+                                >
                                     <Text style={styles.buttonText}>Hủy</Text>
                                 </TouchableOpacity>
                             ) : (
                                 <>
-                                    <TouchableOpacity style={[styles.button, styles.rejectButton]} onPress={() => handleRejectPress(item)}>
-                                        <Text style={styles.buttonText}>Từ chối</Text>
+                                    <TouchableOpacity
+                                        style={[
+                                            styles.button,
+                                            styles.rejectButton,
+                                        ]}
+                                        onPress={() => handleRejectPress(item)}
+                                    >
+                                        <Text style={styles.buttonText}>
+                                            Từ chối
+                                        </Text>
                                     </TouchableOpacity>
-                                    <TouchableOpacity style={[styles.button]} onPress={() => handleAcceptPress(item)}>
-                                        <Text style={styles.buttonText}>Chấp nhận</Text>
+                                    <TouchableOpacity
+                                        style={[styles.button]}
+                                        onPress={() => handleAcceptPress(item)}
+                                    >
+                                        <Text style={styles.buttonText}>
+                                            Chấp nhận
+                                        </Text>
                                     </TouchableOpacity>
                                 </>
                             )}
@@ -213,32 +284,57 @@ const ManageRequestRental = () => {
                     ) : (
                         <>
                             {user?.userTypes.includes('renter') ? (
-                                <TouchableOpacity style={[styles.button, styles.disabledButton]} disabled>
+                                <TouchableOpacity
+                                    style={[
+                                        styles.button,
+                                        styles.disabledButton,
+                                    ]}
+                                    disabled
+                                >
                                     <Text style={styles.buttonText}>Hủy</Text>
                                 </TouchableOpacity>
                             ) : (
                                 <>
-                                    <TouchableOpacity style={[styles.button, styles.disabledButton]} disabled>
-                                        <Text style={styles.buttonText}>Từ chối</Text>
+                                    <TouchableOpacity
+                                        style={[
+                                            styles.button,
+                                            styles.disabledButton,
+                                        ]}
+                                        disabled
+                                    >
+                                        <Text style={styles.buttonText}>
+                                            Từ chối
+                                        </Text>
                                     </TouchableOpacity>
-                                    <TouchableOpacity style={[styles.button, styles.disabledButton]} disabled>
-                                        <Text style={styles.buttonText}>Chấp nhận</Text>
+                                    <TouchableOpacity
+                                        style={[
+                                            styles.button,
+                                            styles.disabledButton,
+                                        ]}
+                                        disabled
+                                    >
+                                        <Text style={styles.buttonText}>
+                                            Chấp nhận
+                                        </Text>
                                     </TouchableOpacity>
                                 </>
                             )}
-
                         </>
                     )}
                 </View>
-
             </View>
         </View>
     );
 
     if (loading && currentPage === 0) {
         return (
-            <View style={[commonStyles.container, { justifyContent: 'center', alignItems: 'center', flex: 1 }]}>
-                <ActivityIndicator size="large" color="#0000ff" />
+            <View
+                style={[
+                    commonStyles.container,
+                    { justifyContent: 'center', alignItems: 'center', flex: 1 },
+                ]}
+            >
+                <ActivityIndicator size='large' color='#0000ff' />
             </View>
         );
     }
@@ -251,12 +347,16 @@ const ManageRequestRental = () => {
                 keyExtractor={(item) => item.requestId}
                 onEndReached={loadMoreRequests}
                 onEndReachedThreshold={0.5}
-                ListFooterComponent={isLoadingMore ? (
-                    <View style={styles.loadingContainer}>
-                        <ActivityIndicator size="small" color="#0000ff" />
-                        <Text style={styles.loadingText}>Đang tải thêm...</Text>
-                    </View>
-                ) : null}
+                ListFooterComponent={
+                    isLoadingMore ? (
+                        <View style={styles.loadingContainer}>
+                            <ActivityIndicator size='small' color='#0000ff' />
+                            <Text style={styles.loadingText}>
+                                Đang tải thêm...
+                            </Text>
+                        </View>
+                    ) : null
+                }
             />
         </View>
     );
@@ -308,12 +408,11 @@ const styles = StyleSheet.create({
     },
     dates: {
         marginTop: 5,
-        color: 'gray',
     },
     buttonContainer: {
-
         flexDirection: 'row',
         justifyContent: 'space-between',
+        alignItems: 'center',
         marginTop: 10,
     },
     button: {

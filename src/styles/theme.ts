@@ -8,7 +8,7 @@ export const COLORS = {
     text: '#333',
     buttonBackground: '#007BFF',
     buttonText: '#fff',
-    error: '#dc3545',
+    error: '#ff4d4f',
 };
 
 export const FONTS = {
@@ -20,7 +20,7 @@ export const SIZES = {
     base: 10,
     font: 14,
     radius: 5,
-    padding: 14,
+    padding: 8,
 };
 
 export const commonStyles = StyleSheet.create({
@@ -52,5 +52,8 @@ export const commonStyles = StyleSheet.create({
     buttonText: {
         color: COLORS.buttonText,
         fontWeight: 'bold' as 'bold',
+    },
+    errorColor: {
+        color: COLORS.error,
     },
 });

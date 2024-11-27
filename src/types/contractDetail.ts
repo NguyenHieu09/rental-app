@@ -1,5 +1,6 @@
-import { IProperty } from "./property";
-import { IUser } from "./user";
+import { ContractStatus } from './contract';
+import { IProperty } from './property';
+import { IUser } from './user';
 
 export interface IContractDetail {
     contractId: string;
@@ -9,7 +10,7 @@ export interface IContractDetail {
     startDate: string;
     endDate: string;
     deleted: boolean;
-    status: string;
+    status: ContractStatus;
     createdAt: string;
     endDateActual: string;
     updatedAt: string;

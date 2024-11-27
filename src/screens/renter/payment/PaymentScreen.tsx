@@ -1,13 +1,28 @@
-
-
-
 import React, { useEffect, useState } from 'react';
-import { View, Text, StyleSheet, FlatList, ListRenderItem, TouchableOpacity, ActivityIndicator, Alert } from 'react-native';
+import {
+    View,
+    Text,
+    StyleSheet,
+    FlatList,
+    ListRenderItem,
+    TouchableOpacity,
+    ActivityIndicator,
+    Alert,
+} from 'react-native';
 import { commonStyles } from '../../../styles/theme';
 import * as Clipboard from 'expo-clipboard';
 import Icon from 'react-native-vector-icons/MaterialIcons';
-import { fetchAllTransactionsForRenter, deposit, payMonthlyRent, createExtensionRequest } from '../../../api/contract';
-import { IDepositTransaction, ITransaction, TransactionStatus } from '../../../types/transaction';
+import {
+    fetchAllTransactionsForRenter,
+    deposit,
+    payMonthlyRent,
+    createExtensionRequest,
+} from '../../../api/contract';
+import {
+    IDepositTransaction,
+    ITransaction,
+    TransactionStatus,
+} from '../../../types/transaction';
 import { useSignMessageCustom } from '../../../hook/useSignMessageCustom';
 import { W3mButton } from '@web3modal/wagmi-react-native';
 import { useAccount, useConnect, useDisconnect } from 'wagmi';
@@ -16,28 +31,27 @@ import { RootState } from '../../../redux-toolkit/store';
 import { useSelector } from 'react-redux';
 import ExtendContractModal from '../../../components/modal/ExtendContractModal';
 import { ContractExtensionRequestType } from '../../../types/extensionRequest';
+import Tag from '../../../components/tag/Tag';
+import { getTransactionColor } from '../../../utils/colorTag';
+import { formatPrice } from '../../../utils/formattedPrice';
+import Markdown from 'react-native-markdown-display';
+import { formatDate } from '../../../utils/datetime';
 
 const getStatusInVietnamese = (status: TransactionStatus): string => {
-    switch (status) {
-        case 'PENDING':
-            return 'Chờ thanh toán';
-        case 'COMPLETED':
-            return 'Thành công';
-        case 'FAILED':
-            return 'Thất bại';
-        case 'OVERDUE':
-            return 'Quá hạn';
-        case 'CANCELLED':
-            return 'Đã hủy';
-        default:
-            return status;
-    }
+    if (status === 'PENDING') return 'Chờ thanh toán';
+    if (status === 'COMPLETED') return 'Thành công';
+    if (status === 'FAILED') return 'Thất bại';
+    if (status === 'OVERDUE') return 'Quá hạn';
+    if (status === 'CANCELLED') return 'Đã hủy';
+    return 'Không xác định';
 };
 
 const PaymentScreen: React.FC = () => {
     const [transactions, setTransactions] = useState<ITransaction[]>([]);
     const [loading, setLoading] = useState<boolean>(true);
-    const [paymentLoading, setPaymentLoading] = useState<{ [key: string]: boolean }>({});
+    const [paymentLoading, setPaymentLoading] = useState<{
+        [key: string]: boolean;
+    }>({});
     const { handleSign } = useSignMessageCustom();
     const { address } = useAccount();
     const { connectAsync, connectors } = useConnect();
@@ -46,7 +60,8 @@ const PaymentScreen: React.FC = () => {
     const [isConnected, setIsConnected] = useState(false);
     const user = useSelector((state: RootState) => state.user.user);
     const [extendModalVisible, setExtendModalVisible] = useState(false);
-    const [selectedTransaction, setSelectedTransaction] = useState<ITransaction | null>(null);
+    const [selectedTransaction, setSelectedTransaction] =
+        useState<ITransaction | null>(null);
 
     useEffect(() => {
         const loadTransactions = async () => {
@@ -76,7 +91,7 @@ const PaymentScreen: React.FC = () => {
                     setModalVisible(true);
                     Alert.alert(
                         'Thông báo',
-                        'Địa chỉ ví không khớp với địa chỉ đã đăng ký. Vui lòng kết nối ví đúng.'
+                        'Địa chỉ ví không khớp với địa chỉ đã đăng ký. Vui lòng kết nối ví đúng.',
                     );
                 } else {
                     // Địa chỉ ví khớp
@@ -93,23 +108,30 @@ const PaymentScreen: React.FC = () => {
         verifyWalletAddress();
     }, [address, user?.walletAddress, disconnectAsync]);
 
-
-
     const handlePayment = async (transaction: ITransaction) => {
         setPaymentLoading((prev) => ({ ...prev, [transaction.id]: true }));
         try {
-            const signature = await handleSign({ message: transaction.description });
-            const depositTransaction: IDepositTransaction = { transactionId: transaction.id, contractId: transaction.contractId, signature: signature };
+            const signature = await handleSign({
+                message: transaction.description,
+            });
+            const depositTransaction: IDepositTransaction = {
+                transactionId: transaction.id,
+                contractId: transaction.contractId,
+                signature: signature,
+            };
 
             if (transaction.type === 'RENT') {
                 console.log(depositTransaction);
                 await payMonthlyRent(depositTransaction);
-                Alert.alert('Thành công', 'Thanh toán tiền thuê tháng thành công');
+                Alert.alert('Thành công', 'Thanh toán thành công');
             } else if (transaction.type === 'DEPOSIT') {
                 await deposit(depositTransaction);
-                Alert.alert('Thành công', 'Thanh toán tiền cọc thành công');
+                Alert.alert('Thành công', 'Thanh toán thành công');
             } else {
-                Alert.alert('Không thể thanh toán', 'Chỉ có thể thanh toán các giao dịch loại "RENT" hoặc "DEPOSIT".');
+                Alert.alert(
+                    'Không thể thanh toán',
+                    'Chỉ có thể thanh toán các giao dịch loại "RENT" hoặc "DEPOSIT".',
+                );
                 return;
             }
 
@@ -120,7 +142,10 @@ const PaymentScreen: React.FC = () => {
             if (error instanceof Error) {
                 Alert.alert('Thanh toán thất bại', error.message);
             } else {
-                Alert.alert('Thanh toán thất bại', 'Đã xảy ra lỗi không xác định');
+                Alert.alert(
+                    'Thanh toán thất bại',
+                    'Đã xảy ra lỗi không xác định',
+                );
             }
         } finally {
             setPaymentLoading((prev) => ({ ...prev, [transaction.id]: false }));
@@ -132,7 +157,10 @@ const PaymentScreen: React.FC = () => {
         setExtendModalVisible(true);
     };
 
-    const handleExtendConfirm = async (extensionDate: string, reason: string) => {
+    const handleExtendConfirm = async (
+        extensionDate: string,
+        reason: string,
+    ) => {
         if (!selectedTransaction) return;
 
         try {
@@ -145,7 +173,10 @@ const PaymentScreen: React.FC = () => {
             };
 
             await createExtensionRequest(extensionRequest);
-            Alert.alert('Thành công', 'Đã gửi yêu cầu gia hạn hóa đơn thành công');
+            Alert.alert(
+                'Thành công',
+                'Đã gửi yêu cầu gia hạn hóa đơn thành công',
+            );
         } catch (error: any) {
             console.error('Error creating extension request:', error);
             Alert.alert('Lỗi', 'Có lỗi xảy ra khi gửi yêu cầu gia hạn hóa đơn');
@@ -157,7 +188,10 @@ const PaymentScreen: React.FC = () => {
     const copyToClipboard = (transactionHash: string | null) => {
         if (transactionHash) {
             Clipboard.setString(transactionHash);
-            Alert.alert('Sao chép thành công', 'Mã giao dịch đã được sao chép vào clipboard');
+            Alert.alert(
+                'Sao chép thành công',
+                'Mã giao dịch đã được sao chép vào clipboard',
+            );
         } else {
             Alert.alert('Sao chép thất bại', 'Mã giao dịch không hợp lệ');
         }
@@ -166,55 +200,119 @@ const PaymentScreen: React.FC = () => {
     const renderItem: ListRenderItem<ITransaction> = ({ item }) => (
         <View key={item.id} style={styles.card}>
             <Text style={styles.title}>{item.title}</Text>
-            <Text style={styles.description}>{item.description}</Text>
-            <Text style={styles.amount}>Số tiền cần thanh toán: {item.amount.toLocaleString()} đ</Text>
-            <Text style={styles.date}>Thời gian tạo: {new Date(item.createdAt).toLocaleDateString()}</Text>
-            <Text style={styles.dueDate}>Hạn thanh toán: {item.endDate ? new Date(item.endDate).toLocaleDateString() : 'N/A'}</Text>
-
+            <Markdown
+                style={{
+                    body: styles.description,
+                }}
+            >
+                {item.description}
+            </Markdown>
             {item.status === 'COMPLETED' && (
                 <View style={styles.transactionContainer}>
-                    <Text style={styles.hash}>Mã giao dịch: {item.transactionHash}</Text>
+                    <Text style={styles.hash}>
+                        Mã giao dịch:{' '}
+                        <Text style={styles.fw600}>{item.transactionHash}</Text>
+                    </Text>
                     <TouchableOpacity
                         style={styles.copyButton}
                         onPress={() => copyToClipboard(item.transactionHash)}
                     >
-                        <Icon name="content-copy" size={24} color="#007BFF" />
+                        <Icon name='content-copy' size={24} color='#007BFF' />
                     </TouchableOpacity>
                 </View>
             )}
-
-            <View style={styles.containerStatus}>
-                <Text style={styles.status}>{getStatusInVietnamese(item.status)}</Text>
-            </View>
+            <Text style={styles.amount}>
+                Số tiền cần thanh toán:{' '}
+                <Text style={styles.fw600}>{formatPrice(item.amount)}</Text>
+            </Text>
+            <Text style={styles.date}>
+                Thời gian tạo:&nbsp;
+                <Text style={styles.fw600}>{formatDate(item.createdAt)}</Text>
+            </Text>
+            {item.endDate && (
+                <Text style={styles.dueDate}>
+                    Hạn thanh toán:{' '}
+                    <Text style={styles.fw600}>
+                        00:00:00 {formatDate(item.endDate)}
+                    </Text>
+                </Text>
+            )}
 
             <View style={styles.buttonContainer}>
-                <TouchableOpacity
-                    style={[styles.button, { backgroundColor: '#fff', borderColor: '#2196F3', borderWidth: 1 }, item.status !== 'PENDING' && styles.buttonDisabled]}
-                    onPress={() => handleExtend(item)}
-                    disabled={item.status !== 'PENDING'}
-                >
-
-                    <Text
-                        style={[
-                            styles.buttonText, { color: '#2196F3' },
-                            item.status !== 'PENDING' && styles.buttonTextDisabled, // Áp dụng màu khi disabled
-                        ]}
+                <Tag color={getTransactionColor(item.status)}>
+                    {getStatusInVietnamese(item.status)}
+                </Tag>
+                {item.status === 'PENDING' && (
+                    <View
+                        style={{
+                            flexDirection: 'row',
+                            gap: 8,
+                        }}
                     >
-                        Gia hạn
-                    </Text>
-
-                </TouchableOpacity>
-                <TouchableOpacity
-                    style={[styles.button, item.status !== 'PENDING' && styles.buttonDisabled]}
-                    onPress={() => handlePayment(item)}
-                    disabled={item.status !== 'PENDING' || paymentLoading[item.id]}
-                >
-                    {paymentLoading[item.id] ? (
-                        <Text style={styles.buttonText}>Đang thực hiện...</Text>
-                    ) : (
-                        <Text style={styles.buttonText}>Thanh toán</Text>
-                    )}
-                </TouchableOpacity>
+                        <TouchableOpacity
+                            style={[
+                                styles.button,
+                                {
+                                    backgroundColor: '#fff',
+                                    borderColor: '#d9d9d9',
+                                    borderWidth: 1,
+                                },
+                                item.status !== 'PENDING' &&
+                                    styles.buttonDisabled,
+                            ]}
+                            onPress={() => handleExtend(item)}
+                            disabled={item.status !== 'PENDING'}
+                        >
+                            <Text
+                                style={[
+                                    styles.buttonText,
+                                    { color: '#000000ed' },
+                                    item.status !== 'PENDING' &&
+                                        styles.buttonTextDisabled, // Áp dụng màu khi disabled
+                                ]}
+                            >
+                                Gia hạn
+                            </Text>
+                        </TouchableOpacity>
+                        <TouchableOpacity
+                            style={[
+                                styles.button,
+                                {
+                                    backgroundColor: '#fff',
+                                    borderColor: '#2196F3',
+                                    borderWidth: 1,
+                                },
+                                item.status !== 'PENDING' &&
+                                    styles.buttonDisabled,
+                            ]}
+                            onPress={() => handlePayment(item)}
+                            disabled={
+                                item.status !== 'PENDING' ||
+                                paymentLoading[item.id]
+                            }
+                        >
+                            {paymentLoading[item.id] ? (
+                                <Text
+                                    style={[
+                                        styles.buttonText,
+                                        { color: '#2196F3' },
+                                    ]}
+                                >
+                                    Đang thực hiện...
+                                </Text>
+                            ) : (
+                                <Text
+                                    style={[
+                                        styles.buttonText,
+                                        { color: '#2196F3' },
+                                    ]}
+                                >
+                                    Thanh toán
+                                </Text>
+                            )}
+                        </TouchableOpacity>
+                    </View>
+                )}
                 {/* <W3mButton /> */}
             </View>
         </View>
@@ -222,8 +320,13 @@ const PaymentScreen: React.FC = () => {
 
     if (loading) {
         return (
-            <View style={[commonStyles.container, { justifyContent: 'center', alignItems: 'center', flex: 1 }]}>
-                <ActivityIndicator size="large" color="#0000ff" />
+            <View
+                style={[
+                    commonStyles.container,
+                    { justifyContent: 'center', alignItems: 'center', flex: 1 },
+                ]}
+            >
+                <ActivityIndicator size='large' color='#0000ff' />
             </View>
         );
     }
@@ -242,14 +345,13 @@ const PaymentScreen: React.FC = () => {
                     onClose={() => setExtendModalVisible(false)}
                     onConfirm={handleExtendConfirm}
                     endDate={selectedTransaction.endDate || undefined}
-                    type="EXTEND_PAYMENT"
+                    type='EXTEND_PAYMENT'
                 />
             )}
 
             <ConnectWalletModal
                 visible={isModalVisible}
                 onClose={() => setModalVisible(false)}
-
             />
         </View>
     );
@@ -301,9 +403,8 @@ const styles = StyleSheet.create({
         backgroundColor: '#2196F3',
         padding: 10,
         borderRadius: 5,
-        marginHorizontal: 5,
         alignItems: 'center',
-        width: 130
+        width: 130,
     },
     buttonText: {
         color: '#fff',
@@ -327,13 +428,12 @@ const styles = StyleSheet.create({
     buttonDisabled: {
         backgroundColor: '#B0BEC5',
         borderWidth: 0,
-
     },
     hash: {
         fontSize: 14,
         color: '#333',
         marginBottom: 10,
-        flex: 1
+        flex: 1,
     },
     transactionContainer: {
         flexDirection: 'row',
@@ -349,6 +449,9 @@ const styles = StyleSheet.create({
     },
     buttonTextDisabled: {
         color: '#fff',
+    },
+    fw600: {
+        fontWeight: '600',
     },
 });
 

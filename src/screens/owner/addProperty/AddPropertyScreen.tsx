@@ -1,13 +1,27 @@
+import { Picker } from '@react-native-picker/picker';
+import * as ImagePicker from 'expo-image-picker';
 import React, { useEffect, useState } from 'react';
-import { View, Text, TextInput, StyleSheet, TouchableOpacity, ScrollView, Image, Alert } from 'react-native';
+import {
+    Alert,
+    Image,
+    ScrollView,
+    StyleSheet,
+    Text,
+    TextInput,
+    TouchableOpacity,
+    View,
+} from 'react-native';
+import { RadioButton } from 'react-native-paper';
+import {
+    createProperty,
+    fetchPropertyAttributes,
+    fetchPropertyTypes,
+} from '../../../api/api';
 import AddressInput from '../../../components/form/AddressInput';
 import { commonStyles } from '../../../styles/theme';
-import { Picker } from '@react-native-picker/picker';
-import { fetchPropertyTypes, fetchPropertyAttributes, createProperty } from '../../../api/api';
 import { IAttribute } from '../../../types/property';
-import { Checkbox } from '@ant-design/react-native';
-import * as ImagePicker from 'expo-image-picker';
-import { RadioButton } from 'react-native-paper';
+import { NavigationProp, useNavigation } from '@react-navigation/native';
+import { RootStackParamList } from '../../../types/navigation';
 
 export const interiorOptions = [
     {
@@ -29,7 +43,6 @@ interface ImageFile {
     fileName: string;
 }
 
-
 const AddPropertyScreen: React.FC = () => {
     const [title, setTitle] = useState('');
     const [description, setDescription] = useState('');
@@ -43,26 +56,35 @@ const AddPropertyScreen: React.FC = () => {
     const [floor, setFloor] = useState('');
     const [deposit, setDeposit] = useState('');
     const [minDuration, setMinDuration] = useState('');
-    const [attributeIds, setAttributeIds] = useState<string[]>([]);
     const [images, setImages] = useState<ImageFile[]>([]);
     const [street, setStreet] = useState('');
-    const [termsAccepted, setTermsAccepted] = useState(false);
 
-    const [selectedCity, setSelectedCity] = useState<string | undefined>(undefined);
-    const [selectedDistrict, setSelectedDistrict] = useState<string | undefined>(undefined);
-    const [selectedWard, setSelectedWard] = useState<string | undefined>(undefined);
+    const [selectedCity, setSelectedCity] = useState<string | undefined>(
+        undefined,
+    );
+    const [selectedDistrict, setSelectedDistrict] = useState<
+        string | undefined
+    >(undefined);
+    const [selectedWard, setSelectedWard] = useState<string | undefined>(
+        undefined,
+    );
 
-
-    const [selectedCityName, setSelectedCityName] = useState<string | undefined>(undefined);
-    const [selectedDistrictName, setSelectedDistrictName] = useState<string | undefined>(undefined);
-    const [selectedWardName, setSelectedWardName] = useState<string | undefined>(undefined);
+    const [selectedCityName, setSelectedCityName] = useState<
+        string | undefined
+    >(undefined);
+    const [selectedDistrictName, setSelectedDistrictName] = useState<
+        string | undefined
+    >(undefined);
+    const [selectedWardName, setSelectedWardName] = useState<
+        string | undefined
+    >(undefined);
 
     const [attributes, setAttributes] = useState<IAttribute[]>([]);
     const [selectedAttributes, setSelectedAttributes] = useState<string[]>([]);
 
     const [propertyTypes, setPropertyTypes] = useState<IAttribute[]>([]);
     const [loading, setLoading] = useState(false);
-
+    const navigation = useNavigation<NavigationProp<RootStackParamList>>();
 
     useEffect(() => {
         const loadAttributes = async () => {
@@ -99,7 +121,7 @@ const AddPropertyScreen: React.FC = () => {
             const fileName = selectedImage.fileName || 'default_filename.jpg';
             setImages((prevImages) => [
                 ...prevImages,
-                { uri: selectedImage.uri || '', fileName }
+                { uri: selectedImage.uri || '', fileName },
             ]);
         }
     };
@@ -109,9 +131,9 @@ const AddPropertyScreen: React.FC = () => {
     };
 
     const handleAttributeChange = (value: string) => {
-        setSelectedAttributes(prev => {
+        setSelectedAttributes((prev) => {
             if (prev.includes(value)) {
-                return prev.filter(attr => attr !== value);
+                return prev.filter((attr) => attr !== value);
             } else {
                 return [...prev, value];
             }
@@ -123,19 +145,22 @@ const AddPropertyScreen: React.FC = () => {
 
         setLoading(true);
         try {
-            if (!title || !description || !price || !type || !interior || !termsAccepted) {
+            if (!title || !description || !price || !type || !interior) {
                 Alert.alert('Thông báo', 'Vui lòng điền đầy đủ thông tin.');
                 setLoading(false);
                 return;
             }
 
             const conditions = [
-                { type: "Diện tích", value: `${acreage} m2` },
-                { type: "Diện tích quyền sử dụng đất", value: `${landArea} m2` },
-                { type: "Phòng ngủ", value: `${bedroom} phòng` },
-                { type: "Phòng tắm", value: `${bathroom} phòng` },
-                { type: "Số tầng", value: `${floor} tầng` },
-                { type: "Nội thất", value: interior },
+                { type: 'Diện tích', value: `${acreage} m2` },
+                {
+                    type: 'Diện tích quyền sử dụng đất',
+                    value: `${landArea} m2`,
+                },
+                { type: 'Phòng ngủ', value: `${bedroom} phòng` },
+                { type: 'Phòng tắm', value: `${bathroom} phòng` },
+                { type: 'Số tầng', value: `${floor} tầng` },
+                { type: 'Nội thất', value: interior },
             ];
 
             const formData = new FormData();
@@ -149,8 +174,13 @@ const AddPropertyScreen: React.FC = () => {
             formData.append('ward', selectedWardName || '');
             formData.append('street', street);
             formData.append('conditions', JSON.stringify(conditions));
-            formData.append('type', JSON.stringify({ id: type.id, name: type.name }));
-            selectedAttributes.forEach(id => formData.append('attributeIds[]', id));
+            formData.append(
+                'type',
+                JSON.stringify({ id: type.id, name: type.name }),
+            );
+            selectedAttributes.forEach((id) =>
+                formData.append('attributeIds[]', id),
+            );
             for (const image of images) {
                 formData.append('images', {
                     uri: image.uri,
@@ -160,12 +190,10 @@ const AddPropertyScreen: React.FC = () => {
             }
             console.log('Form data:', formData);
 
-
-
             const response = await createProperty(formData);
             if (response.success) {
-                Alert.alert('Thành công', 'Bất động sản đã được thêm thành công.');
-
+                Alert.alert('Thành công', 'Đăng tin thành công.');
+                navigation.navigate('ManageProperty');
             } else {
                 Alert.alert('Lỗi', response.message || 'Có lỗi xảy ra.');
             }
@@ -182,90 +210,102 @@ const AddPropertyScreen: React.FC = () => {
             <ScrollView>
                 <TextInput
                     style={styles.input}
-                    placeholder="Tiêu đề"
+                    placeholder='Tiêu đề'
                     value={title}
                     onChangeText={setTitle}
                 />
                 <TextInput
                     style={styles.input}
-                    placeholder="Mô tả"
+                    placeholder='Mô tả'
                     value={description}
                     onChangeText={setDescription}
                     multiline
                 />
                 <TextInput
                     style={styles.input}
-                    placeholder="Diện tích (m2)"
+                    placeholder='Diện tích (m2)'
                     value={acreage}
                     onChangeText={setAcreage}
-                    keyboardType="numeric"
+                    keyboardType='numeric'
                 />
                 <TextInput
                     style={styles.input}
-                    placeholder="Giá"
+                    placeholder='Giá'
                     value={price}
                     onChangeText={setPrice}
-                    keyboardType="numeric"
+                    keyboardType='numeric'
                 />
                 <TextInput
                     style={styles.input}
-                    placeholder="Tiền đặt cọc"
+                    placeholder='Tiền cọc'
                     value={deposit}
                     onChangeText={setDeposit}
-                    keyboardType="numeric"
+                    keyboardType='numeric'
                 />
 
                 <TextInput
                     style={styles.input}
-                    placeholder="Số phòng ngủ"
+                    placeholder='Phòng ngủ'
                     value={bedroom}
                     onChangeText={setBedroom}
-                    keyboardType="numeric"
+                    keyboardType='numeric'
                 />
                 <TextInput
                     style={styles.input}
-                    placeholder="Số phòng tắm"
+                    placeholder='Phòng tắm, vệ sinh'
                     value={bathroom}
                     onChangeText={setBathroom}
-                    keyboardType="numeric"
+                    keyboardType='numeric'
                 />
                 <TextInput
                     style={styles.input}
-                    placeholder="Diện tích quyền sử dụng đất (m2)"
+                    placeholder='Diện tích quyền sử dụng đất (m2)'
                     value={landArea}
                     onChangeText={setLandArea}
-                    keyboardType="numeric"
+                    keyboardType='numeric'
                 />
 
                 <TextInput
                     style={styles.input}
-                    placeholder="Số tầng"
+                    placeholder='Số tầng'
                     value={floor}
                     onChangeText={setFloor}
-                    keyboardType="numeric"
+                    keyboardType='numeric'
                 />
 
                 <TextInput
                     style={styles.input}
-                    placeholder="Thời gian thuê tối thiểu"
+                    placeholder='Thời gian thuê tối thiểu'
                     value={minDuration}
                     onChangeText={setMinDuration}
-                    keyboardType="numeric"
+                    keyboardType='numeric'
                 />
                 <View style={styles.pickerContainer}>
                     <Picker
                         selectedValue={type.id}
                         onValueChange={(itemValue) => {
-                            const selectedType = propertyTypes.find(type => type.id === itemValue);
+                            const selectedType = propertyTypes.find(
+                                (type) => type.id === itemValue,
+                            );
                             if (selectedType) {
-                                setType({ id: selectedType.id, name: selectedType.name });
+                                setType({
+                                    id: selectedType.id,
+                                    name: selectedType.name,
+                                });
                             }
                         }}
                         style={styles.picker}
                     >
-                        <Picker.Item label="Chọn loại bất động sản" value={undefined} />
+                        <Picker.Item
+                            label='Chọn loại bất động sản'
+                            value={undefined}
+                        />
                         {propertyTypes.map((option) => (
-                            <Picker.Item key={option.id} label={option.name} value={option.id} />
+                            <Picker.Item
+                                key={option.id}
+                                label={option.name}
+                                value={option.id}
+                            />
                         ))}
                     </Picker>
                 </View>
@@ -276,27 +316,36 @@ const AddPropertyScreen: React.FC = () => {
                         onValueChange={(itemValue) => setInterior(itemValue)}
                         style={styles.picker}
                     >
-                        <Picker.Item label="Chọn nội thất" value={undefined} />
+                        <Picker.Item label='Chọn nội thất' value={undefined} />
                         {interiorOptions.map((option) => (
-                            <Picker.Item key={option.value} label={option.label} value={option.value} />
+                            <Picker.Item
+                                key={option.value}
+                                label={option.label}
+                                value={option.value}
+                            />
                         ))}
                     </Picker>
                 </View>
                 <View style={styles.radioContainer}>
-                    <Text style={styles.label}>Chọn tiện ích:</Text>
-                    {attributes.map(attribute => (
+                    <Text style={styles.label}>Tiện ích</Text>
+                    {attributes.map((attribute) => (
                         <View key={attribute.id} style={styles.radioButton}>
                             <RadioButton
-                                color="#007BFF"
+                                color='#007BFF'
                                 value={attribute.id}
-                                status={selectedAttributes.includes(attribute.id) ? 'checked' : 'unchecked'}
-                                onPress={() => handleAttributeChange(attribute.id)}
+                                status={
+                                    selectedAttributes.includes(attribute.id)
+                                        ? 'checked'
+                                        : 'unchecked'
+                                }
+                                onPress={() =>
+                                    handleAttributeChange(attribute.id)
+                                }
                             />
                             <Text>{attribute.name}</Text>
                         </View>
                     ))}
                 </View>
-
 
                 <AddressInput
                     selectedCity={selectedCity}
@@ -329,29 +378,55 @@ const AddPropertyScreen: React.FC = () => {
                     setStreet={setStreet}
                 /> */}
 
-                <TouchableOpacity style={styles.uploadButton} onPress={pickImage}>
-                    <Text style={styles.uploadButtonText}>Tải lên hình ảnh tài sản</Text>
+                <TouchableOpacity
+                    style={styles.uploadButton}
+                    onPress={pickImage}
+                >
+                    <Text style={styles.uploadButtonText}>
+                        Tải lên hình ảnh tài sản
+                    </Text>
                 </TouchableOpacity>
                 <View style={styles.imageContainer}>
                     {images.map((image, index) => (
                         <View key={index} style={styles.imageWrapper}>
-                            <Image source={{ uri: image.uri }} style={styles.image} />
-                            <TouchableOpacity style={styles.removeButton} onPress={() => removeImage(index)}>
+                            <Image
+                                source={{ uri: image.uri }}
+                                style={styles.image}
+                            />
+                            <TouchableOpacity
+                                style={styles.removeButton}
+                                onPress={() => removeImage(index)}
+                            >
                                 <Text style={styles.removeButtonText}>X</Text>
                             </TouchableOpacity>
                         </View>
                     ))}
                 </View>
-                <View style={styles.termsContainer}>
+                {/* <View style={styles.termsContainer}>
                     <Checkbox
                         checked={termsAccepted}
-                        onChange={(event) => setTermsAccepted(event.target.checked)}
+                        onChange={(event) =>
+                            setTermsAccepted(event.target.checked)
+                        }
                         style={styles.checkbox}
                     />
-                    <Text style={styles.termsText}>Tôi đồng ý với các điều khoản và điều kiện của Smart Home</Text>
-                </View>
-                <TouchableOpacity style={[styles.submitButton, commonStyles.button]} onPress={handleUpload} disabled={loading}>
-                    <Text style={[styles.submitButtonText, commonStyles.buttonText]}>{loading ? 'Đang tải...' : 'GỬI'}</Text>
+                    <Text style={styles.termsText}>
+                        Tôi đồng ý với các điều khoản và điều kiện của SmartRent
+                    </Text>
+                </View> */}
+                <TouchableOpacity
+                    style={[styles.submitButton, commonStyles.button]}
+                    onPress={handleUpload}
+                    disabled={loading}
+                >
+                    <Text
+                        style={[
+                            styles.submitButtonText,
+                            commonStyles.buttonText,
+                        ]}
+                    >
+                        {loading ? 'Đang tải...' : 'Đăng tin'}
+                    </Text>
                 </TouchableOpacity>
             </ScrollView>
         </View>

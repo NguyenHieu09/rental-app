@@ -6,23 +6,25 @@ import { IProperty } from '../../types/property';
 import { createPropertyToFavorites } from '../../api/api';
 import { PropertyInteractionType } from '../../types/propertyInteraction';
 import FavoriteButton from '../customButton/FavoriteButton';
+import { formatPrice } from '../../utils/formattedPrice';
 
 interface MemoizedRenderExploreItemProps {
     item: IProperty;
     navigation: NavigationProp<RootStackParamList>;
 }
 
-const RenderExploreItem: React.FC<MemoizedRenderExploreItemProps> = ({ item, navigation }) => {
+const RenderExploreItem: React.FC<MemoizedRenderExploreItemProps> = ({
+    item,
+    navigation,
+}) => {
     const [isFavorite, setIsFavorite] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
 
     useEffect(() => {
-
-        console.log("item", item.isFavorite);
+        console.log('item', item.isFavorite);
 
         setIsFavorite(item.isFavorite);
     }, [item.isFavorite]);
-
 
     return (
         <TouchableOpacity
@@ -33,13 +35,31 @@ const RenderExploreItem: React.FC<MemoizedRenderExploreItemProps> = ({ item, nav
         >
             <Image source={{ uri: item.images[0] }} style={styles.itemImage} />
             <View style={styles.itemDetails}>
-                <Text style={styles.itemTitle} numberOfLines={2}>{item.title}</Text>
-                <Text style={styles.itemDescription} numberOfLines={2}>{item.description}</Text>
-                <Text style={styles.itemAddress}>ĐC: {`${item.address.street}, ${item.address.ward}, ${item.address.district}, ${item.address.city}`}</Text>
-                <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
-                    <Text style={styles.itemPrice}>{item.price.toLocaleString()} đ/tháng</Text>
+                <Text style={styles.itemTitle} numberOfLines={2}>
+                    {item.title}
+                </Text>
+                <Text style={styles.itemDescription} numberOfLines={2}>
+                    {item.description}
+                </Text>
+                <Text style={styles.itemAddress}>
+                    ĐC:{' '}
+                    {`${item.address.street}, ${item.address.ward}, ${item.address.district}, ${item.address.city}`}
+                </Text>
+                <View
+                    style={{
+                        flexDirection: 'row',
+                        justifyContent: 'space-between',
+                        alignItems: 'center',
+                    }}
+                >
+                    <Text style={styles.itemPrice}>
+                        {formatPrice(item.price)}/tháng
+                    </Text>
                     {/* Hiển thị nút yêu thích với trạng thái của item */}
-                    <FavoriteButton propertyId={item.propertyId} isFavorite={isFavorite} />
+                    <FavoriteButton
+                        propertyId={item.propertyId}
+                        isFavorite={isFavorite}
+                    />
                 </View>
             </View>
         </TouchableOpacity>
@@ -49,7 +69,7 @@ const RenderExploreItem: React.FC<MemoizedRenderExploreItemProps> = ({ item, nav
 const styles = StyleSheet.create({
     itemContainer: {
         flexDirection: 'row',
-        padding: 15,
+        paddingVertical: 15,
         borderBottomWidth: 1,
         borderBottomColor: '#ddd',
         marginBottom: 10,

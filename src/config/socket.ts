@@ -1,20 +1,30 @@
-
 import React, { useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { AppDispatch, RootState } from '../redux-toolkit/store';
-import { IConversationSocket, IReadConversationSocket } from '../types/conversation';
+import {
+    IConversationSocket,
+    IReadConversationSocket,
+} from '../types/conversation';
 import { INotification } from '../types/notification';
-import { addConversation, readConversation } from '../redux-toolkit/slices/conversationSlice';
-import { connectSocket, disconnectSocket, socket } from '../redux-toolkit/slices/socketSlice';
+import {
+    addConversation,
+    readConversation,
+} from '../redux-toolkit/slices/conversationSlice';
+import {
+    connectSocket,
+    disconnectSocket,
+    socket,
+} from '../redux-toolkit/slices/socketSlice';
 import { IConversation } from '../types/chat';
 import { addChat } from '../redux-toolkit/slices/chatSlice'; // Import addChat từ chatSlice
 import { addNotification } from '../redux-toolkit/slices/notificationSlice';
 
 const Socket: React.FC = () => {
     const user = useSelector((state: RootState) => state.user.user);
-    const selectedConversation = useSelector((state: RootState) => state.conversations.selectedConversation);
+    const selectedConversation = useSelector(
+        (state: RootState) => state.conversations.selectedConversation,
+    );
     const dispatch = useDispatch<AppDispatch>();
-
 
     useEffect(() => {
         // Kết nối socket khi người dùng có sẵn
@@ -32,12 +42,17 @@ const Socket: React.FC = () => {
 
     useEffect(() => {
         const handleSendMessage = (data: IConversationSocket) => {
+            console.log('🚀 ~ handleSendMessage ~ data:', data);
             // console.log('Message received:', data);
             const participants = [data.sender, data.receiver];
             console.log(data.receiver);
 
-            const receiver = participants.find(p => p.userId !== user?.userId);
-            const isSelected = selectedConversation?.conversationId === data.conversationId && data.sender.userId !== user?.userId;
+            const receiver = participants.find(
+                (p) => p.userId !== user?.userId,
+            );
+            const isSelected =
+                selectedConversation?.conversationId === data.conversationId &&
+                data.sender.userId !== user?.userId;
 
             const conversation: IConversation = {
                 conversationId: data.conversationId,
@@ -59,14 +74,20 @@ const Socket: React.FC = () => {
                     },
                 ],
                 deletedBy: [],
-                unreadCount: data.sender.userId === user?.userId || isSelected ? 0 : 1,
+                unreadCount:
+                    data.sender.userId === user?.userId || isSelected ? 0 : 1,
             };
 
             // Gọi addConversation để thêm cuộc trò chuyện
             dispatch(addConversation(conversation));
 
             // Gọi addChat để thêm chat vào state
-            dispatch(addChat({ receiver: receiver?.userId || '', chat: conversation.chats[0] }));
+            dispatch(
+                addChat({
+                    receiver: receiver?.userId || '',
+                    chat: conversation.chats[0],
+                }),
+            );
 
             if (isSelected) {
                 socket.emit('read-conversation', {
@@ -91,7 +112,9 @@ const Socket: React.FC = () => {
 
         // Đăng ký các sự kiện socket
         socket.on('connect', () => console.log('Connected to socket server'));
-        socket.on('disconnect', () => console.log('Disconnected from socket server'));
+        socket.on('disconnect', () =>
+            console.log('Disconnected from socket server'),
+        );
         socket.on('send-message', handleSendMessage);
         socket.on('read-conversation', handleReadConversation);
         socket.on('create-notification', handleCreateNotification);
@@ -110,6 +133,3 @@ const Socket: React.FC = () => {
 };
 
 export default Socket;
-
-
-

@@ -1,30 +1,17 @@
-import { ICreateContractRequest } from "../types/contract";
+import { ICreateContractRequest } from '../types/contract';
 
 export const getStatusInVietnamese = (status: string): string => {
-    switch (status) {
-        case 'WAITING':
-            return 'Đang chờ';
-        case 'DEPOSITED':
-            return 'Đã đặt cọc';
-        case 'ONGOING':
-            return 'Đang diễn ra';
-        case 'ENDED':
-            return 'Đã kết thúc';
-        case 'OVERDUE':
-            return 'Quá hạn';
-        case 'CANCELLED':
-            return 'Đã hủy';
-        case 'PENDING_CANCELLATION':
-            return 'Đang chờ hủy';
-        case 'UNILATERAL_CANCELLATION':
-            return 'Hủy đơn phương';
-        case 'APPROVED_CANCELLATION':
-            return 'Đã duyệt hủy';
-        case 'REJECTED_CANCELLATION':
-            return 'Từ chối hủy';
-        default:
-            return status;
-    }
+    if (status === 'WAITING') return 'Chờ xác nhận';
+    if (status === 'DEPOSITED') return 'Đã đặt cọc';
+    if (status === 'ONGOING') return 'Đang thuê';
+    if (status === 'ENDED') return 'Đã kết thúc';
+    if (status === 'OVERDUE') return 'Quá hạn';
+    if (status === 'CANCELLED') return 'Đã hủy';
+    if (status === 'PENDING_CANCELLATION') return 'Chờ xác nhận huỷ';
+    if (status === 'UNILATERAL_CANCELLATION') return 'Huỷ một phía';
+    if (status === 'APPROVED_CANCELLATION') return 'Chấp nhận huỷ';
+    if (status === 'REJECTED_CANCELLATION') return 'Từ chối huỷ';
+    return 'Không xác định';
 };
 
 export const getCancellationStatusInVietnamese = (status: string): string => {

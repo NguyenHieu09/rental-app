@@ -1,15 +1,37 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, ActivityIndicator, StyleSheet, TextInput } from 'react-native';
-import { getCities, getDistricts, getWards, City, District, Ward } from '../../api/address';
+import {
+    View,
+    Text,
+    ActivityIndicator,
+    StyleSheet,
+    TextInput,
+} from 'react-native';
+import {
+    getCities,
+    getDistricts,
+    getWards,
+    City,
+    District,
+    Ward,
+} from '../../api/address';
 import { Picker } from '@react-native-picker/picker';
 
 interface AddressSelectorProps {
     selectedCity: string | undefined;
-    setSelectedCity: (value: string | undefined, name: string | undefined) => void;
+    setSelectedCity: (
+        value: string | undefined,
+        name: string | undefined,
+    ) => void;
     selectedDistrict: string | undefined;
-    setSelectedDistrict: (value: string | undefined, name: string | undefined) => void;
+    setSelectedDistrict: (
+        value: string | undefined,
+        name: string | undefined,
+    ) => void;
     selectedWard: string | undefined;
-    setSelectedWard: (value: string | undefined, name: string | undefined) => void;
+    setSelectedWard: (
+        value: string | undefined,
+        name: string | undefined,
+    ) => void;
     street: string;
     setStreet: (value: string) => void;
     showStreetInput?: boolean;
@@ -62,8 +84,13 @@ const AddressInput: React.FC<AddressSelectorProps> = ({
                     setDistricts(districtsData);
                     setErrorMessage(null);
                 } catch (error) {
-                    setErrorMessage('Lỗi khi tải quận/huyện. Vui lòng thử lại.');
-                    console.error(`Error fetching districts for cityId ${selectedCity}:`, error);
+                    setErrorMessage(
+                        'Lỗi khi tải quận/huyện. Vui lòng thử lại.',
+                    );
+                    console.error(
+                        `Error fetching districts for cityId ${selectedCity}:`,
+                        error,
+                    );
                 } finally {
                     setLoadingDistricts(false);
                 }
@@ -85,7 +112,10 @@ const AddressInput: React.FC<AddressSelectorProps> = ({
                     setErrorMessage(null);
                 } catch (error) {
                     setErrorMessage('Lỗi khi tải phường/xã. Vui lòng thử lại.');
-                    console.error(`Error fetching wards for districtId ${selectedDistrict}:`, error);
+                    console.error(
+                        `Error fetching wards for districtId ${selectedDistrict}:`,
+                        error,
+                    );
                 } finally {
                     setLoadingWards(false);
                 }
@@ -98,7 +128,7 @@ const AddressInput: React.FC<AddressSelectorProps> = ({
     return (
         <View style={styles.container}>
             {errorMessage && <Text style={styles.error}>{errorMessage}</Text>}
-            <Text style={styles.label}>Tỉnh/Thành phố:</Text>
+            <Text style={styles.label}>Tỉnh, thành phố</Text>
             {loadingCities ? (
                 <ActivityIndicator />
             ) : (
@@ -106,20 +136,34 @@ const AddressInput: React.FC<AddressSelectorProps> = ({
                     <Picker
                         selectedValue={selectedCity}
                         onValueChange={(value) => {
-                            const selectedCityData = cities.find(city => city._id === value);
-                            setSelectedCity(value, selectedCityData ? selectedCityData.name : undefined);
+                            const selectedCityData = cities.find(
+                                (city) => city._id === value,
+                            );
+                            setSelectedCity(
+                                value,
+                                selectedCityData
+                                    ? selectedCityData.name
+                                    : undefined,
+                            );
                         }}
                         style={styles.picker}
                     >
-                        <Picker.Item label="Chọn tỉnh/thành phố" value={undefined} />
+                        <Picker.Item
+                            label='Chọn tỉnh, thành phố'
+                            value={undefined}
+                        />
                         {cities.map((city) => (
-                            <Picker.Item key={city._id} label={city.name} value={city._id} />
+                            <Picker.Item
+                                key={city._id}
+                                label={city.name}
+                                value={city._id}
+                            />
                         ))}
                     </Picker>
                 </View>
             )}
 
-            <Text style={styles.label}>Quận/huyện:</Text>
+            <Text style={styles.label}>Quận, huyện</Text>
             {loadingDistricts ? (
                 <ActivityIndicator />
             ) : (
@@ -127,21 +171,35 @@ const AddressInput: React.FC<AddressSelectorProps> = ({
                     <Picker
                         selectedValue={selectedDistrict}
                         onValueChange={(value) => {
-                            const selectedDistrictData = districts.find(district => district._id === value);
-                            setSelectedDistrict(value, selectedDistrictData ? selectedDistrictData.name : undefined);
+                            const selectedDistrictData = districts.find(
+                                (district) => district._id === value,
+                            );
+                            setSelectedDistrict(
+                                value,
+                                selectedDistrictData
+                                    ? selectedDistrictData.name
+                                    : undefined,
+                            );
                         }}
                         enabled={!!selectedCity}
                         style={styles.picker}
                     >
-                        <Picker.Item label="Chọn quận/huyện" value={undefined} />
+                        <Picker.Item
+                            label='Chọn quận, huyện'
+                            value={undefined}
+                        />
                         {districts.map((district) => (
-                            <Picker.Item key={district._id} label={district.name} value={district._id} />
+                            <Picker.Item
+                                key={district._id}
+                                label={district.name}
+                                value={district._id}
+                            />
                         ))}
                     </Picker>
                 </View>
             )}
 
-            <Text style={styles.label}>Phường/xã:</Text>
+            <Text style={styles.label}>Phường, xã</Text>
             {loadingWards ? (
                 <ActivityIndicator />
             ) : (
@@ -149,15 +207,29 @@ const AddressInput: React.FC<AddressSelectorProps> = ({
                     <Picker
                         selectedValue={selectedWard}
                         onValueChange={(value) => {
-                            const selectedWardData = wards.find(ward => ward._id === value);
-                            setSelectedWard(value, selectedWardData ? selectedWardData.name : undefined);
+                            const selectedWardData = wards.find(
+                                (ward) => ward._id === value,
+                            );
+                            setSelectedWard(
+                                value,
+                                selectedWardData
+                                    ? selectedWardData.name
+                                    : undefined,
+                            );
                         }}
                         enabled={!!selectedDistrict}
                         style={styles.picker}
                     >
-                        <Picker.Item label="Chọn phường/xã" value={undefined} />
+                        <Picker.Item
+                            label='Chọn phường, xã'
+                            value={undefined}
+                        />
                         {wards.map((ward) => (
-                            <Picker.Item key={ward._id} label={ward.name} value={ward._id} />
+                            <Picker.Item
+                                key={ward._id}
+                                label={ward.name}
+                                value={ward._id}
+                            />
                         ))}
                     </Picker>
                 </View>
@@ -168,7 +240,7 @@ const AddressInput: React.FC<AddressSelectorProps> = ({
                     <Text style={styles.label}>Địa chỉ:</Text>
                     <TextInput
                         style={styles.input}
-                        placeholder="Vui lòng nhập địa chỉ"
+                        placeholder='Vui lòng nhập địa chỉ'
                         value={street}
                         onChangeText={setStreet}
                     />

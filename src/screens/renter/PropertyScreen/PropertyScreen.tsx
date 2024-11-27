@@ -1,6 +1,20 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, Image, FlatList, ActivityIndicator, StyleSheet, Dimensions, TouchableOpacity } from 'react-native';
-import { useRoute, RouteProp, NavigationProp, useNavigation } from '@react-navigation/native';
+import {
+    View,
+    Text,
+    Image,
+    FlatList,
+    ActivityIndicator,
+    StyleSheet,
+    Dimensions,
+    TouchableOpacity,
+} from 'react-native';
+import {
+    useRoute,
+    RouteProp,
+    NavigationProp,
+    useNavigation,
+} from '@react-navigation/native';
 import { RootStackParamList } from '../../../types/navigation';
 import { commonStyles } from '../../../styles/theme';
 import { IProperty } from '../../../types/property';
@@ -14,7 +28,10 @@ import RentalRequestModal from '../../../components/modal/RentalRequestModal';
 import { maskPhoneNumber } from '../../../utils/maskPhoneNumber';
 import { Linking } from 'react-native';
 import { IConversation } from '../../../types/chat';
-import { addConversation, setSelectedConversation } from '../../../redux-toolkit/slices/conversationSlice';
+import {
+    addConversation,
+    setSelectedConversation,
+} from '../../../redux-toolkit/slices/conversationSlice';
 // import PropertyReviews from '../../components/review/PropertyReviews'; // Import PropertyReviews component
 import { IReview } from '../../../types/review';
 import PropertyReviews from '../../../components/review/Review';
@@ -30,7 +47,9 @@ const PropertyScreen: React.FC = () => {
     const [error, setError] = useState<string | null>(null);
     const [isModalVisible, setModalVisible] = useState(false);
     const user = useSelector((state: RootState) => state.user.user);
-    const conversations = useSelector((state: RootState) => state.conversations.conversations);
+    const conversations = useSelector(
+        (state: RootState) => state.conversations.conversations,
+    );
     const dispatch = useDispatch<AppDispatch>();
     const navigation = useNavigation<NavigationProp<RootStackParamList>>();
 
@@ -64,7 +83,7 @@ const PropertyScreen: React.FC = () => {
     if (loading) {
         return (
             <View style={commonStyles.container}>
-                <ActivityIndicator size="large" color="#0000ff" />
+                <ActivityIndicator size='large' color='#0000ff' />
             </View>
         );
     }
@@ -85,16 +104,36 @@ const PropertyScreen: React.FC = () => {
         );
     }
 
-    const { images, title, description, address, minDuration, price, deposit, rentalConditions, owner } = property;
+    const {
+        images,
+        title,
+        description,
+        address,
+        minDuration,
+        price,
+        deposit,
+        rentalConditions,
+        owner,
+    } = property;
     const location = `${address.street}, ${address.ward}, ${address.district}, ${address.city}`;
     const formattedPrice = formatPrice(price);
     const formattedDeposit = formatPrice(deposit);
 
-    const area = rentalConditions.find((condition) => condition.type === 'Diện tích')?.value;
-    const bed = rentalConditions.find((condition) => condition.type === 'Phòng ngủ')?.value;
-    const bath = rentalConditions.find((condition) => condition.type === 'Phòng tắm')?.value;
-    const floors = rentalConditions.find((condition) => condition.type === 'Số tầng')?.value;
-    const furniture = rentalConditions.find((condition) => condition.type === 'Nội thất')?.value;
+    const area = rentalConditions.find(
+        (condition) => condition.type === 'Diện tích',
+    )?.value;
+    const bed = rentalConditions.find(
+        (condition) => condition.type === 'Phòng ngủ',
+    )?.value;
+    const bath = rentalConditions.find(
+        (condition) => condition.type === 'Phòng tắm',
+    )?.value;
+    const floors = rentalConditions.find(
+        (condition) => condition.type === 'Số tầng',
+    )?.value;
+    const furniture = rentalConditions.find(
+        (condition) => condition.type === 'Nội thất',
+    )?.value;
 
     const renderItem = ({ item }: { item: string }) => (
         <View style={styles.carouselItem}>
@@ -119,9 +158,17 @@ const PropertyScreen: React.FC = () => {
     };
 
     const handleContactOwnerPress = () => {
-        const conversationId = createChatConversation(user?.userId || '', property.owner.userId);
-        const conversation: IConversation = conversations.find((c) => c.conversationId === conversationId) || {
-            conversationId: createChatConversation(user?.userId || '', property.owner.userId),
+        const conversationId = createChatConversation(
+            user?.userId || '',
+            property.owner.userId,
+        );
+        const conversation: IConversation = conversations.find(
+            (c) => c.conversationId === conversationId,
+        ) || {
+            conversationId: createChatConversation(
+                user?.userId || '',
+                property.owner.userId,
+            ),
             createdAt: new Date().toISOString(),
             deletedBy: [],
             participants: [user!, property.owner],
@@ -156,77 +203,188 @@ const PropertyScreen: React.FC = () => {
                             <View style={styles.detailsContainer}>
                                 <Text style={styles.title}>{title}</Text>
                                 <View style={styles.infoItem}>
-                                    <Text style={styles.price}>Tiền thuê: </Text>
-                                    <Text style={styles.price}>{formattedPrice}</Text>
+                                    <Text style={styles.price}>Giá: </Text>
+                                    <Text style={styles.price}>
+                                        {formattedPrice}
+                                    </Text>
                                 </View>
                                 <View style={styles.infoItem}>
                                     <Text style={styles.price}>Tiền cọc: </Text>
-                                    <Text style={styles.price}>{formattedDeposit}</Text>
+                                    <Text style={styles.price}>
+                                        {formattedDeposit}
+                                    </Text>
                                 </View>
                                 <View style={styles.infoItem}>
-                                    <Text style={{ fontSize: 14, fontWeight: '500' }}>Thời gian thuê tối thiểu: </Text>
-                                    <Text style={{ fontSize: 14, fontWeight: '500' }}>{minDuration} tháng</Text>
+                                    <Text
+                                        style={{
+                                            fontSize: 14,
+                                            fontWeight: '500',
+                                        }}
+                                    >
+                                        Thời gian thuê tối thiểu:{' '}
+                                    </Text>
+                                    <Text
+                                        style={{
+                                            fontSize: 14,
+                                            fontWeight: '500',
+                                        }}
+                                    >
+                                        {minDuration} tháng
+                                    </Text>
                                 </View>
                                 <View style={styles.locationContainer}>
-                                    <AntDesign name="enviromento" size={20} color="black" style={styles.icon} />
-                                    <Text style={styles.location}>{location}</Text>
+                                    <AntDesign
+                                        name='enviromento'
+                                        size={20}
+                                        color='black'
+                                        style={styles.icon}
+                                    />
+                                    <Text style={styles.location}>
+                                        {location}
+                                    </Text>
                                 </View>
                                 <View style={styles.infoContainer}>
+                                    {bed && (
+                                        <View style={styles.infoItem}>
+                                            <Icon
+                                                name='bed'
+                                                size={20}
+                                                color='black'
+                                            />
+                                            <Text style={styles.infoText}>
+                                                {bed} ngủ
+                                            </Text>
+                                        </View>
+                                    )}
+                                    {bath && (
+                                        <View style={styles.infoItem}>
+                                            <Icon
+                                                name='bathtub'
+                                                size={20}
+                                                color='black'
+                                            />
+                                            <Text style={styles.infoText}>
+                                                {bath} tắm
+                                            </Text>
+                                        </View>
+                                    )}
                                     <View style={styles.infoItem}>
-                                        <Icon name="bed" size={20} color="black" />
-                                        <Text style={styles.infoText}>{bed} ngủ</Text>
+                                        <Icon
+                                            name='height'
+                                            size={20}
+                                            color='black'
+                                        />
+                                        <Text style={styles.infoText}>
+                                            {floors}
+                                        </Text>
                                     </View>
                                     <View style={styles.infoItem}>
-                                        <Icon name="bathtub" size={20} color="black" />
-                                        <Text style={styles.infoText}>{bath} tắm</Text>
+                                        <Icon
+                                            name='area-chart'
+                                            size={20}
+                                            color='black'
+                                        />
+                                        <Text style={styles.infoText}>
+                                            {area}
+                                        </Text>
                                     </View>
                                     <View style={styles.infoItem}>
-                                        <Icon name="height" size={20} color="black" />
-                                        <Text style={styles.infoText}>{floors}</Text>
-                                    </View>
-                                    <View style={styles.infoItem}>
-                                        <Icon name="area-chart" size={20} color="black" />
-                                        <Text style={styles.infoText}>{area}</Text>
-                                    </View>
-                                    <View style={styles.infoItem}>
-                                        <Icon name="chair" size={20} color="black" />
-                                        <Text style={styles.infoText}>{furniture}</Text>
+                                        <Icon
+                                            name='chair'
+                                            size={20}
+                                            color='black'
+                                        />
+                                        <Text style={styles.infoText}>
+                                            {furniture}
+                                        </Text>
                                     </View>
                                 </View>
                                 <View>
-                                    <Text style={{ fontSize: 14 }}>Mô tả: {description}</Text>
+                                    <Text style={{ fontSize: 14 }}>
+                                        Mô tả: {description}
+                                    </Text>
                                 </View>
                             </View>
 
                             {/* Owner Information Section */}
                             <View style={styles.ownerContainer}>
                                 <Image
-                                    source={{ uri: owner.avatar ?? 'https://res.cloudinary.com/dxvrdtaky/image/upload/v1727451808/avatar_iirzeq.jpg' }}
+                                    source={{
+                                        uri:
+                                            owner.avatar ??
+                                            'https://res.cloudinary.com/dxvrdtaky/image/upload/v1727451808/avatar_iirzeq.jpg',
+                                    }}
                                     style={styles.ownerImage}
                                 />
                                 <View style={styles.ownerInfo}>
-                                    <Text style={[styles.ownerName]} numberOfLines={1} ellipsizeMode="tail">{owner.name}</Text>
-                                    <Text style={styles.ownerRole}>Chủ sở hữu</Text>
+                                    <Text
+                                        style={[styles.ownerName]}
+                                        numberOfLines={1}
+                                        ellipsizeMode='tail'
+                                    >
+                                        {owner.name}
+                                    </Text>
+                                    <Text style={styles.ownerRole}>
+                                        Chủ sở hữu
+                                    </Text>
                                 </View>
-                                <TouchableOpacity style={[styles.ownerInfo, { marginLeft: 80 }]} onPress={handlePhonePress}>
-                                    <Text style={{ fontSize: 14, fontWeight: '700' }}>Số điện thoại</Text>
-                                    <Text style={styles.ownerRole}>{maskPhoneNumber(owner.phoneNumber)}</Text>
+                                <TouchableOpacity
+                                    style={[styles.ownerInfo]}
+                                    onPress={handlePhonePress}
+                                >
+                                    <Text style={styles.ownerRole}>
+                                        {owner.email}
+                                    </Text>
+                                    {owner.phoneNumber && (
+                                        <Text style={styles.ownerRole}>
+                                            {maskPhoneNumber(owner.phoneNumber)}
+                                        </Text>
+                                    )}
                                     {/* <Text style={styles.ownerRole}>{owner.phoneNumber}</Text> */}
                                 </TouchableOpacity>
                             </View>
 
-                            <View style={[styles.infoContainer, { justifyContent: 'space-evenly' }]}>
-                                <TouchableOpacity style={[styles.requestButton, { backgroundColor: 'white', borderColor: '#007BFF', borderWidth: 1 }]} onPress={handleContactOwnerPress}>
+                            <View style={[styles.infoContainer, { gap: 12 }]}>
+                                <TouchableOpacity
+                                    style={[
+                                        styles.requestButton,
+                                        {
+                                            backgroundColor: 'white',
+                                            borderColor: '#007BFF',
+                                            borderWidth: 1,
+                                        },
+                                    ]}
+                                    onPress={handleContactOwnerPress}
+                                >
                                     <View style={styles.buttonContent}>
-                                        <Text style={[styles.buttonText, { color: '#007BFF' }]}>Liên hệ chủ nhà</Text>
+                                        <Text
+                                            style={[
+                                                styles.buttonText,
+                                                { color: '#007BFF' },
+                                            ]}
+                                        >
+                                            Liên hệ chủ nhà
+                                        </Text>
                                     </View>
                                 </TouchableOpacity>
-                                <TouchableOpacity style={[styles.requestButton, { backgroundColor: '#007BFF' }]} onPress={toggleModal}>
+                                <TouchableOpacity
+                                    style={[
+                                        styles.requestButton,
+                                        { backgroundColor: '#007BFF' },
+                                    ]}
+                                    onPress={toggleModal}
+                                >
                                     <View style={styles.buttonContent}>
-                                        <Text style={[styles.buttonText, { color: 'white' }]}>Gửi yêu cầu thuê</Text>
+                                        <Text
+                                            style={[
+                                                styles.buttonText,
+                                                { color: 'white' },
+                                            ]}
+                                        >
+                                            Gửi yêu cầu thuê
+                                        </Text>
                                     </View>
                                 </TouchableOpacity>
-
                             </View>
                             <RentalRequestModal
                                 isVisible={isModalVisible}
@@ -234,7 +392,6 @@ const PropertyScreen: React.FC = () => {
                                 property={property}
                                 ownerId={owner.userId}
                                 userId={user?.userId || ''}
-
                             />
                         </View>
                     );
@@ -249,9 +406,7 @@ const PropertyScreen: React.FC = () => {
                 return null;
             }}
             keyExtractor={(item) => item.key}
-
         />
-
     );
 };
 
@@ -286,7 +441,6 @@ const styles = StyleSheet.create({
     },
     location: {
         fontSize: 16,
-        color: 'gray',
         flex: 1,
     },
     icon: {
@@ -295,7 +449,6 @@ const styles = StyleSheet.create({
     infoContainer: {
         flexDirection: 'row',
         flexWrap: 'wrap',
-        justifyContent: 'space-between',
         marginBottom: 8,
     },
     infoItem: {
@@ -337,7 +490,7 @@ const styles = StyleSheet.create({
     ownerContainer: {
         flexDirection: 'row',
         alignItems: 'center',
-        padding: 16,
+        paddingVertical: 16,
         borderTopLeftRadius: 16,
         borderTopRightRadius: 16,
         marginTop: 8,
@@ -359,19 +512,23 @@ const styles = StyleSheet.create({
         color: 'gray',
     },
     requestButton: {
+        flex: 1,
         padding: 8,
         backgroundColor: '#f9f9f9',
         borderRadius: 8,
         flexDirection: 'row',
         alignItems: 'center',
+        justifyContent: 'center',
     },
     buttonContent: {
         flexDirection: 'row',
         alignItems: 'center',
+        justifyContent: 'center',
     },
     buttonText: {
         fontSize: 16,
         color: 'black',
+        textAlign: 'center',
     },
     sectionTitle: {
         fontSize: 20,
@@ -387,8 +544,7 @@ const styles = StyleSheet.create({
         fontSize: 12,
         color: '#888',
     },
-    content: {}
+    content: {},
 });
 
 export default PropertyScreen;
-
