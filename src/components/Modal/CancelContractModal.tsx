@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { View, Text, StyleSheet, Modal, Button, TouchableOpacity, Alert, TextInput } from 'react-native';
 import DateTimePickerModal from 'react-native-modal-datetime-picker';
 import { format, parseISO } from 'date-fns';
+import { ActivityIndicator } from 'react-native-paper';
 
 interface CancelContractModalProps {
     visible: boolean;
@@ -27,11 +28,23 @@ const CancelContractModal: React.FC<CancelContractModalProps> = ({
     const [desiredEndDate, setDesiredEndDate] = useState<Date | null>(null);
     const [isDatePickerVisible, setDatePickerVisibility] = useState(false);
     const [reason, setReason] = useState<string>('');
+    const [loading, setLoading] = useState(false);
 
+    // const handleConfirm = () => {
+    //     // const start = parseISO(startDate);
+    //     // const end = parseISO(endDate);
+    //     if (!desiredEndDate) {
+    //         Alert.alert('Lỗi', 'Vui lòng nhập ngày kết thúc mong muốn.');
+    //         return;
+    //     }
+    //     if (!reason.trim()) {
+    //         Alert.alert('Lỗi', 'Vui lòng nhập lý do hủy hợp đồng.');
+    //         return;
+    //     }
+    //     onConfirm(desiredEndDate, reason);
+    // };
 
-    const handleConfirm = () => {
-        const start = parseISO(startDate);
-        const end = parseISO(endDate);
+    const handleConfirm = async () => {
         if (!desiredEndDate) {
             Alert.alert('Lỗi', 'Vui lòng nhập ngày kết thúc mong muốn.');
             return;
@@ -40,7 +53,15 @@ const CancelContractModal: React.FC<CancelContractModalProps> = ({
             Alert.alert('Lỗi', 'Vui lòng nhập lý do hủy hợp đồng.');
             return;
         }
-        onConfirm(desiredEndDate, reason);
+
+        try {
+            setLoading(true);
+            await onConfirm(desiredEndDate, reason);
+        } catch (error) {
+            Alert.alert('Lỗi', 'Đã xảy ra lỗi trong quá trình xử lý. Vui lòng thử lại.');
+        } finally {
+            setLoading(false);
+        }
     };
 
     const handleConfirmDate = (date: Date) => {
@@ -90,11 +111,19 @@ const CancelContractModal: React.FC<CancelContractModalProps> = ({
                     />
                     <Text style={{ color: 'red', marginBottom: 10 }}>Lưu ý: Nếu muốn huỷ hợp đồng trước hạn nhưng không thông báo trước 30 ngày thì sẽ mất tiền cọc và phải trả thêm 1 tháng tiền thuê cho người thuê.</Text>
                     <View style={styles.modalButtonContainer}>
-                        <TouchableOpacity style={styles.button} onPress={onClose}>
+                        <TouchableOpacity style={[styles.button, { backgroundColor: "#f44336" }]} onPress={onClose}>
                             <Text style={styles.buttonText}>Hủy</Text>
                         </TouchableOpacity>
-                        <TouchableOpacity style={styles.button} onPress={handleConfirm}>
-                            <Text style={styles.buttonText}>Xác nhận</Text>
+                        <TouchableOpacity
+                            style={styles.button}
+                            onPress={handleConfirm}
+                            disabled={loading}
+                        >
+                            {loading ? (
+                                <Text style={styles.buttonText}>Đang xử lý...</Text>
+                            ) : (
+                                <Text style={styles.buttonText}>Xác nhận</Text>
+                            )}
                         </TouchableOpacity>
                     </View>
                 </View>

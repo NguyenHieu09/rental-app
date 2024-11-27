@@ -11,7 +11,33 @@ import { ICancelContractRequest, ICancelContractResponse } from '../types/cancel
 const API_CONTRACT_URL = `${API_URL}/contract-service`;
 
 // Function to fetch contracts from the API
-export const createContract = async (contractRequest: ICreateContractRequest): Promise<IContract> => {
+// export const createContract = async (contractRequest: ICreateContractRequest): Promise<IContract> => {
+//     try {
+//         const token = await AsyncStorage.getItem('accessToken');
+
+//         if (!token) {
+//             throw new Error('No token provided');
+//         }
+
+//         const response = await axios.post<IContract>(`${API_CONTRACT_URL}/contracts`, contractRequest, {
+//             headers: {
+//                 Authorization: `Bearer ${token}`,
+//             },
+//         });
+
+//         return response.data;
+//     } catch (error: any) {
+//         if (error.response && error.response.data && error.response.data.message) {
+//             console.error('Error message:', error.response.data.message);
+//             throw new Error(error.response.data.message);
+//         } else {
+//             console.error('Error creating contract:', error);
+//             throw error;
+//         }
+//     }
+// };
+
+export const createContractAndApproveRequest = async (params: ICreateContractRequest & { requestId: string }): Promise<IContract> => {
     try {
         const token = await AsyncStorage.getItem('accessToken');
 
@@ -19,9 +45,12 @@ export const createContract = async (contractRequest: ICreateContractRequest): P
             throw new Error('No token provided');
         }
 
+        const { requestId, ...contractRequest } = params;
+
         const response = await axios.post<IContract>(`${API_CONTRACT_URL}/contracts`, contractRequest, {
             headers: {
                 Authorization: `Bearer ${token}`,
+                'X-Request-ID': requestId,
             },
         });
 
@@ -446,6 +475,37 @@ export const fetchRentalRequestsForRenter = async (take: number, skip: number) =
     } catch (error) {
         console.error('Error fetching rental requests for renter:', error);
         throw error;
+    }
+};
+
+
+export const cancelContractBeforeDeposit = async (contractId: string): Promise<void> => {
+    try {
+        const token = await AsyncStorage.getItem('accessToken');
+
+        if (!token) {
+            throw new Error('No token provided');
+        }
+
+        const response = await axios.post(`${API_CONTRACT_URL}/contracts/cancel-before-deposit`, { contractId }, {
+            headers: {
+                Authorization: `Bearer ${token}`,
+            },
+        });
+
+        if (response.status === 200) {
+            console.log('Cancel contract before deposit successful');
+        } else {
+            throw new Error('Failed to cancel contract before deposit');
+        }
+    } catch (error: any) {
+        if (error.response && error.response.data && error.response.data.message) {
+            console.error('Error message:', error.response.data.message);
+            throw new Error(error.response.data.message);
+        } else {
+            console.error('Error canceling contract before deposit:', error);
+            throw error;
+        }
     }
 };
 

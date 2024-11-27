@@ -113,7 +113,7 @@ const DashboardOwner: React.FC = () => {
                     <Text style={styles.title}>{user?.name || 'Guest'}</Text>
                     <Text style={styles.revenue}>Doanh Thu Trung Bình</Text>
                     <Text style={styles.amount}>{formatPrice(avgRevenueVND)}</Text>
-                    <TouchableOpacity style={styles.button} onPress={handleViewProperties}>
+                    <TouchableOpacity style={styles.button} onPress={() => navigation.navigate("StatisticsScreen")}>
                         <Text style={styles.buttonText}>Xem báo cáo thống kê →</Text>
                     </TouchableOpacity>
                 </View>
