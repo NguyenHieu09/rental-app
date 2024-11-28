@@ -143,7 +143,7 @@ export const updateUserInfo = async (
     if (!response.ok) {
         const errorText = await response.text();
         console.error('Response error text:', errorText);
-        throw new Error('Failed to update user info');
+        throw new Error(errorText);
     }
 
     return await response.json();
@@ -1029,6 +1029,47 @@ export const fetchPropertyOverview = async () => {
             throw new Error(error.response.data.message);
         } else {
             console.error('Error fetching owner dashboard overview:', error);
+            throw (error as any).response;
+        }
+    }
+};
+
+
+export const updatePropertyVisibility = async (
+    properties: string[],
+    status: string,
+) => {
+    try {
+        const token = await AsyncStorage.getItem('accessToken');
+
+        if (!token) {
+            throw new Error('No token provided');
+        }
+
+        const response = await axios.post(
+            `${API_BASE_URL}/properties/visible`,
+            {
+                properties,
+                status,
+            },
+            {
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                },
+            },
+        );
+
+        return response.data;
+    } catch (error: any) {
+        if (
+            error.response &&
+            error.response.data &&
+            error.response.data.message
+        ) {
+            console.error('Error message:', error.response.data.message);
+            throw new Error(error.response.data.message);
+        } else {
+            console.error('Error updating property visibility:', error);
             throw (error as any).response;
         }
     }

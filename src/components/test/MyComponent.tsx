@@ -1,40 +1,56 @@
-import React, { useState } from "react"
-import { useSDK } from "@metamask/sdk-react"
 
-// Định nghĩa kiểu cho signature
-type Signature = string | null
+import React, { forwardRef, useImperativeHandle } from 'react';
+import {
+    SafeAreaView,
+    View,
+    KeyboardAvoidingView,
+    Platform,
+    StyleSheet,
+} from 'react-native';
+import { RichText, Toolbar, useEditorBridge } from '@10play/tentap-editor';
 
-const MyComponent: React.FC = () => {
-    const { sdk } = useSDK()
-    const [signedMessage, setSignedMessage] = useState<Signature>("")
-
-    const handleConnectAndSign = async () => {
-        try {
-            if (!sdk) {
-                console.error("SDK is not initialized")
-                return
-            }
-
-            const message = "Your message here"
-            const signature = await sdk.connectAndSign({ msg: message })
-
-            // Kiểm tra nếu signature là một chuỗi hợp lệ
-            if (typeof signature === "string") {
-                setSignedMessage(signature)
-            } else {
-                console.error("Signature is not a valid string")
-            }
-        } catch (error) {
-            console.error("Error in signing:", error)
-        }
-    }
-
-    return (
-        <div>
-            <button onClick={handleConnectAndSign}>Connect and Sign</button>
-            {signedMessage && <p>Signed Message: {signedMessage}</p>}
-        </div>
-    )
+interface BasicProps {
+    initialContent: string;
 }
 
-export default MyComponent
+const Basic = forwardRef(({ initialContent }: BasicProps, ref) => {
+    console.log('initialContent', initialContent);
+
+    const editor = useEditorBridge({
+        autofocus: true,
+        avoidIosKeyboard: true,
+        initialContent,
+    });
+
+    useImperativeHandle(ref, () => ({
+        getHTML: () => editor.getHTML(),
+    }));
+
+    return (
+        <SafeAreaView style={exampleStyles.fullScreen}>
+            <RichText editor={editor} />
+            <KeyboardAvoidingView
+                behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+                style={exampleStyles.keyboardAvoidingView}
+            >
+                <Toolbar editor={editor} />
+            </KeyboardAvoidingView>
+        </SafeAreaView>
+    );
+});
+
+const exampleStyles = StyleSheet.create({
+    fullScreen: {
+        flex: 1,
+        paddingHorizontal: 10,
+    },
+    keyboardAvoidingView: {
+        position: 'absolute',
+        width: '100%',
+        bottom: 0,
+    },
+
+
+});
+
+export default Basic;

@@ -49,6 +49,11 @@ const ProfileScreen = () => {
 
         navigation.navigate('Login');
     };
+
+    const filteredOptions = user?.userTypes.includes('owner')
+        ? options.filter((option) => option.id !== '6')
+        : options;
+
     const renderItem = ({
         item,
     }: {
@@ -121,7 +126,7 @@ const ProfileScreen = () => {
                 </Text>
             </View>
             <FlatList
-                data={options}
+                data={filteredOptions}
                 renderItem={renderItem}
                 keyExtractor={(item) => item.id}
                 style={styles.list}

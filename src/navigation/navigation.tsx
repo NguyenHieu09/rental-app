@@ -29,6 +29,7 @@ import WelcomeScreen from '../screens/welcomeScreen/WelcomeScreen';
 import OwnerTabs from './OwnerTabs';
 import RenterTabs from './RenterTabs';
 import WalletManagement from './WalletManagement';
+import EditPropertyScreen from '../screens/editProperty/EditProperty';
 
 const Stack = createStackNavigator();
 
@@ -86,10 +87,10 @@ const Navigation: React.FC = () => {
                     isFirstLaunch
                         ? 'Welcome'
                         : user
-                        ? user.userTypes.includes('owner')
-                            ? 'DashboardOwner'
-                            : 'RenterTabs'
-                        : 'Login'
+                            ? user.userTypes.includes('owner')
+                                ? 'DashboardOwner'
+                                : 'RenterTabs'
+                            : 'Login'
                 }
             >
                 {isFirstLaunch && (
@@ -129,20 +130,7 @@ const Navigation: React.FC = () => {
                             fontSize: 20,
                             color: '#333',
                         },
-                        headerRight: () => (
-                            <TouchableOpacity
-                                onPress={() => setIsBookmarked(!isBookmarked)}
-                                style={{ marginRight: 16 }}
-                            >
-                                <FontAwesome
-                                    name={
-                                        isBookmarked ? 'bookmark' : 'bookmark-o'
-                                    }
-                                    size={30}
-                                    color={isBookmarked ? 'blue' : 'black'}
-                                />
-                            </TouchableOpacity>
-                        ),
+
                     }}
                 />
                 <Stack.Screen
@@ -216,15 +204,7 @@ const Navigation: React.FC = () => {
                             fontSize: 20,
                             color: '#333',
                         },
-                        // headerRight: () => (
-                        //     <TouchableOpacity onPress={() => setIsBookmarked(!isBookmarked)} style={{ marginRight: 16 }}>
-                        //         <FontAwesome
-                        //             name={isBookmarked ? "bookmark" : "bookmark-o"}
-                        //             size={30}
-                        //             color={isBookmarked ? "blue" : "black"}
-                        //         />
-                        //     </TouchableOpacity>
-                        // ),
+
                     }}
                 />
                 <Stack.Screen
@@ -242,6 +222,17 @@ const Navigation: React.FC = () => {
                     component={PersonalInfo}
                     options={{ title: 'Tài khoản và bảo mật' }}
                 />
+
+                <Stack.Screen
+                    name='EditPropertyScreen'
+                    component={EditPropertyScreen}
+                    options={{
+                        title: 'Cập nhật thông tin',
+                    }}
+
+                />
+
+
             </Stack.Navigator>
         </NavigationContainer>
     );

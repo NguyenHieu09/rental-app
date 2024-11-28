@@ -35,5 +35,5 @@ export type RootStackParamList = {
     AccountInfo: undefined;
     PersonalInfo: undefined;
     UpdatePassword: undefined;
-
+    EditPropertyScreen: { slug: string };
 };

@@ -59,6 +59,7 @@ const HomeScreen: React.FC = () => {
         useCallback(() => {
             const refreshScreen = async () => {
                 setSearchText('');
+                await loadProperties(city, district);
             };
 
             refreshScreen();
@@ -255,6 +256,7 @@ const HomeScreen: React.FC = () => {
                         />
                     ))}
                 </ScrollView>
+
 
                 <Text style={styles.sectionTitle}>
                     Khám phá bất động sản gần đây

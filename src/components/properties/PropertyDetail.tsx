@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useLayoutEffect, useState } from 'react';
 import { View, Text, Image, FlatList, ActivityIndicator, StyleSheet, Dimensions, TouchableOpacity } from 'react-native';
 import { useRoute, RouteProp, NavigationProp, useNavigation } from '@react-navigation/native';
 
@@ -17,6 +17,7 @@ import { fetchPropertyDetail, fetchPropertyReviews } from '../../api/api';
 import { commonStyles } from '../../styles/theme';
 import { formatPrice } from '../../utils/formattedPrice';
 import PropertyReviews from '../review/Review';
+import { IconOutline } from '@ant-design/icons-react-native';
 
 
 
@@ -32,6 +33,16 @@ const PropertyDetail: React.FC = () => {
     const user = useSelector((state: RootState) => state.user.user);
     const dispatch = useDispatch<AppDispatch>();
     const navigation = useNavigation<NavigationProp<RootStackParamList>>();
+
+    useLayoutEffect(() => {
+        navigation.setOptions({
+            headerRight: () => (
+                <TouchableOpacity style={{ right: 10 }} onPress={() => navigation.navigate('EditPropertyScreen', { slug })}>
+                    <IconOutline name="edit" size={24} color="black" />
+                </TouchableOpacity>
+            ),
+        });
+    }, [navigation, slug]);
 
     useEffect(() => {
         const loadPropertyDetail = async () => {

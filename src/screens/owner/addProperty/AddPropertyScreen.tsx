@@ -11,7 +11,7 @@ import {
     TouchableOpacity,
     View,
 } from 'react-native';
-import { RadioButton } from 'react-native-paper';
+import { Checkbox, RadioButton } from 'react-native-paper';
 import {
     createProperty,
     fetchPropertyAttributes,
@@ -78,6 +78,7 @@ const AddPropertyScreen: React.FC = () => {
     const [selectedWardName, setSelectedWardName] = useState<
         string | undefined
     >(undefined);
+    const [errors, setErrors] = useState<{ [key: string]: string }>({});
 
     const [attributes, setAttributes] = useState<IAttribute[]>([]);
     const [selectedAttributes, setSelectedAttributes] = useState<string[]>([]);
@@ -140,6 +141,16 @@ const AddPropertyScreen: React.FC = () => {
         });
     };
 
+    // const handleAttributeChange = (value: string) => {
+    //     setSelectedAttributes((prev) => {
+    //         if (prev.includes(value)) {
+    //             return prev.filter((attr) => attr !== value);
+    //         } else {
+    //             return [...prev, value];
+    //         }
+    //     });
+    // };
+
     const handleUpload = async () => {
         if (loading) return;
 
@@ -195,11 +206,19 @@ const AddPropertyScreen: React.FC = () => {
                 Alert.alert('Thành công', 'Đăng tin thành công.');
                 navigation.navigate('ManageProperty');
             } else {
-                Alert.alert('Lỗi', response.message || 'Có lỗi xảy ra.');
+                if (response.details) {
+                    const fieldErrors: { [key: string]: string } = {};
+                    response.details.forEach((detail: { field: string; error: string }) => {
+                        fieldErrors[detail.field] = detail.error;
+                    });
+                    setErrors(fieldErrors);
+                } else {
+                    Alert.alert('Lỗi', response.message || 'Có lỗi xảy ra.');
+                }
             }
         } catch (error) {
             console.error('Error uploading property:', error);
-            Alert.alert('Lỗi', 'Có lỗi xảy ra khi tải lên.');
+            Alert.alert('Lỗi', 'Có lỗi xảy ra khi đăng bài.');
         } finally {
             setLoading(false); // Stop loading state
         }
@@ -208,12 +227,14 @@ const AddPropertyScreen: React.FC = () => {
     return (
         <View style={commonStyles.container}>
             <ScrollView>
+                <Text style={styles.label}>Tiêu đề</Text>
                 <TextInput
                     style={styles.input}
                     placeholder='Tiêu đề'
                     value={title}
                     onChangeText={setTitle}
                 />
+                <Text style={styles.label}>Mô tả</Text>
                 <TextInput
                     style={styles.input}
                     placeholder='Mô tả'
@@ -221,6 +242,7 @@ const AddPropertyScreen: React.FC = () => {
                     onChangeText={setDescription}
                     multiline
                 />
+                <Text style={styles.label}>Diện tích</Text>
                 <TextInput
                     style={styles.input}
                     placeholder='Diện tích (m2)'
@@ -228,6 +250,7 @@ const AddPropertyScreen: React.FC = () => {
                     onChangeText={setAcreage}
                     keyboardType='numeric'
                 />
+                <Text style={styles.label}>Giá</Text>
                 <TextInput
                     style={styles.input}
                     placeholder='Giá'
@@ -235,6 +258,7 @@ const AddPropertyScreen: React.FC = () => {
                     onChangeText={setPrice}
                     keyboardType='numeric'
                 />
+                <Text style={styles.label}>Tiền cọc</Text>
                 <TextInput
                     style={styles.input}
                     placeholder='Tiền cọc'
@@ -242,7 +266,7 @@ const AddPropertyScreen: React.FC = () => {
                     onChangeText={setDeposit}
                     keyboardType='numeric'
                 />
-
+                <Text style={styles.label}>Phòng ngủ</Text>
                 <TextInput
                     style={styles.input}
                     placeholder='Phòng ngủ'
@@ -250,6 +274,7 @@ const AddPropertyScreen: React.FC = () => {
                     onChangeText={setBedroom}
                     keyboardType='numeric'
                 />
+                <Text style={styles.label}>Phòng tắm/ nhà vệ sinh</Text>
                 <TextInput
                     style={styles.input}
                     placeholder='Phòng tắm, vệ sinh'
@@ -257,6 +282,7 @@ const AddPropertyScreen: React.FC = () => {
                     onChangeText={setBathroom}
                     keyboardType='numeric'
                 />
+                <Text style={styles.label}>Diện tích quyền sử dụng đất</Text>
                 <TextInput
                     style={styles.input}
                     placeholder='Diện tích quyền sử dụng đất (m2)'
@@ -264,7 +290,7 @@ const AddPropertyScreen: React.FC = () => {
                     onChangeText={setLandArea}
                     keyboardType='numeric'
                 />
-
+                <Text style={styles.label}>Số tầng</Text>
                 <TextInput
                     style={styles.input}
                     placeholder='Số tầng'
@@ -272,7 +298,7 @@ const AddPropertyScreen: React.FC = () => {
                     onChangeText={setFloor}
                     keyboardType='numeric'
                 />
-
+                <Text style={styles.label}>Thời gian thuê tối thiểu</Text>
                 <TextInput
                     style={styles.input}
                     placeholder='Thời gian thuê tối thiểu'
@@ -280,6 +306,7 @@ const AddPropertyScreen: React.FC = () => {
                     onChangeText={setMinDuration}
                     keyboardType='numeric'
                 />
+                <Text style={styles.label}>Loại bất động sản</Text>
                 <View style={styles.pickerContainer}>
                     <Picker
                         selectedValue={type.id}
@@ -309,6 +336,7 @@ const AddPropertyScreen: React.FC = () => {
                         ))}
                     </Picker>
                 </View>
+                <Text style={styles.label}>Nội thất</Text>
 
                 <View style={styles.pickerContainer}>
                     <Picker
@@ -329,6 +357,17 @@ const AddPropertyScreen: React.FC = () => {
                 <View style={styles.radioContainer}>
                     <Text style={styles.label}>Tiện ích</Text>
                     {attributes.map((attribute) => (
+                        <View key={attribute.id} style={styles.checkboxContainer}>
+
+                            <Checkbox
+                                color="#007BFF"
+                                status={selectedAttributes.includes(attribute.id) ? 'checked' : 'unchecked'}
+                                onPress={() => handleAttributeChange(attribute.id)} // Thêm hàm xử lý khi thay đổi checkbox
+                            />
+                            <Text>{attribute.name}</Text>
+                        </View>
+                    ))}
+                    {/* {attributes.map((attribute) => (
                         <View key={attribute.id} style={styles.radioButton}>
                             <RadioButton
                                 color='#007BFF'
@@ -344,7 +383,7 @@ const AddPropertyScreen: React.FC = () => {
                             />
                             <Text>{attribute.name}</Text>
                         </View>
-                    ))}
+                    ))} */}
                 </View>
 
                 <AddressInput
@@ -445,6 +484,7 @@ const styles = StyleSheet.create({
         borderRadius: 5,
         padding: 10,
         marginBottom: 15,
+        height: 50
     },
     uploadButton: {
         borderWidth: 1,
@@ -517,9 +557,10 @@ const styles = StyleSheet.create({
         borderColor: '#ccc',
         borderRadius: 5,
         marginBottom: 15,
+        height: 50
     },
     picker: {
-        fontSize: 10,
+        fontSize: 20,
     },
     radioContainer: {
         // marginVertical: 20,
@@ -531,6 +572,12 @@ const styles = StyleSheet.create({
     },
     label: {
         fontSize: 16,
+        marginBottom: 10,
+        fontWeight: 'bold',
+    },
+    checkboxContainer: {
+        flexDirection: 'row',
+        alignItems: 'center',
         marginBottom: 10,
     },
 });

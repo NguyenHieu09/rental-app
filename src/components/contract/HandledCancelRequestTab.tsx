@@ -155,7 +155,7 @@
 
 // export default HandledCancelRequestTab;
 
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { View, Text, StyleSheet, ActivityIndicator, Alert } from 'react-native';
 import { ICancelContractResponse } from '../../types/cancelContract';
 import { IExtensionRequest } from '../../types/extensionRequest';
@@ -167,6 +167,10 @@ import {
     fetchHandledCancelContractRequest,
     fetchExtensionRequests,
 } from '../../api/contract';
+import { ScrollView } from 'react-native-gesture-handler';
+import { useFocusEffect } from '@react-navigation/native';
+import Tag from '../tag/Tag';
+import { getCancelRequestColor } from '../../utils/colorTag';
 
 const getStatusExtensionRequests = (status: string): string => {
     if (status === 'PENDING') return 'Chờ xác nhận';
@@ -187,35 +191,37 @@ const HandledCancelRequestTab: React.FC<{ contractId: string }> = ({
     >([]);
     const [loading, setLoading] = useState(true);
 
-    useEffect(() => {
-        const loadHandledRequests = async () => {
-            try {
-                const handledCancelData =
-                    await fetchHandledCancelContractRequest(contractId);
-                const handledExtensionData = await fetchExtensionRequests(
-                    contractId,
-                );
+    useFocusEffect(
+        useCallback(() => {
+            const loadHandledRequests = async () => {
+                try {
+                    const handledCancelData =
+                        await fetchHandledCancelContractRequest(contractId);
+                    const handledExtensionData = await fetchExtensionRequests(
+                        contractId,
+                    );
 
-                setHandledCancelRequests(
-                    Array.isArray(handledCancelData)
-                        ? handledCancelData
-                        : [handledCancelData],
-                );
-                setHandledExtensionRequests(
-                    handledExtensionData.filter(
-                        (request) => request.status !== 'PENDING',
-                    ),
-                );
-            } catch (error: any) {
-                console.error('Error loading handled requests:', error);
-                Alert.alert('Lỗi', 'Có lỗi xảy ra khi tải dữ liệu.');
-            } finally {
-                setLoading(false);
-            }
-        };
+                    setHandledCancelRequests(
+                        Array.isArray(handledCancelData)
+                            ? handledCancelData
+                            : [handledCancelData],
+                    );
+                    setHandledExtensionRequests(
+                        handledExtensionData.filter(
+                            (request) => request.status !== 'PENDING',
+                        ),
+                    );
+                } catch (error: any) {
+                    console.error('Error loading handled requests:', error);
+                    Alert.alert('Lỗi', 'Có lỗi xảy ra khi tải dữ liệu.');
+                } finally {
+                    setLoading(false);
+                }
+            };
 
-        loadHandledRequests();
-    }, [contractId]);
+            loadHandledRequests();
+        }, [contractId]),
+    );
 
     if (loading) {
         return (
@@ -226,76 +232,79 @@ const HandledCancelRequestTab: React.FC<{ contractId: string }> = ({
     }
 
     return (
-        <View style={styles.container}>
+        <ScrollView style={styles.container}>
+            {/* <ScrollView> */}
             {handledCancelRequests.length > 0
                 ? handledCancelRequests.map((request) => (
-                      <View
-                          key={request.id}
-                          style={styles.cancelRequestContainer}
-                      >
-                          <Text style={styles.label}>Người yêu cầu:</Text>
-                          <Text style={styles.value}>
-                              {request.userRequest.name}
-                          </Text>
-                          <Text style={styles.label}>Ngày gửi yêu cầu:</Text>
-                          <Text style={styles.value}>
-                              {new Date(
-                                  request.requestedAt,
-                              ).toLocaleDateString()}
-                          </Text>
-                          <Text style={styles.label}>Ngày hủy:</Text>
-                          <Text style={styles.value}>
-                              {new Date(
-                                  request.cancelDate,
-                              ).toLocaleDateString()}
-                          </Text>
-                          <Text style={styles.label}>Lý do:</Text>
-                          <Text style={styles.value}>{request.reason}</Text>
-                          <Text style={styles.label}>Trạng thái:</Text>
-                          <Text style={styles.status}>
-                              {getCancellationStatusInVietnamese(
-                                  request.status,
-                              )}
-                          </Text>
-                      </View>
-                  ))
+                    <View
+                        key={request.id}
+                        style={styles.cancelRequestContainer}
+                    >
+                        <Text style={[styles.label, { textAlign: 'center' }]}>Yêu cầu hủy hợp đồng</Text>
+                        <Text style={styles.label}>Người yêu cầu:</Text>
+                        <Text style={styles.value}>
+                            {request.userRequest.name}
+                        </Text>
+                        <Text style={styles.label}>Ngày gửi yêu cầu:</Text>
+                        <Text style={styles.value}>
+                            {new Date(
+                                request.requestedAt,
+                            ).toLocaleDateString()}
+                        </Text>
+                        <Text style={styles.label}>Ngày hủy:</Text>
+                        <Text style={styles.value}>
+                            {new Date(
+                                request.cancelDate,
+                            ).toLocaleDateString()}
+                        </Text>
+                        <Text style={styles.label}>Lý do:</Text>
+                        <Text style={styles.value}>{request.reason}</Text>
+                        <Text style={styles.label}>Trạng thái:</Text>
+
+                        <Tag color={getCancelRequestColor(request.status)}>
+                            {getCancellationStatusInVietnamese(request.status)}
+                        </Tag>
+                    </View>
+                ))
                 : null}
 
             {handledExtensionRequests.length > 0
                 ? handledExtensionRequests.map((request) => (
-                      <View
-                          key={request.id}
-                          style={styles.extensionRequestContainer}
-                      >
-                          <Text style={[styles.label, { textAlign: 'center' }]}>
-                              {request.type === 'EXTEND_PAYMENT'
-                                  ? 'Yêu cầu gia hạn thanh toán'
-                                  : 'Yêu cầu gia hạn hợp đồng'}
-                          </Text>
-                          <Text style={styles.label}>Thời gian gia hạn:</Text>
-                          <Text style={styles.value}>
-                              {new Date(
-                                  request.extensionDate,
-                              ).toLocaleDateString()}
-                          </Text>
-                          <Text style={styles.label}>Lý do:</Text>
-                          <Text style={styles.value}>{request.reason}</Text>
-                          <Text style={styles.label}>Ngày gửi yêu cầu:</Text>
-                          <Text style={styles.value}>
-                              {new Date(request.createdAt).toLocaleDateString()}
-                          </Text>
-                          <Text style={styles.label}>Trạng thái:</Text>
-                          <Text style={styles.status}>
-                              {getStatusExtensionRequests(request.status)}
-                          </Text>
-                      </View>
-                  ))
+                    <View
+                        key={request.id}
+                        style={styles.extensionRequestContainer}
+                    >
+                        <Text style={[styles.label, { textAlign: 'center' }]}>
+                            {request.type === 'EXTEND_PAYMENT'
+                                ? 'Yêu cầu gia hạn thanh toán'
+                                : 'Yêu cầu gia hạn hợp đồng'}
+                        </Text>
+                        <Text style={styles.label}>Thời gian gia hạn:</Text>
+                        <Text style={styles.value}>
+                            {new Date(
+                                request.extensionDate,
+                            ).toLocaleDateString()}
+                        </Text>
+                        <Text style={styles.label}>Lý do:</Text>
+                        <Text style={styles.value}>{request.reason}</Text>
+                        <Text style={styles.label}>Ngày gửi yêu cầu:</Text>
+                        <Text style={styles.value}>
+                            {new Date(request.createdAt).toLocaleDateString()}
+                        </Text>
+                        <Text style={styles.label}>Trạng thái:</Text>
+                        <Tag color={getCancelRequestColor(request.status)}>
+                            {getStatusExtensionRequests(request.status)}
+                        </Tag>
+
+                    </View>
+                ))
                 : null}
             {handledCancelRequests.length === 0 &&
                 handledExtensionRequests.length === 0 && (
                     <Text>Không có yêu cầu nào xử lý</Text>
                 )}
-        </View>
+            {/* </ScrollView> */}
+        </ScrollView>
     );
 };
 
