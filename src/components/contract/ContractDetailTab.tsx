@@ -4,6 +4,7 @@ import {
     ScrollView,
     StyleSheet,
     Text,
+    TouchableOpacity,
     View,
 } from 'react-native';
 import { fetchContractReviews } from '../../api/api';
@@ -17,7 +18,8 @@ import { formatPrice } from '../../utils/formattedPrice';
 import Review from '../review/Review';
 import Tag from '../tag/Tag';
 import { useSelector } from 'react-redux';
-import { RootState } from '../../redux-toolkit/store';
+import { AppDispatch, RootState } from '../../redux-toolkit/store';
+import { useNavigation } from '@react-navigation/native';
 
 const ContractDetailTab: React.FC<{ contract: IContractDetail }> = ({
     contract,
@@ -26,6 +28,7 @@ const ContractDetailTab: React.FC<{ contract: IContractDetail }> = ({
     const [loading, setLoading] = useState(true);
     const userId = useSelector((state: RootState) => state.user.user?.userId);
     const isRenter = contract.renterId === userId;
+    const navigation = useNavigation<AppDispatch>();
 
     useEffect(() => {
         const loadReview = async () => {
@@ -42,67 +45,80 @@ const ContractDetailTab: React.FC<{ contract: IContractDetail }> = ({
         loadReview();
     }, [contract.contractId]);
 
+    const handlePress = () => {
+        // navigation.navigate('ContractDetail', { contractId: contract.contractId });
+    };
+
+    const shouldShowReview = !['APPROVED_CANCELLATION', 'WAITING', 'DEPOSITED', 'ONGOING', 'PENDING_CANCELLATION'].includes(contract.status);
+
+
     return (
         <View style={commonStyles.container}>
             <ScrollView contentContainerStyle={styles.container}>
-                <Text style={styles.label}>
-                    Mã hợp đồng:
-                    <Text style={styles.value}>{contract.contractId}</Text>
-                </Text>
-                <Text style={styles.label}>
-                    Chủ nhà: &nbsp;
-                    <Text style={styles.value}>{contract.owner.name}</Text>
-                </Text>
-                <Text style={styles.label}>
-                    Người thuê:&nbsp;
-                    <Text style={styles.value}>{contract.renter.name}</Text>
-                </Text>
-                <Text style={styles.label}>
-                    Ngày bắt đầu:&nbsp;
-                    <Text style={styles.value}>
-                        {formatDate(contract.startDate)}
+                <TouchableOpacity onPress={handlePress} style={styles.touchable}>
+                    <Text style={styles.label}>
+                        Mã hợp đồng:
+                        <Text style={styles.value}>{contract.contractId}</Text>
                     </Text>
-                </Text>
-                <Text style={styles.label}>
-                    Ngày kết thúc:&nbsp;
-                    <Text style={styles.value}>
-                        {formatDate(contract.endDate)}
+                    <Text style={styles.label}>
+                        Chủ nhà: &nbsp;
+                        <Text style={styles.value}>{contract.owner.name}</Text>
                     </Text>
-                </Text>
-                <Text style={styles.label}>
-                    Giá:&nbsp;
-                    <Text style={styles.value}>
-                        {formatPrice(contract.monthlyRent)}
+                    <Text style={styles.label}>
+                        Người thuê:&nbsp;
+                        <Text style={styles.value}>{contract.renter.name}</Text>
                     </Text>
-                </Text>
-                <Text style={styles.label}>
-                    Tiền cọc:&nbsp;
-                    <Text style={styles.value}>
-                        {formatPrice(contract.depositAmount)}
+                    <Text style={styles.label}>
+                        Ngày bắt đầu:&nbsp;
+                        <Text style={styles.value}>
+                            {formatDate(contract.startDate)}
+                        </Text>
                     </Text>
-                </Text>
-                <View
-                    style={{
-                        justifyContent: 'space-between',
-                    }}
-                >
-                    <Tag color={getContractColor(contract.status)}>
-                        {getStatusInVietnamese(contract.status)}
-                    </Tag>
-                    <View style={{ flex: 1 }}></View>
-                </View>
+                    <Text style={styles.label}>
+                        Ngày kết thúc:&nbsp;
+                        <Text style={styles.value}>
+                            {formatDate(contract.endDate)}
+                        </Text>
+                    </Text>
+                    <Text style={styles.label}>
+                        Giá:&nbsp;
+                        <Text style={styles.value}>
+                            {formatPrice(contract.monthlyRent)}
+                        </Text>
+                    </Text>
+                    <Text style={styles.label}>
+                        Tiền cọc:&nbsp;
+                        <Text style={styles.value}>
+                            {formatPrice(contract.depositAmount)}
+                        </Text>
+                    </Text>
+                    <View
+                        style={{
+                            justifyContent: 'space-between',
+                        }}
+                    >
+                        <Tag color={getContractColor(contract.status)}>
+                            {getStatusInVietnamese(contract.status)}
+                        </Tag>
+                        <View style={{ flex: 1 }}></View>
+                    </View>
+                </TouchableOpacity>
 
-                <Text style={styles.reviewsLabel}>Đánh giá</Text>
-                {loading ? (
-                    <ActivityIndicator size='large' color='#0000ff' />
-                ) : (
-                    <Review
-                        setReview={setReview}
-                        review={review}
-                        isRenter={isRenter}
-                        contractId={contract.contractId}
-                        propertyId={contract.propertyId}
-                    />
+                {shouldShowReview && (
+                    <>
+                        <Text style={styles.reviewsLabel}>Đánh giá</Text>
+                        {loading ? (
+                            <ActivityIndicator size='large' color='#0000ff' />
+                        ) : (
+                            <Review
+                                setReview={setReview}
+                                review={review}
+                                isRenter={isRenter}
+                                contractId={contract.contractId}
+                                propertyId={contract.propertyId}
+                            />
+                        )}
+                    </>
                 )}
             </ScrollView>
         </View>
@@ -113,8 +129,17 @@ const styles = StyleSheet.create({
     container: {
         gap: 8,
     },
+    touchable: {
+        padding: 10,
+        backgroundColor: '#f9f9f9',
+        borderRadius: 8,
+        borderColor: '#ccc',
+        borderWidth: 1,
+        marginBottom: 20,
+    },
     label: {
         fontSize: 16,
+        marginBottom: 5,
     },
     value: {
         fontSize: 16,
