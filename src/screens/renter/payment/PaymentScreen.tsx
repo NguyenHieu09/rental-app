@@ -175,7 +175,7 @@ const PaymentScreen: React.FC = () => {
             await createExtensionRequest(extensionRequest);
             Alert.alert(
                 'Thành công',
-                'Đã gửi yêu cầu gia hạn hóa đơn thành công',
+                'Gửi yêu cầu gia hạn thanh toán thành công',
             );
         } catch (error: any) {
             console.error('Error creating extension request:', error);
