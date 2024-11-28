@@ -29,6 +29,7 @@ import WelcomeScreen from '../screens/welcomeScreen/WelcomeScreen';
 import OwnerTabs from './OwnerTabs';
 import RenterTabs from './RenterTabs';
 import WalletManagement from './WalletManagement';
+import EditPropertyScreen from '../screens/editProperty/EditProperty';
 
 const Stack = createStackNavigator();
 
@@ -86,10 +87,10 @@ const Navigation: React.FC = () => {
                     isFirstLaunch
                         ? 'Welcome'
                         : user
-                        ? user.userTypes.includes('owner')
-                            ? 'DashboardOwner'
-                            : 'RenterTabs'
-                        : 'Login'
+                            ? user.userTypes.includes('owner')
+                                ? 'DashboardOwner'
+                                : 'RenterTabs'
+                            : 'Login'
                 }
             >
                 {isFirstLaunch && (
@@ -242,6 +243,14 @@ const Navigation: React.FC = () => {
                     component={PersonalInfo}
                     options={{ title: 'Tài khoản và bảo mật' }}
                 />
+
+                <Stack.Screen
+                    name='EditPropertyScreen'
+                    component={EditPropertyScreen}
+                    options={{ title: 'Tài khoản và bảo mật' }}
+                />
+
+
             </Stack.Navigator>
         </NavigationContainer>
     );

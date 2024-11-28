@@ -438,6 +438,7 @@ import { commonStyles } from '../../styles/theme';
 import { format, parseISO, isValid, parse } from 'date-fns';
 import DateTimePickerModal from 'react-native-modal-datetime-picker';
 import { IContract } from '../../types/contract';
+import Button from '../button/Button';
 
 interface ExtendContractModalProps {
     visible: boolean;
@@ -460,7 +461,7 @@ const ExtendContractModal: React.FC<ExtendContractModalProps> = ({ visible, onCl
         setDatePickerVisibility(false);
     };
 
-    const handleConfirm = () => {
+    const handleConfirm = async () => {
         if (!extensionDate) {
             Alert.alert('Lỗi', 'Vui lòng nhập ngày gia hạn');
             return;
@@ -472,7 +473,15 @@ const ExtendContractModal: React.FC<ExtendContractModalProps> = ({ visible, onCl
             return;
         }
 
-        onConfirm(format(parsedDate, 'yyyy-MM-dd'), reason);
+        setLoading(true);
+        try {
+            await onConfirm(format(parsedDate, 'yyyy-MM-dd'), reason);
+            onClose();
+        } catch (error) {
+            Alert.alert('Lỗi', 'Có lỗi xảy ra khi gia hạn');
+        } finally {
+            setLoading(false);
+        }
     };
 
     const today = new Date();
@@ -524,20 +533,30 @@ const ExtendContractModal: React.FC<ExtendContractModalProps> = ({ visible, onCl
                     />
 
                     <View style={styles.buttonContainer}>
-                        <TouchableOpacity style={[styles.button, { backgroundColor: "#f44336" }]} onPress={onClose}>
-                            <Text style={commonStyles.buttonText}>Hủy</Text>
-                        </TouchableOpacity>
-                        <TouchableOpacity style={[styles.button]} onPress={handleConfirm}>
-                            {loading ? (
-                                <Text style={commonStyles.buttonText}>Đang xử lý...</Text>
-                            ) : (
-                                <Text style={commonStyles.buttonText}>Gia hạn</Text>
-                            )}
-                        </TouchableOpacity>
+
+                        <Button
+                            style={[styles.button]}
+
+                            variant='outlined'
+                            type='danger'
+                            onPress={onClose}
+                        >
+                            Hủy
+                        </Button>
+
+                        <Button
+                            style={[styles.button]}
+                            loading={loading}
+                            variant='fill'
+                            type='primary'
+                            onPress={handleConfirm}
+                        >
+                            Gia hạn
+                        </Button>
                     </View>
                 </View>
             </View>
-        </Modal>
+        </Modal >
     );
 };
 
@@ -571,16 +590,18 @@ const styles = StyleSheet.create({
     buttonContainer: {
         flexDirection: 'row',
         justifyContent: 'space-between',
-        width: '100%',
+        // width: '100%',
+        gap: 10,
     },
     button: {
-        backgroundColor: '#2196F3',
-        padding: 8,
-        borderRadius: 5,
+        // backgroundColor: '#2196F3',
+
+
         alignItems: 'center',
-        justifyContent: 'center',
+        justifyContent: 'space-between',
         flex: 1,
-        marginHorizontal: 10,
+
+
     },
     buttonText: {
         color: 'white',

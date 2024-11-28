@@ -167,6 +167,7 @@ import {
     fetchHandledCancelContractRequest,
     fetchExtensionRequests,
 } from '../../api/contract';
+import { ScrollView } from 'react-native-gesture-handler';
 
 const getStatusExtensionRequests = (status: string): string => {
     if (status === 'PENDING') return 'Chờ xác nhận';
@@ -226,76 +227,78 @@ const HandledCancelRequestTab: React.FC<{ contractId: string }> = ({
     }
 
     return (
-        <View style={styles.container}>
+        <ScrollView style={styles.container}>
+            {/* <ScrollView> */}
             {handledCancelRequests.length > 0
                 ? handledCancelRequests.map((request) => (
-                      <View
-                          key={request.id}
-                          style={styles.cancelRequestContainer}
-                      >
-                          <Text style={styles.label}>Người yêu cầu:</Text>
-                          <Text style={styles.value}>
-                              {request.userRequest.name}
-                          </Text>
-                          <Text style={styles.label}>Ngày gửi yêu cầu:</Text>
-                          <Text style={styles.value}>
-                              {new Date(
-                                  request.requestedAt,
-                              ).toLocaleDateString()}
-                          </Text>
-                          <Text style={styles.label}>Ngày hủy:</Text>
-                          <Text style={styles.value}>
-                              {new Date(
-                                  request.cancelDate,
-                              ).toLocaleDateString()}
-                          </Text>
-                          <Text style={styles.label}>Lý do:</Text>
-                          <Text style={styles.value}>{request.reason}</Text>
-                          <Text style={styles.label}>Trạng thái:</Text>
-                          <Text style={styles.status}>
-                              {getCancellationStatusInVietnamese(
-                                  request.status,
-                              )}
-                          </Text>
-                      </View>
-                  ))
+                    <View
+                        key={request.id}
+                        style={styles.cancelRequestContainer}
+                    >
+                        <Text style={styles.label}>Người yêu cầu:</Text>
+                        <Text style={styles.value}>
+                            {request.userRequest.name}
+                        </Text>
+                        <Text style={styles.label}>Ngày gửi yêu cầu:</Text>
+                        <Text style={styles.value}>
+                            {new Date(
+                                request.requestedAt,
+                            ).toLocaleDateString()}
+                        </Text>
+                        <Text style={styles.label}>Ngày hủy:</Text>
+                        <Text style={styles.value}>
+                            {new Date(
+                                request.cancelDate,
+                            ).toLocaleDateString()}
+                        </Text>
+                        <Text style={styles.label}>Lý do:</Text>
+                        <Text style={styles.value}>{request.reason}</Text>
+                        <Text style={styles.label}>Trạng thái:</Text>
+                        <Text style={styles.status}>
+                            {getCancellationStatusInVietnamese(
+                                request.status,
+                            )}
+                        </Text>
+                    </View>
+                ))
                 : null}
 
             {handledExtensionRequests.length > 0
                 ? handledExtensionRequests.map((request) => (
-                      <View
-                          key={request.id}
-                          style={styles.extensionRequestContainer}
-                      >
-                          <Text style={[styles.label, { textAlign: 'center' }]}>
-                              {request.type === 'EXTEND_PAYMENT'
-                                  ? 'Yêu cầu gia hạn thanh toán'
-                                  : 'Yêu cầu gia hạn hợp đồng'}
-                          </Text>
-                          <Text style={styles.label}>Thời gian gia hạn:</Text>
-                          <Text style={styles.value}>
-                              {new Date(
-                                  request.extensionDate,
-                              ).toLocaleDateString()}
-                          </Text>
-                          <Text style={styles.label}>Lý do:</Text>
-                          <Text style={styles.value}>{request.reason}</Text>
-                          <Text style={styles.label}>Ngày gửi yêu cầu:</Text>
-                          <Text style={styles.value}>
-                              {new Date(request.createdAt).toLocaleDateString()}
-                          </Text>
-                          <Text style={styles.label}>Trạng thái:</Text>
-                          <Text style={styles.status}>
-                              {getStatusExtensionRequests(request.status)}
-                          </Text>
-                      </View>
-                  ))
+                    <View
+                        key={request.id}
+                        style={styles.extensionRequestContainer}
+                    >
+                        <Text style={[styles.label, { textAlign: 'center' }]}>
+                            {request.type === 'EXTEND_PAYMENT'
+                                ? 'Yêu cầu gia hạn thanh toán'
+                                : 'Yêu cầu gia hạn hợp đồng'}
+                        </Text>
+                        <Text style={styles.label}>Thời gian gia hạn:</Text>
+                        <Text style={styles.value}>
+                            {new Date(
+                                request.extensionDate,
+                            ).toLocaleDateString()}
+                        </Text>
+                        <Text style={styles.label}>Lý do:</Text>
+                        <Text style={styles.value}>{request.reason}</Text>
+                        <Text style={styles.label}>Ngày gửi yêu cầu:</Text>
+                        <Text style={styles.value}>
+                            {new Date(request.createdAt).toLocaleDateString()}
+                        </Text>
+                        <Text style={styles.label}>Trạng thái:</Text>
+                        <Text style={styles.status}>
+                            {getStatusExtensionRequests(request.status)}
+                        </Text>
+                    </View>
+                ))
                 : null}
             {handledCancelRequests.length === 0 &&
                 handledExtensionRequests.length === 0 && (
                     <Text>Không có yêu cầu nào xử lý</Text>
                 )}
-        </View>
+            {/* </ScrollView> */}
+        </ScrollView>
     );
 };
 

@@ -51,7 +51,7 @@ const PropertyItem: React.FC<PropertyItemProps> = ({ item, onDelete }) => {
                     <Image source={{ uri: images[0] }} style={styles.image} />
                 </View>
                 <View style={styles.details}>
-                    <Text style={styles.title}>{title}</Text>
+                    <Text style={styles.title} numberOfLines={2}>{title}</Text>
                     <View style={styles.row}>
                         <Text style={styles.location}>{location}</Text>
                     </View>
