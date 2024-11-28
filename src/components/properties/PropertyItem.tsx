@@ -323,6 +323,7 @@ const PropertyItem: React.FC<PropertyItemProps> = ({ item, onDelete, onSelect, i
     const { address, title, price, images, propertyId, status, slug } = item;
     const location = `${address.street}, ${address.ward}, ${address.district}, ${address.city}`;
     const navigation = useNavigation<NavigationProp<RootStackParamList>>();
+    const disabledStatuses = ['UNAVAILABLE', 'PENDING', 'REJECTED'];
     const renderRightActions = () => {
         return (
             <View style={styles.buttonContainer}>
@@ -341,8 +342,12 @@ const PropertyItem: React.FC<PropertyItemProps> = ({ item, onDelete, onSelect, i
             <View style={[styles.container, isSelected && styles.selectedContainer]}>
                 {showCheckboxes && (
                     <Checkbox
+                        color="#007BFF"
                         status={isSelected ? 'checked' : 'unchecked'}
-                        onPress={() => onSelect(propertyId)}
+                        onPress={() => !disabledStatuses.includes(status) && onSelect(propertyId)}
+                        disabled={disabledStatuses.includes(status)}
+
+
                     />
                 )}
                 <TouchableOpacity
@@ -437,6 +442,21 @@ const styles = StyleSheet.create({
     },
     buttonContainer: {
         justifyContent: 'center',
+    },
+    checkbox: {
+        marginRight: 10,
+    },
+    // Kiểu khi checkbox có trạng thái ACTIVE
+    activeCheckbox: {
+        borderColor: 'green', // Màu viền khi checkbox đã chọn
+    },
+    // Kiểu khi checkbox có trạng thái INACTIVE
+    inactiveCheckbox: {
+        borderColor: 'gray', // Màu viền khi checkbox chưa chọn
+    },
+    // Kiểu cho checkbox khi bị vô hiệu hóa
+    disabledCheckbox: {
+        opacity: 0.5, // Giảm độ mờ khi checkbox bị vô hiệu hóa
     },
 });
 
