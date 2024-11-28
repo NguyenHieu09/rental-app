@@ -1,3 +1,4 @@
+import { ContractCancelRequestStatus } from '../types/cancelContract';
 import { ContractStatus } from '../types/contract';
 import { PropertyStatus } from '../types/property';
 import { RentalRequestStatus } from '../types/rentalRequest';
@@ -49,6 +50,15 @@ export const getTransactionColor = (status: TransactionStatus) => {
     if (status === 'COMPLETED') return SUCCESS_COLOR;
     if (status === 'FAILED') return ERROR_COLOR;
     if (status === 'OVERDUE') return ERROR_COLOR;
+    return DEFAULT_COLOR;
+};
+
+export const getCancelRequestColor = (status: ContractCancelRequestStatus) => {
+    if (status === 'PENDING') return PROCESSING_COLOR;
+    if (status === 'APPROVED') return SUCCESS_COLOR;
+    if (status === 'REJECTED') return ERROR_COLOR;
+    if (status === 'CONTINUE') return WARNING_COLOR;
+    if (status === 'UNILATERAL_CANCELLATION') return PURPLE_COLOR;
     return DEFAULT_COLOR;
 };
 

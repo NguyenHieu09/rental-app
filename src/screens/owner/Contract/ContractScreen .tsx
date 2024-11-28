@@ -27,6 +27,7 @@ import { RootState } from '../../../redux-toolkit/store';
 import { getOwnerCreateContractMessage } from '../../../utils/contract';
 import ConnectWalletModal from '../../../components/modal/ConnectWalletModal';
 import { W3mButton } from '@web3modal/wagmi-react-native';
+import Button from '../../../components/button/Button';
 
 type ContractScreenRouteProp = RouteProp<RootStackParamList, 'ContractScreen'>;
 
@@ -50,6 +51,7 @@ const ContractScreen = () => {
     const { handleSign } = useSignMessageCustom();
     const { address, isConnected } = useAccount();
     const user = useSelector((state: RootState) => state.user.user);
+    const [createLoading, setCreateLoading] = useState(false);
 
     useEffect(() => {
         console.log('Address:', address);
@@ -76,6 +78,8 @@ const ContractScreen = () => {
                 setModalVisible(true);
                 return;
             }
+
+            setCreateLoading(true);
 
             const contractRequest: ICreateContractRequest = {
                 ownerId: ownerId,
@@ -108,6 +112,8 @@ const ContractScreen = () => {
                 'Lỗi',
                 `Có lỗi xảy ra khi tạo hợp đồng hoặc cập nhật trạng thái yêu cầu thuê: ${error.message}`,
             );
+        } finally {
+            setCreateLoading(false);
         }
     };
 
@@ -134,17 +140,27 @@ const ContractScreen = () => {
                 />
             </ScrollView>
             <View style={styles.buttonContainer}>
-                <TouchableOpacity
-                    style={[styles.button, { backgroundColor: 'red' }]}
+                <Button
+                    style={{
+                        flex: 1,
+                    }}
+                    type='danger'
+                    variant='outlined'
+                    disabled={createLoading}
                 >
-                    <Text style={commonStyles.buttonText}>Hủy</Text>
-                </TouchableOpacity>
-                <TouchableOpacity
-                    style={[styles.button, { backgroundColor: '#007BFF' }]}
+                    Huỷ
+                </Button>
+                <Button
+                    style={{
+                        flex: 1,
+                    }}
+                    type='primary'
+                    variant='fill'
                     onPress={handleCreateContract}
+                    loading={createLoading}
                 >
-                    <Text style={commonStyles.buttonText}>Tạo hợp đồng</Text>
-                </TouchableOpacity>
+                    Tạo hợp đồng
+                </Button>
             </View>
             <ConnectWalletModal
                 visible={isModalVisible}
@@ -169,6 +185,7 @@ const styles = StyleSheet.create({
         padding: 5,
         borderTopWidth: 1,
         borderTopColor: '#ccc',
+        gap: 8,
     },
     button: {
         flex: 1,

@@ -1,25 +1,45 @@
-import React from 'react';
-import { View, Text, Modal, StyleSheet, TouchableOpacity } from 'react-native';
 import { W3mButton } from '@web3modal/wagmi-react-native';
-import { commonStyles } from '../../styles/theme';
-
+import React from 'react';
+import { Modal, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import Button from '../button/Button';
 
 interface ConnectWalletModalProps {
     visible: boolean;
     onClose: () => void;
 }
 
-const ConnectWalletModal: React.FC<ConnectWalletModalProps> = ({ visible, onClose }) => {
+const ConnectWalletModal: React.FC<ConnectWalletModalProps> = ({
+    visible,
+    onClose,
+}) => {
     return (
-        <Modal visible={visible} transparent={true} animationType="slide">
+        <Modal visible={visible} transparent={true} animationType='slide'>
             <View style={styles.modalContainer}>
                 <View style={styles.modalContent}>
                     <Text style={styles.modalTitle}>Kết nối ví</Text>
-                    <Text style={styles.modalDescription}>Bạn cần kết nối ví để tiếp tục.</Text>
-                    <W3mButton label="Kết nối ví" />
-                    <TouchableOpacity style={[styles.button]} onPress={onClose}>
-                        <Text style={styles.buttonText}>Đóng</Text>
-                    </TouchableOpacity>
+                    <Text style={styles.modalDescription}>
+                        Bạn cần kết nối ví để tiếp tục.
+                    </Text>
+                    <View
+                        style={{
+                            flexDirection: 'row',
+                            justifyContent: 'space-between',
+                            width: '100%',
+                        }}
+                    >
+                        <Button
+                            variant='outlined'
+                            type='danger'
+                            style={{
+                                borderRadius: 999,
+                                minWidth: 100,
+                            }}
+                            onPress={onClose}
+                        >
+                            Huỷ
+                        </Button>
+                        <W3mButton label='Kết nối ví' />
+                    </View>
                 </View>
             </View>
         </Modal>
@@ -52,7 +72,6 @@ const styles = StyleSheet.create({
         textAlign: 'center',
     },
 
-
     button: {
         backgroundColor: '#f44336',
         width: 90,
@@ -60,14 +79,11 @@ const styles = StyleSheet.create({
         borderRadius: 5,
         alignItems: 'center',
         justifyContent: 'center',
-        marginTop: 10,
     },
     buttonText: {
-
         color: 'white',
         fontWeight: '500',
         fontSize: 16,
-
     },
 });
 

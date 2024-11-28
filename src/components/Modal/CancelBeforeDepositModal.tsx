@@ -1,9 +1,8 @@
-
-
 import React, { useState } from 'react';
 import { View, Text, Modal, StyleSheet, TouchableOpacity } from 'react-native';
 import { commonStyles } from '../../styles/theme';
 import { ActivityIndicator } from 'react-native-paper';
+import Button from '../button/Button';
 
 interface CancelBeforeDepositModalProps {
     visible: boolean;
@@ -12,7 +11,12 @@ interface CancelBeforeDepositModalProps {
     contractId: string;
 }
 
-const CancelBeforeDepositModal: React.FC<CancelBeforeDepositModalProps> = ({ visible, onClose, onConfirm, contractId }) => {
+const CancelBeforeDepositModal: React.FC<CancelBeforeDepositModalProps> = ({
+    visible,
+    onClose,
+    onConfirm,
+    contractId,
+}) => {
     const [loading, setLoading] = useState(false);
 
     const handleConfirm = async () => {
@@ -24,26 +28,35 @@ const CancelBeforeDepositModal: React.FC<CancelBeforeDepositModalProps> = ({ vis
         }
     };
     return (
-        <Modal visible={visible} transparent={true} animationType="slide">
+        <Modal visible={visible} transparent={true} animationType='slide'>
             <View style={styles.modalContainer}>
                 <View style={styles.modalContent}>
-                    <Text style={styles.modalTitle}>Bạn có chắc muốn{`\n`}hủy hợp đồng?</Text>
+                    <Text style={styles.modalTitle}>
+                        Bạn có chắc muốn{`\n`}hủy hợp đồng?
+                    </Text>
                     <Text style={styles.modalDescription}>
-                        Việc hủy hợp đồng trước khi đặt cọc là hành động <Text style={styles.highlightText}>không thể hoàn tác</Text>.
-                        Hãy cân nhắc thật kỹ trước khi xác nhận.
+                        Việc hủy hợp đồng trước khi đặt cọc là hành động{' '}
+                        <Text style={styles.highlightText}>
+                            không thể hoàn tác
+                        </Text>
+                        . Hãy cân nhắc thật kỹ trước khi xác nhận.
                     </Text>
                     <View style={styles.buttonContainer}>
-                        <TouchableOpacity style={[styles.button, { backgroundColor: "#f44336" }]} onPress={onClose}>
-                            <Text style={commonStyles.buttonText}>Hủy</Text>
-                        </TouchableOpacity>
-                        <TouchableOpacity style={[styles.button]} onPress={handleConfirm}>
-                            {loading ? (
-                                // <ActivityIndicator size="small" color="#fff" />
-                                <Text style={commonStyles.buttonText}>Đang xử lý...</Text>
-                            ) : (
-                                <Text style={commonStyles.buttonText}>Đồng ý</Text>
-                            )}
-                        </TouchableOpacity>
+                        <Button
+                            type='danger'
+                            variant='outlined'
+                            onPress={onClose}
+                        >
+                            Huỷ
+                        </Button>
+                        <Button
+                            type='primary'
+                            variant='fill'
+                            onPress={handleConfirm}
+                            loading={loading}
+                        >
+                            Đồng ý
+                        </Button>
                     </View>
                 </View>
             </View>

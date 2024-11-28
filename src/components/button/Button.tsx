@@ -119,7 +119,7 @@ const Button = ({
             style={[
                 styles.button,
                 buttonStyle,
-                (loading || disabled) && styles.disabled,
+                loading && styles.disabled,
                 style,
             ]}
             disabled={disabled || loading}

@@ -34,6 +34,7 @@ import {
 import Tag from '../../../components/tag/Tag';
 import { getRentalRequestColor } from '../../../utils/colorTag';
 import { formatPrice } from '../../../utils/formattedPrice';
+import Button from '../../../components/button/Button';
 
 export type RentalRequestStatus =
     | 'PENDING'
@@ -248,79 +249,41 @@ const ManageRequestRental = () => {
                     <Tag color={getRentalRequestColor(item.status)}>
                         {getStatusInVietnamese(item.status)}
                     </Tag>
-                    {item.status === 'PENDING' ? (
-                        <>
-                            {user?.userTypes.includes('renter') ? (
-                                <TouchableOpacity
-                                    style={[styles.button]}
-                                    onPress={() => handleCancelPress(item)}
+                    <View
+                        style={{
+                            flexDirection: 'row',
+                            gap: 8,
+                        }}
+                    >
+                        {user?.userTypes.includes('renter') ? (
+                            <Button
+                                variant='outlined'
+                                type='danger'
+                                onPress={() => handleCancelPress(item)}
+                            >
+                                Huỷ
+                            </Button>
+                        ) : (
+                            <>
+                                <Button
+                                    variant='outlined'
+                                    type='danger'
+                                    onPress={() => handleRejectPress(item)}
+                                    disabled={item.status !== 'PENDING'}
                                 >
-                                    <Text style={styles.buttonText}>Hủy</Text>
-                                </TouchableOpacity>
-                            ) : (
-                                <>
-                                    <TouchableOpacity
-                                        style={[
-                                            styles.button,
-                                            styles.rejectButton,
-                                        ]}
-                                        onPress={() => handleRejectPress(item)}
-                                    >
-                                        <Text style={styles.buttonText}>
-                                            Từ chối
-                                        </Text>
-                                    </TouchableOpacity>
-                                    <TouchableOpacity
-                                        style={[styles.button]}
-                                        onPress={() => handleAcceptPress(item)}
-                                    >
-                                        <Text style={styles.buttonText}>
-                                            Chấp nhận
-                                        </Text>
-                                    </TouchableOpacity>
-                                </>
-                            )}
-                        </>
-                    ) : (
-                        <>
-                            {user?.userTypes.includes('renter') ? (
-                                <TouchableOpacity
-                                    style={[
-                                        styles.button,
-                                        styles.disabledButton,
-                                    ]}
-                                    disabled
+                                    Từ chối
+                                </Button>
+                                <Button
+                                    variant='fill'
+                                    type='primary'
+                                    onPress={() => handleAcceptPress(item)}
+                                    disabled={item.status !== 'PENDING'}
                                 >
-                                    <Text style={styles.buttonText}>Hủy</Text>
-                                </TouchableOpacity>
-                            ) : (
-                                <>
-                                    <TouchableOpacity
-                                        style={[
-                                            styles.button,
-                                            styles.disabledButton,
-                                        ]}
-                                        disabled
-                                    >
-                                        <Text style={styles.buttonText}>
-                                            Từ chối
-                                        </Text>
-                                    </TouchableOpacity>
-                                    <TouchableOpacity
-                                        style={[
-                                            styles.button,
-                                            styles.disabledButton,
-                                        ]}
-                                        disabled
-                                    >
-                                        <Text style={styles.buttonText}>
-                                            Chấp nhận
-                                        </Text>
-                                    </TouchableOpacity>
-                                </>
-                            )}
-                        </>
-                    )}
+                                    Chấp nhận
+                                </Button>
+                            </>
+                        )}
+                    </View>
                 </View>
             </View>
         </View>

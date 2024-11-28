@@ -39,30 +39,17 @@ import { getContractColor } from '../../../utils/colorTag';
 import { formatPrice } from '../../../utils/formattedPrice';
 
 const getStatusInVietnamese = (status: ContractStatus): string => {
-    switch (status) {
-        case 'WAITING':
-            return 'Đang chờ';
-        case 'DEPOSITED':
-            return 'Đã đặt cọc';
-        case 'ONGOING':
-            return 'Đang diễn ra';
-        case 'ENDED':
-            return 'Đã kết thúc';
-        case 'OVERDUE':
-            return 'Quá hạn';
-        case 'CANCELLED':
-            return 'Đã hủy';
-        case 'PENDING_CANCELLATION':
-            return 'Đang chờ hủy';
-        case 'UNILATERAL_CANCELLATION':
-            return 'Hủy đơn phương';
-        case 'APPROVED_CANCELLATION':
-            return 'Đã duyệt hủy';
-        case 'REJECTED_CANCELLATION':
-            return 'Từ chối hủy';
-        default:
-            return status;
-    }
+    if (status === 'WAITING') return 'Chờ xác nhận';
+    if (status === 'DEPOSITED') return 'Đã đặt cọc';
+    if (status === 'ONGOING') return 'Đang thuê';
+    if (status === 'ENDED') return 'Đã kết thúc';
+    if (status === 'OVERDUE') return 'Quá hạn';
+    if (status === 'CANCELLED') return 'Đã hủy';
+    if (status === 'PENDING_CANCELLATION') return 'Chờ xác nhận huỷ';
+    if (status === 'UNILATERAL_CANCELLATION') return 'Huỷ một phía';
+    if (status === 'APPROVED_CANCELLATION') return 'Chấp nhận huỷ';
+    if (status === 'REJECTED_CANCELLATION') return 'Từ chối huỷ';
+    return 'Không xác định';
 };
 
 const ManageContract = () => {
@@ -246,15 +233,17 @@ const ManageContract = () => {
                     reason,
                     signature: signature,
                 });
-                Alert.alert(
-                    'Thành công',
-                    'Đã gửi yêu cầu hủy hợp đồng thành công',
-                );
+                Alert.alert('Thành công', 'Đã gửi yêu cầu huỷ hợp đồng');
                 setContracts((prevContracts) =>
-                    prevContracts.filter(
-                        (contract) =>
-                            contract.contractId !== selectedContract.contractId,
-                    ),
+                    prevContracts.map((contract) => {
+                        if (contract.contractId !== selectedContract.contractId)
+                            return contract;
+
+                        return {
+                            ...contract,
+                            status: 'PENDING_CANCELLATION',
+                        };
+                    }),
                 );
             } catch (error) {
                 Alert.alert(
@@ -272,11 +261,18 @@ const ManageContract = () => {
         if (selectedContract) {
             try {
                 await cancelContractBeforeDeposit(selectedContract.contractId);
-                Alert.alert(
-                    'Thành công',
-                    'Hợp đồng đã được hủy trước khi đặt cọc',
+                Alert.alert('Thành công', 'Huỷ hợp đồng thành công');
+                setContracts((prevContracts) =>
+                    prevContracts.map((contract) => {
+                        if (contract.contractId !== selectedContract.contractId)
+                            return contract;
+
+                        return {
+                            ...contract,
+                            status: 'CANCELLED',
+                        };
+                    }),
                 );
-                // setContracts((prevContracts) => prevContracts.filter((contract) => contract.contractId !== selectedContract.contractId));
             } catch (error: any) {
                 Alert.alert('Lỗi', 'Có lỗi xảy ra khi hủy hợp đồng');
             } finally {
@@ -425,16 +421,18 @@ const ManageContract = () => {
                         >
                             Huỷ hợp đồng
                         </Button>
-                        <Button
-                            type='primary'
-                            variant='fill'
-                            disabled={!isCancellable}
-                            onPress={() =>
-                                isCancellable && handleExtendContract(item)
-                            }
-                        >
-                            Gia hạn hợp đồng
-                        </Button>
+                        {user?.userTypes.includes('renter') && (
+                            <Button
+                                type='primary'
+                                variant='fill'
+                                disabled={!isCancellable}
+                                onPress={() =>
+                                    isCancellable && handleExtendContract(item)
+                                }
+                            >
+                                Gia hạn hợp đồng
+                            </Button>
+                        )}
                     </View>
                 </View>
             </View>

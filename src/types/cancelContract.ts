@@ -1,3 +1,11 @@
+export type ContractCancelRequestStatus =
+    | 'PENDING'
+    | 'APPROVED'
+    | 'REJECTED'
+    | 'CANCELLED'
+    | 'CONTINUE'
+    | 'UNILATERAL_CANCELLATION';
+
 export interface ICancelContractRequest {
     contractId: string;
     cancelDate: string;
@@ -21,6 +29,6 @@ export interface ICancelContractResponse {
     reason: string;
     deleted: boolean;
     updatedAt: string;
-    status: string;
+    status: ContractCancelRequestStatus;
     userRequest: IUserRequest;
 }
