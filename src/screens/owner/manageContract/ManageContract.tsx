@@ -306,7 +306,7 @@ const ManageContract = () => {
                 await createExtensionRequest(extensionRequest);
                 Alert.alert(
                     'Thành công',
-                    'Đã gửi yêu cầu gia hạn hợp đồng thành công',
+                    'Gửi yêu cầu gia hạn hợp đồng thành công',
                 );
             } catch (error: any) {
                 const errorMessage =

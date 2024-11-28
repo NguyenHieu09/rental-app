@@ -163,8 +163,9 @@ const ManageRequestRental = () => {
         } catch (error) {
             console.error('Error fetching rental request details:', error);
             Alert.alert(
-                'Error',
-                'Có lỗi xảy ra khi lấy thông tin chi tiết yêu cầu thuê.',
+                'Lỗi',
+                (error as any)?.message ||
+                    'Có lỗi xảy ra khi lấy thông tin chi tiết yêu cầu thuê.',
             );
         }
     };

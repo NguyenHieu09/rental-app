@@ -1159,9 +1159,7 @@ const NotHandledCancelRequestTab: React.FC<{ contractId: string }> = ({
             );
             Alert.alert(
                 'Thành công',
-                `Yêu cầu đã được cập nhật thành: ${getStatusInVietnamese(
-                    newStatus,
-                )}`,
+                `Cập nhật trạng thái yêu cầu gia hạn thành công`,
             );
             setRefresh(!refresh); // Trigger re-fetch by updating the refresh state
         } catch (error) {
@@ -1183,9 +1181,7 @@ const NotHandledCancelRequestTab: React.FC<{ contractId: string }> = ({
             await updateExtensionRequestStatus(updateRequest);
             Alert.alert(
                 'Thành công',
-                `Yêu cầu gia hạn đã được cập nhật thành: ${getStatusInVietnamese(
-                    newStatus,
-                )}`,
+                `Cập nhật trạng thái yêu cầu gia hạn thành công`,
             );
             setRefresh(!refresh); // Trigger re-fetch by updating the refresh state
         } catch (error) {
