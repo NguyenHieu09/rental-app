@@ -14,6 +14,8 @@ import { AppDispatch, RootState } from '../../../redux-toolkit/store';
 import { commonStyles } from '../../../styles/theme';
 import { RootStackParamList } from '../../../types/navigation'; // Import the type
 import { formatPrice } from '../../../utils/formattedPrice';
+import CreateContractModal from '../../../components/modal/CreateContractModal';
+
 
 const DashboardOwner: React.FC = () => {
     const dispatch = useDispatch<AppDispatch>();
@@ -31,6 +33,7 @@ const DashboardOwner: React.FC = () => {
     const [countCancelRequest, setCountCancelRequest] = useState<number>(0);
     const [avgRevenueVND, setAvgRevenueVND] = useState<number>(0);
     const [avgRevenueETH, setAvgRevenueETH] = useState<number>(0);
+    const [createModalVisible, setCreateModalVisible] = useState(false);
 
     const loadPropertyOverview = async () => {
         try {
@@ -92,6 +95,12 @@ const DashboardOwner: React.FC = () => {
         navigation.navigate('ManageCancelContract');
     };
 
+
+    const handleCreateContract = (contractData: any) => {
+        // Handle contract creation logic here
+        console.log('Contract Data:', contractData);
+    };
+
     const avatar = user?.avatar || '';
 
     const formatCurrency = (amount: number) => {
@@ -110,10 +119,10 @@ const DashboardOwner: React.FC = () => {
                     </Text>
                     <TouchableOpacity
                         style={styles.button}
-                        onPress={handleViewProperties}
+                        onPress={() => setCreateModalVisible(true)}
                     >
                         <Text style={styles.buttonText}>
-                            Xem báo cáo thống kê →
+                            Tạo hợp đồng mới →
                         </Text>
                     </TouchableOpacity>
                 </View>
@@ -164,15 +173,14 @@ const DashboardOwner: React.FC = () => {
                         <Text style={styles.cardLabel}>Yêu cầu gia hạn</Text>
                     </TouchableOpacity>
 
-                    {/* <MyComponent /> */}
-                    {/* <TouchableOpacity style={styles.card} >
-                        <Text style={styles.cardText}>{formatCurrency(avgRevenueVND)}</Text>
-                        <Text style={styles.cardLabel}>Doanh thu{`\n`}trung bình</Text>
-                    </TouchableOpacity> */}
 
-                    {/* <W3mButton /> */}
                 </View>
             </View>
+            <CreateContractModal
+                visible={createModalVisible}
+                onClose={() => setCreateModalVisible(false)}
+                onCreate={handleCreateContract}
+            />
         </SafeAreaView>
     );
 };

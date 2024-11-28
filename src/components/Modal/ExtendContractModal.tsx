@@ -476,6 +476,7 @@ const ExtendContractModal: React.FC<ExtendContractModalProps> = ({ visible, onCl
         setLoading(true);
         try {
             await onConfirm(format(parsedDate, 'yyyy-MM-dd'), reason);
+            Alert.alert('Thành công', 'Cập nhật trạng thái yêu cầu gia hạn thành công');
             onClose();
         } catch (error) {
             Alert.alert('Lỗi', 'Có lỗi xảy ra khi gia hạn');

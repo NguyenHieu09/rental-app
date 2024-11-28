@@ -143,7 +143,7 @@ export const updateUserInfo = async (
     if (!response.ok) {
         const errorText = await response.text();
         console.error('Response error text:', errorText);
-        throw new Error('Failed to update user info');
+        throw new Error(errorText);
     }
 
     return await response.json();

@@ -1078,7 +1078,7 @@
 // export default NotHandledCancelRequestTab;
 
 
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { ActivityIndicator, Alert, StyleSheet, Text, View } from 'react-native';
 import { useSelector } from 'react-redux';
 import {
@@ -1100,6 +1100,7 @@ import Button from '../button/Button';
 import Tag from '../tag/Tag';
 import { getCancelRequestColor } from '../../utils/colorTag';
 import { ScrollView } from 'react-native-gesture-handler';
+import { useFocusEffect } from '@react-navigation/native';
 
 const getStatusInVietnamese = (status: string): string => {
     if (status === 'PENDING') return 'Chờ xác nhận';
@@ -1149,6 +1150,33 @@ const NotHandledCancelRequestTab: React.FC<{ contractId: string }> = ({
         loadRequests();
     }, [contractId, refresh]); // Add refresh to the dependency array
 
+    // useFocusEffect(
+    //     useCallback(() => {
+    //         const loadRequests = async () => {
+    //             try {
+    //                 const cancelRequestData =
+    //                     await fetchNotHandledCancelContractRequest(contractId);
+    //                 const extensionRequestsData = await fetchExtensionRequests(
+    //                     contractId,
+    //                 );
+
+    //                 setCancelRequest(cancelRequestData);
+    //                 setExtensionRequests(
+    //                     extensionRequestsData.filter(
+    //                         (request) => request.status === 'PENDING',
+    //                     ),
+    //                 );
+    //             } catch (error: any) {
+    //                 console.error('Error loading requests:', error);
+    //                 Alert.alert('Lỗi', 'Có lỗi xảy ra khi tải dữ liệu.');
+    //             } finally {
+    //                 setLoading(false);
+    //             }
+    //         };
+
+    //         loadRequests();
+    //     }, [contractId]),
+    // );
     const handleStatusUpdate = async (newStatus: string) => {
         if (!cancelRequest) return;
 

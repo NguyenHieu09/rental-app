@@ -840,6 +840,7 @@ const styles = StyleSheet.create({
         borderRadius: 5,
         padding: 10,
         marginBottom: 15,
+        height: 50,
     },
     error: {
         color: 'red',

@@ -155,7 +155,7 @@
 
 // export default HandledCancelRequestTab;
 
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { View, Text, StyleSheet, ActivityIndicator, Alert } from 'react-native';
 import { ICancelContractResponse } from '../../types/cancelContract';
 import { IExtensionRequest } from '../../types/extensionRequest';
@@ -168,6 +168,9 @@ import {
     fetchExtensionRequests,
 } from '../../api/contract';
 import { ScrollView } from 'react-native-gesture-handler';
+import { useFocusEffect } from '@react-navigation/native';
+import Tag from '../tag/Tag';
+import { getCancelRequestColor } from '../../utils/colorTag';
 
 const getStatusExtensionRequests = (status: string): string => {
     if (status === 'PENDING') return 'Chờ xác nhận';
@@ -188,35 +191,37 @@ const HandledCancelRequestTab: React.FC<{ contractId: string }> = ({
     >([]);
     const [loading, setLoading] = useState(true);
 
-    useEffect(() => {
-        const loadHandledRequests = async () => {
-            try {
-                const handledCancelData =
-                    await fetchHandledCancelContractRequest(contractId);
-                const handledExtensionData = await fetchExtensionRequests(
-                    contractId,
-                );
+    useFocusEffect(
+        useCallback(() => {
+            const loadHandledRequests = async () => {
+                try {
+                    const handledCancelData =
+                        await fetchHandledCancelContractRequest(contractId);
+                    const handledExtensionData = await fetchExtensionRequests(
+                        contractId,
+                    );
 
-                setHandledCancelRequests(
-                    Array.isArray(handledCancelData)
-                        ? handledCancelData
-                        : [handledCancelData],
-                );
-                setHandledExtensionRequests(
-                    handledExtensionData.filter(
-                        (request) => request.status !== 'PENDING',
-                    ),
-                );
-            } catch (error: any) {
-                console.error('Error loading handled requests:', error);
-                Alert.alert('Lỗi', 'Có lỗi xảy ra khi tải dữ liệu.');
-            } finally {
-                setLoading(false);
-            }
-        };
+                    setHandledCancelRequests(
+                        Array.isArray(handledCancelData)
+                            ? handledCancelData
+                            : [handledCancelData],
+                    );
+                    setHandledExtensionRequests(
+                        handledExtensionData.filter(
+                            (request) => request.status !== 'PENDING',
+                        ),
+                    );
+                } catch (error: any) {
+                    console.error('Error loading handled requests:', error);
+                    Alert.alert('Lỗi', 'Có lỗi xảy ra khi tải dữ liệu.');
+                } finally {
+                    setLoading(false);
+                }
+            };
 
-        loadHandledRequests();
-    }, [contractId]);
+            loadHandledRequests();
+        }, [contractId]),
+    );
 
     if (loading) {
         return (
@@ -235,6 +240,7 @@ const HandledCancelRequestTab: React.FC<{ contractId: string }> = ({
                         key={request.id}
                         style={styles.cancelRequestContainer}
                     >
+                        <Text style={[styles.label, { textAlign: 'center' }]}>Yêu cầu hủy hợp đồng</Text>
                         <Text style={styles.label}>Người yêu cầu:</Text>
                         <Text style={styles.value}>
                             {request.userRequest.name}
@@ -254,11 +260,10 @@ const HandledCancelRequestTab: React.FC<{ contractId: string }> = ({
                         <Text style={styles.label}>Lý do:</Text>
                         <Text style={styles.value}>{request.reason}</Text>
                         <Text style={styles.label}>Trạng thái:</Text>
-                        <Text style={styles.status}>
-                            {getCancellationStatusInVietnamese(
-                                request.status,
-                            )}
-                        </Text>
+
+                        <Tag color={getCancelRequestColor(request.status)}>
+                            {getCancellationStatusInVietnamese(request.status)}
+                        </Tag>
                     </View>
                 ))
                 : null}
@@ -287,9 +292,10 @@ const HandledCancelRequestTab: React.FC<{ contractId: string }> = ({
                             {new Date(request.createdAt).toLocaleDateString()}
                         </Text>
                         <Text style={styles.label}>Trạng thái:</Text>
-                        <Text style={styles.status}>
+                        <Tag color={getCancelRequestColor(request.status)}>
                             {getStatusExtensionRequests(request.status)}
-                        </Text>
+                        </Tag>
+
                     </View>
                 ))
                 : null}

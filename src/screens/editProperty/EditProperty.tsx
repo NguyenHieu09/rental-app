@@ -589,8 +589,7 @@ const EditPropertyScreen: React.FC = () => {
                 const data = await fetchPropertyDetail(slug);
                 setPropertyDetails(data);
 
-
-
+                // Khởi tạo giá trị
                 setTitle(data.title);
                 setDescription(data.description);
                 setAcreage(data.rentalConditions.find((condition: ICondition) => condition.type === 'Diện tích')?.value || '');
@@ -609,14 +608,11 @@ const EditPropertyScreen: React.FC = () => {
                 setSelectedDistrict(data.address.district);
                 setSelectedWard(data.address.ward);
                 setAttributes(data.attributes);
+                console.log(data.attributes);
 
-                // Map the attribute names to their IDs
-                const attributeIds = data.attributes.map((attr: IAttribute) => {
-                    const attribute = attributes.find(a => a.name === attr.name);
-                    return attribute ? attribute.id : '';
-                }).filter(id => id !== '');
+                console.log("dữ liệu", data.address.ward);
 
-                setSelectedAttributes(attributeIds);
+                setSelectedAttributes(data.attributes.map((attr: IAttribute) => attr.id));
             } catch (error) {
                 console.error('Error loading property details:', error);
             }
@@ -659,8 +655,6 @@ const EditPropertyScreen: React.FC = () => {
     };
 
     const handleAttributeChange = (value: string) => {
-
-
         setSelectedAttributes((prev) => {
             if (prev.includes(value)) {
                 return prev.filter((attr) => attr !== value);
@@ -668,7 +662,6 @@ const EditPropertyScreen: React.FC = () => {
                 return [...prev, value];
             }
         });
-
     };
 
     const handleUpdate = async () => {
@@ -737,12 +730,14 @@ const EditPropertyScreen: React.FC = () => {
     return (
         <View style={commonStyles.container}>
             <ScrollView>
+                <Text style={styles.label}>Tiêu đề</Text>
                 <TextInput
                     style={styles.input}
                     placeholder='Tiêu đề'
                     value={title}
                     onChangeText={setTitle}
                 />
+                <Text style={styles.label}>Mô tả</Text>
                 <TextInput
                     style={styles.input}
                     placeholder='Mô tả'
@@ -750,6 +745,7 @@ const EditPropertyScreen: React.FC = () => {
                     onChangeText={setDescription}
                     multiline
                 />
+                <Text style={styles.label}>Diện tích</Text>
                 <TextInput
                     style={styles.input}
                     placeholder='Diện tích (m2)'
@@ -757,6 +753,7 @@ const EditPropertyScreen: React.FC = () => {
                     onChangeText={setAcreage}
                     keyboardType='numeric'
                 />
+                <Text style={styles.label}>Giá</Text>
                 <TextInput
                     style={styles.input}
                     placeholder='Giá'
@@ -764,6 +761,7 @@ const EditPropertyScreen: React.FC = () => {
                     onChangeText={setPrice}
                     keyboardType='numeric'
                 />
+                <Text style={styles.label}>Tiền cọc</Text>
                 <TextInput
                     style={styles.input}
                     placeholder='Tiền cọc'
@@ -771,7 +769,7 @@ const EditPropertyScreen: React.FC = () => {
                     onChangeText={setDeposit}
                     keyboardType='numeric'
                 />
-
+                <Text style={styles.label}>Phòng ngủ</Text>
                 <TextInput
                     style={styles.input}
                     placeholder='Phòng ngủ'
@@ -779,6 +777,7 @@ const EditPropertyScreen: React.FC = () => {
                     onChangeText={setBedroom}
                     keyboardType='numeric'
                 />
+                <Text style={styles.label}>Phòng tắm/ nhà vệ sinh</Text>
                 <TextInput
                     style={styles.input}
                     placeholder='Phòng tắm, vệ sinh'
@@ -786,6 +785,7 @@ const EditPropertyScreen: React.FC = () => {
                     onChangeText={setBathroom}
                     keyboardType='numeric'
                 />
+                <Text style={styles.label}>Diện tích quyền sử dụng đất</Text>
                 <TextInput
                     style={styles.input}
                     placeholder='Diện tích quyền sử dụng đất (m2)'
@@ -793,7 +793,7 @@ const EditPropertyScreen: React.FC = () => {
                     onChangeText={setLandArea}
                     keyboardType='numeric'
                 />
-
+                <Text style={styles.label}>Số tầng</Text>
                 <TextInput
                     style={styles.input}
                     placeholder='Số tầng'
@@ -801,7 +801,7 @@ const EditPropertyScreen: React.FC = () => {
                     onChangeText={setFloor}
                     keyboardType='numeric'
                 />
-
+                <Text style={styles.label}>Thời gian thuê tối thiểu</Text>
                 <TextInput
                     style={styles.input}
                     placeholder='Thời gian thuê tối thiểu'
@@ -809,6 +809,7 @@ const EditPropertyScreen: React.FC = () => {
                     onChangeText={setMinDuration}
                     keyboardType='numeric'
                 />
+                <Text style={styles.label}>Loại bất động sản</Text>
                 <View style={styles.pickerContainer}>
                     <Picker
                         selectedValue={type.id}
@@ -838,7 +839,7 @@ const EditPropertyScreen: React.FC = () => {
                         ))}
                     </Picker>
                 </View>
-
+                <Text style={styles.label}>Nội thất</Text>
                 <View style={styles.pickerContainer}>
                     <Picker
                         selectedValue={interior}
@@ -920,7 +921,10 @@ const EditPropertyScreen: React.FC = () => {
                     disabled={loading}
                 >
                     <Text
-                        style={[styles.submitButtonText, commonStyles.buttonText]}
+                        style={[
+                            styles.submitButtonText,
+                            commonStyles.buttonText,
+                        ]}
                     >
                         {loading ? 'Đang cập nhật...' : 'Cập nhật bất động sản'}
                     </Text>
@@ -1014,6 +1018,7 @@ const styles = StyleSheet.create({
     label: {
         fontSize: 16,
         marginBottom: 10,
+        fontWeight: 'bold',
     },
     checkboxContainer: {
         flexDirection: 'row',

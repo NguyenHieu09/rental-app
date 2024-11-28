@@ -146,7 +146,7 @@ const ContractDetails: React.FC = () => {
     return (
         <Tab.Navigator>
             <Tab.Screen name='Chi tiết hợp đồng'>
-                {() => <ContractDetailTab contract={contract} />}
+                {() => <ContractDetailTab contractId={contractId} />}
             </Tab.Screen>
             <Tab.Screen name='Yêu cầu chờ xử lý'>
                 {() => <NotHandledCancelRequestTab contractId={contractId} />}

@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useState } from 'react';
 import {
     ActivityIndicator,
     ScrollView,
@@ -7,6 +7,7 @@ import {
     TouchableOpacity,
     View,
 } from 'react-native';
+import { useFocusEffect, useNavigation } from '@react-navigation/native';
 import { fetchContractReviews } from '../../api/api';
 import { commonStyles } from '../../styles/theme';
 import { IContractDetail } from '../../types/contractDetail';
@@ -19,38 +20,58 @@ import Review from '../review/Review';
 import Tag from '../tag/Tag';
 import { useSelector } from 'react-redux';
 import { AppDispatch, RootState } from '../../redux-toolkit/store';
-import { useNavigation } from '@react-navigation/native';
+import { fetchContractDetails } from '../../api/contract';
 
-const ContractDetailTab: React.FC<{ contract: IContractDetail }> = ({
-    contract,
-}) => {
+const ContractDetailTab: React.FC<{ contractId: string }> = ({ contractId }) => {
+    const [contract, setContract] = useState<IContractDetail | null>(null);
     const [review, setReview] = useState<IReview | null>(null); // Chỉ cần một đánh giá
     const [loading, setLoading] = useState(true);
     const userId = useSelector((state: RootState) => state.user.user?.userId);
-    const isRenter = contract.renterId === userId;
+    const isRenter = contract?.renterId === userId;
     const navigation = useNavigation<AppDispatch>();
 
-    useEffect(() => {
-        const loadReview = async () => {
-            try {
-                setLoading(true);
-                const data = await fetchContractReviews(contract.contractId);
-                setReview(data); // Giả sử data là đối tượng đánh giá duy nhất
-            } catch (err: any) {
-            } finally {
-                setLoading(false);
-            }
-        };
+    useFocusEffect(
+        useCallback(() => {
+            const loadContractDetails = async () => {
+                try {
+                    setLoading(true);
+                    const contractData = await fetchContractDetails(contractId);
+                    setContract(contractData);
 
-        loadReview();
-    }, [contract.contractId]);
+                    const reviewData = await fetchContractReviews(contractId);
+                    setReview(reviewData); // Giả sử data là đối tượng đánh giá duy nhất
+                } catch (err: any) {
+                    console.error('Error fetching contract details or reviews:', err);
+                } finally {
+                    setLoading(false);
+                }
+            };
+
+            loadContractDetails();
+        }, [contractId]),
+    );
 
     const handlePress = () => {
-        // navigation.navigate('ContractDetail', { contractId: contract.contractId });
+        // navigation.navigate('ContractDetail', { contractId });
     };
 
-    const shouldShowReview = !['APPROVED_CANCELLATION', 'WAITING', 'DEPOSITED', 'ONGOING', 'PENDING_CANCELLATION'].includes(contract.status);
+    const shouldShowReview = contract && !['APPROVED_CANCELLATION', 'WAITING', 'DEPOSITED', 'ONGOING', 'PENDING_CANCELLATION'].includes(contract.status);
 
+    if (loading) {
+        return (
+            <View style={commonStyles.container}>
+                <ActivityIndicator size='large' color='#0000ff' />
+            </View>
+        );
+    }
+
+    if (!contract) {
+        return (
+            <View style={commonStyles.container}>
+                <Text>Không tìm thấy hợp đồng</Text>
+            </View>
+        );
+    }
 
     return (
         <View style={commonStyles.container}>
@@ -77,7 +98,7 @@ const ContractDetailTab: React.FC<{ contract: IContractDetail }> = ({
                     <Text style={styles.label}>
                         Ngày kết thúc:&nbsp;
                         <Text style={styles.value}>
-                            {formatDate(contract.endDate)}
+                            {formatDate(contract.endDateActual)}
                         </Text>
                     </Text>
                     <Text style={styles.label}>
@@ -143,7 +164,7 @@ const styles = StyleSheet.create({
     },
     value: {
         fontSize: 16,
-        fontWeight: 600,
+        fontWeight: '600',
     },
     status: {
         fontSize: 16,

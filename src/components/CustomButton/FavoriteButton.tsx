@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { TouchableOpacity } from 'react-native';
+import { Alert, TouchableOpacity } from 'react-native';
 import { IconFill, IconOutline } from '@ant-design/icons-react-native';
 import { createPropertyToFavorites } from '../../api/api';
 import { useDispatch } from 'react-redux';
@@ -41,6 +41,7 @@ const FavoriteButton: React.FC<FavoriteButtonProps> = ({ isFavorite, propertyId 
                 console.log('increment');
 
                 dispatch(increment()); // Gọi increment khi thêm yêu thích
+                Alert.alert('Thành công', 'Đã thêm vào danh sách yêu thích');
             }
 
             // Thông báo cho người dùng

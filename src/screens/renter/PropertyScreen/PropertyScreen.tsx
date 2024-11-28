@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useLayoutEffect, useState } from 'react';
 import {
     View,
     Text,
@@ -35,6 +35,7 @@ import {
 // import PropertyReviews from '../../components/review/PropertyReviews'; // Import PropertyReviews component
 import { IReview } from '../../../types/review';
 import PropertyReviews from '../../../components/review/Review';
+import FavoriteButton from '../../../components/customButton/FavoriteButton';
 
 const { width: screenWidth } = Dimensions.get('window');
 
@@ -52,6 +53,18 @@ const PropertyScreen: React.FC = () => {
     );
     const dispatch = useDispatch<AppDispatch>();
     const navigation = useNavigation<NavigationProp<RootStackParamList>>();
+
+    // useLayoutEffect(() => {
+    //     navigation.setOptions({
+    //         headerRight: () => (
+    //             <View style={{ right: 20 }}>
+    //                 <FavoriteButton isFavorite={property?.isFavorite} propertyId={property?.propertyId || ''} />
+
+    //             </View>
+
+    //         ),
+    //     });
+    // }, [navigation, slug, property]);
 
     useEffect(() => {
         const loadPropertyDetail = async () => {
