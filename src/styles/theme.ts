@@ -56,4 +56,17 @@ export const commonStyles = StyleSheet.create({
     errorColor: {
         color: COLORS.error,
     },
+    h5: {
+        fontWeight: 600,
+        fontSize: 16,
+        lineHeight: 24,
+        marginTop: 19,
+        marginBottom: 8,
+    },
+    fw600: {
+        fontWeight: '600',
+    },
+    flex1: {
+        flex: 1,
+    },
 });

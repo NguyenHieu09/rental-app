@@ -1,13 +1,25 @@
-import React, { useState } from 'react';
-import { View, Text, StyleSheet, Modal, Button, TouchableOpacity, Alert, TextInput } from 'react-native';
-import DateTimePickerModal from 'react-native-modal-datetime-picker';
 import { format, parseISO } from 'date-fns';
-import { ActivityIndicator } from 'react-native-paper';
+import React, { useState } from 'react';
+import {
+    Alert,
+    Modal,
+    StyleSheet,
+    Text,
+    TextInput,
+    TouchableOpacity,
+    View,
+} from 'react-native';
+import DateTimePickerModal from 'react-native-modal-datetime-picker';
+import { useSelector } from 'react-redux';
+import { RootState } from '../../redux-toolkit/store';
+import { commonStyles } from '../../styles/theme';
+import { formatPrice } from '../../utils/formattedPrice';
+import Button from '../button/Button';
 
 interface CancelContractModalProps {
     visible: boolean;
     onClose: () => void;
-    onConfirm: (endDate: Date, reason: string) => void;
+    onConfirm: (endDate: Date, reason: string) => Promise<void>;
     contractId: string;
     startDate: string;
     endDate: string;
@@ -29,6 +41,10 @@ const CancelContractModal: React.FC<CancelContractModalProps> = ({
     const [isDatePickerVisible, setDatePickerVisibility] = useState(false);
     const [reason, setReason] = useState<string>('');
     const [loading, setLoading] = useState(false);
+    const userTypes = useSelector(
+        (state: RootState) => state.user.user?.userTypes,
+    );
+    const isRenter = userTypes?.includes('renter');
 
     // const handleConfirm = () => {
     //     // const start = parseISO(startDate);
@@ -49,16 +65,15 @@ const CancelContractModal: React.FC<CancelContractModalProps> = ({
             Alert.alert('Lỗi', 'Vui lòng nhập ngày kết thúc mong muốn.');
             return;
         }
-        if (!reason.trim()) {
-            Alert.alert('Lỗi', 'Vui lòng nhập lý do hủy hợp đồng.');
-            return;
-        }
 
         try {
             setLoading(true);
             await onConfirm(desiredEndDate, reason);
         } catch (error) {
-            Alert.alert('Lỗi', 'Đã xảy ra lỗi trong quá trình xử lý. Vui lòng thử lại.');
+            Alert.alert(
+                'Lỗi',
+                'Đã xảy ra lỗi trong quá trình xử lý. Vui lòng thử lại.',
+            );
         } finally {
             setLoading(false);
         }
@@ -71,60 +86,103 @@ const CancelContractModal: React.FC<CancelContractModalProps> = ({
 
     return (
         <Modal
-            animationType="slide"
+            animationType='slide'
             transparent={true}
             visible={visible}
             onRequestClose={onClose}
         >
             <View style={styles.modalContainer}>
                 <View style={styles.modalView}>
-                    <Text style={styles.modalText}>Xác nhận huỷ hợp đồng</Text>
-                    <Text style={styles.contractInfo}>Mã hợp đồng: {contractId}</Text>
-                    <Text style={styles.contractInfo}>Ngày bắt đầu: {format(new Date(startDate), 'dd/MM/yyyy')}</Text>
-                    <Text style={styles.contractInfo}>Ngày kết thúc: {format(new Date(endDate), 'dd/MM/yyyy')}</Text>
-                    <Text style={styles.contractInfo}>Giá: {price.toLocaleString()} ₫</Text>
-                    <Text style={styles.contractInfo}>Tiền cọc: {deposit.toLocaleString()} ₫</Text>
-                    <Text style={styles.modalText}>Bạn có chắc chắn muốn hủy hợp đồng này? Hãy chọn ngày kết thúc mong muốn để chúng tôi xử lý.</Text>
-                    <Text style={styles.text}>Ngày kết thúc mong muốn:</Text>
-                    <TouchableOpacity style={{ width: '100%' }} onPress={() => setDatePickerVisibility(true)}>
-                        <TextInput
-                            style={styles.textInput}
-                            placeholder="Chọn ngày kết thúc"
-                            value={desiredEndDate ? format(desiredEndDate, 'dd/MM/yyyy') : ''}
-                            editable={false}
-                        />
-                    </TouchableOpacity>
+                    <Text style={styles.modalText}>Huỷ hợp đồng</Text>
+                    <Text style={styles.contractInfo}>
+                        <Text style={styles.fw600}>Mã hợp đồng:</Text>{' '}
+                        {contractId}
+                    </Text>
+                    <Text style={styles.contractInfo}>
+                        <Text style={styles.fw600}>Ngày bắt đầu:</Text>{' '}
+                        {format(new Date(startDate), 'dd/MM/yyyy')}
+                    </Text>
+                    <Text style={styles.contractInfo}>
+                        <Text style={styles.fw600}>Ngày kết thúc:</Text>{' '}
+                        {format(new Date(endDate), 'dd/MM/yyyy')}
+                    </Text>
+                    <Text style={styles.contractInfo}>
+                        <Text style={styles.fw600}>Giá:</Text>{' '}
+                        {formatPrice(price)}
+                    </Text>
+                    <Text style={styles.contractInfo}>
+                        <Text style={styles.fw600}>Tiền cọc:</Text>{' '}
+                        {formatPrice(deposit)}
+                    </Text>
+                    <Text style={commonStyles.h5}>Xác nhận huỷ hợp đồng</Text>
+                    <Text style={styles.contractInfo}>
+                        Bạn có chắc chắn muốn hủy hợp đồng này? Hãy chọn ngày
+                        kết thúc mong muốn để chúng tôi xử lý.
+                    </Text>
+                    <Text style={styles.text}>Ngày kết thúc mong muốn</Text>
+                    <View style={{ width: '100%', flexDirection: 'row' }}>
+                        <TouchableOpacity
+                            style={{ width: '100%', flex: 1 }}
+                            onPress={() => setDatePickerVisibility(true)}
+                        >
+                            <TextInput
+                                style={styles.textInput}
+                                placeholder='Chọn ngày kết thúc'
+                                value={
+                                    desiredEndDate
+                                        ? format(desiredEndDate, 'dd/MM/yyyy')
+                                        : ''
+                                }
+                                editable={false}
+                            />
+                        </TouchableOpacity>
+                    </View>
                     <DateTimePickerModal
                         isVisible={isDatePickerVisible}
-                        mode="date"
+                        mode='date'
                         onConfirm={handleConfirmDate}
                         onCancel={() => setDatePickerVisibility(false)}
                         minimumDate={parseISO(startDate)}
                         maximumDate={parseISO(endDate)}
                     />
-                    <Text style={styles.text}>Lí do:</Text>
-                    <TextInput
-                        style={styles.textInput}
-                        placeholder='Nhập lí do hủy hợp đồng'
-                        value={reason}
-                        onChangeText={setReason}
-                    />
-                    <Text style={{ color: 'red', marginBottom: 10 }}>Lưu ý: Nếu muốn huỷ hợp đồng trước hạn nhưng không thông báo trước 30 ngày thì sẽ mất tiền cọc và phải trả thêm 1 tháng tiền thuê cho người thuê.</Text>
+                    <Text style={styles.text}>Lý do</Text>
+                    <View style={{ flexDirection: 'row' }}>
+                        <TextInput
+                            style={[styles.textInput, commonStyles.flex1]}
+                            placeholder='Nhập lý do hủy hợp đồng'
+                            value={reason}
+                            onChangeText={setReason}
+                        />
+                    </View>
+                    <Text
+                        style={{
+                            color: '#ff4d4f',
+                            fontSize: 14,
+                            lineHeight: 22,
+                            marginBottom: 10,
+                        }}
+                    >
+                        {isRenter
+                            ? `Lưu ý: Nếu muốn huỷ hợp đồng trước hạn nhưng không thông báo trước 30 ngày thì sẽ mất tiền cọc và phải trả thêm 1 tháng tiền thuê cho người thuê.`
+                            : `Lưu ý: Nếu muốn huỷ hợp đồng trước hạn nhưng không thông báo trước 30 ngày thì sẽ mất tiền cọc cho chủ nhà.`}
+                    </Text>
                     <View style={styles.modalButtonContainer}>
-                        <TouchableOpacity style={[styles.button, { backgroundColor: "#f44336" }]} onPress={onClose}>
-                            <Text style={styles.buttonText}>Hủy</Text>
-                        </TouchableOpacity>
-                        <TouchableOpacity
-                            style={styles.button}
-                            onPress={handleConfirm}
-                            disabled={loading}
+                        <Button
+                            style={commonStyles.flex1}
+                            variant='outlined'
+                            onPress={onClose}
                         >
-                            {loading ? (
-                                <Text style={styles.buttonText}>Đang xử lý...</Text>
-                            ) : (
-                                <Text style={styles.buttonText}>Xác nhận</Text>
-                            )}
-                        </TouchableOpacity>
+                            Huỷ
+                        </Button>
+                        <Button
+                            style={commonStyles.flex1}
+                            variant='outlined'
+                            type='danger'
+                            onPress={handleConfirm}
+                            loading={loading}
+                        >
+                            Xác nhận
+                        </Button>
                     </View>
                 </View>
             </View>
@@ -140,7 +198,6 @@ const styles = StyleSheet.create({
         backgroundColor: 'rgba(0, 0, 0, 0.5)',
     },
     modalView: {
-        width: 300,
         backgroundColor: 'white',
         borderRadius: 10,
         padding: 20,
@@ -150,6 +207,7 @@ const styles = StyleSheet.create({
         shadowOpacity: 0.25,
         shadowRadius: 4,
         elevation: 5,
+        marginHorizontal: 12,
     },
     modalText: {
         marginBottom: 15,
@@ -160,12 +218,11 @@ const styles = StyleSheet.create({
         marginBottom: 2,
         textAlign: 'left',
         fontSize: 14,
-        color: '#007BFF',
     },
     modalButtonContainer: {
         flexDirection: 'row',
-        justifyContent: 'space-between',
         width: '100%',
+        gap: 8,
     },
     textInput: {
         width: '100%',
@@ -176,7 +233,6 @@ const styles = StyleSheet.create({
         marginBottom: 10,
     },
     text: {
-
         fontSize: 14,
         marginBottom: 5,
     },
@@ -193,7 +249,9 @@ const styles = StyleSheet.create({
         color: 'white',
         fontSize: 16,
     },
+    fw600: {
+        fontWeight: '600',
+    },
 });
 
 export default CancelContractModal;
-
