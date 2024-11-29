@@ -52,3 +52,33 @@ export const getWards = async (districtId: string): Promise<Ward[]> => {
         throw error;
     }
 };
+
+export const fetchWards = async () => {
+    try {
+        const response = await axios.get(`${BASE_URL}/wards`);
+        return response.data;
+    } catch (error: any) {
+        console.error('Error fetching wards:', error);
+        throw new Error('Failed to fetch wards');
+    }
+};
+
+export const fetchCitys = async () => {
+    try {
+        const response = await axios.get(`${BASE_URL}/cities`);
+        return response.data;
+    } catch (error: any) {
+        console.error('Error fetching ctiy:', error);
+        throw new Error('Failed to fetch ctiy');
+    }
+};
+
+export const fetchdDistricts = async () => {
+    try {
+        const response = await axios.get(`${BASE_URL}/districts`);
+        return response.data;
+    } catch (error: any) {
+        console.error('Error fetching ctiy:', error);
+        throw new Error('Failed to fetch ctiy');
+    }
+};

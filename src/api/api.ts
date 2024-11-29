@@ -131,24 +131,33 @@ export const updateUserInfo = async (
         throw new Error('No token provided');
     }
 
-    const response = await fetch(`${API_BASE_URL}/users`, {
-        method: 'PUT',
-        headers: {
-            Authorization: `Bearer ${token}`,
-            // No need to set 'Content-Type' for FormData
-        },
-        body: formData,
-    });
+    try {
+        const response = await fetch(`${API_BASE_URL}/users`, {
+            method: 'PUT',
+            headers: {
+                Authorization: `Bearer ${token}`,
+                // No need to set 'Content-Type' for FormData
+            },
+            body: formData,
+        });
 
-    if (!response.ok) {
-        const errorText = await response.text();
-        console.error('Response error text:', errorText);
-        throw new Error(errorText);
+        if (!response.ok) {
+            const errorData = await response.json();
+            console.error('Response error data:', errorData);
+            throw new Error(errorData.message || 'Failed to update user info');
+        }
+
+        return await response.json();
+    } catch (error: any) {
+        if (error.response && error.response.data && error.response.data.message) {
+            console.error('Error message:', error.response.data.message);
+            throw new Error(error.response.data.message);
+        } else {
+            console.error('Error updating user info:', error);
+            throw error;
+        }
     }
-
-    return await response.json();
 };
-
 export const updateUserPassword = async (
     oldPassword: string,
     newPassword: string,
@@ -1070,6 +1079,46 @@ export const updatePropertyVisibility = async (
             throw new Error(error.response.data.message);
         } else {
             console.error('Error updating property visibility:', error);
+            throw (error as any).response;
+        }
+    }
+};
+
+
+export const updateProperty = async (propertyId: string, formData: FormData) => {
+    try {
+        const token = await AsyncStorage.getItem('accessToken');
+
+        if (!token) {
+            throw new Error('No token provided');
+        }
+
+        const response = await axios.put(
+            `${API_BASE_URL}/properties/${propertyId}`,
+            formData,
+            {
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                    'Content-Type': 'multipart/form-data',
+                },
+            },
+        );
+
+        if (response.status === 200) {
+            return { success: true, data: response.data };
+        } else {
+            return { success: false, message: 'Failed to update property' };
+        }
+    } catch (error: any) {
+        if (
+            error.response &&
+            error.response.data &&
+            error.response.data.message
+        ) {
+            console.error('Error message:', error.response.data.message);
+            throw new Error(error.response.data.message);
+        } else {
+            console.error('Error updating property:', error);
             throw (error as any).response;
         }
     }

@@ -62,9 +62,9 @@ const favoriteSlice = createSlice({
                 ),
             ];
 
-            state.favorites = newFavorites; // Cập nhật favorites không trùng lặp
-            state.count = newFavorites.length; // Cập nhật số lượng
-            state.pageInfo = action.payload.pageInfo; // Cập nhật thông tin phân trang
+            state.favorites = newFavorites;
+            state.count = newFavorites.length;
+            state.pageInfo = action.payload.pageInfo;
         },
         setError(state, action: PayloadAction<string | null>) {
             state.error = action.payload;
