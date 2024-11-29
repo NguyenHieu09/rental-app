@@ -119,7 +119,8 @@ const DashboardOwner: React.FC = () => {
                     </Text>
                     <TouchableOpacity
                         style={styles.button}
-                        onPress={() => setCreateModalVisible(true)}
+                        // onPress={() => setCreateModalVisible(true)}
+                        onPress={() => navigation.navigate('CreateContractScreen')}
                     >
                         <Text style={styles.buttonText}>
                             Tạo hợp đồng mới →

@@ -20,9 +20,12 @@ export interface IRentalRequest {
 export type RentalRequestStatus = 'PENDING' | 'APPROVED' | 'REJECTED' | 'CANCELLED';
 
 export interface IGenerateContractRequest {
-    propertyId: string;
     renterId: string;
-    requestId: string;
+    propertyId: string;
+    rentalPrice: number;
+    rentalDeposit: number;
+    rentalStartDate: string;
+    rentalEndDate: string;
 }
 
 export interface IGenerateContractResponse {

@@ -307,12 +307,12 @@ const ContractScreen = () => {
             const response = await createContractAndApproveRequest({
                 ...contractRequest,
                 signature,
-                requestId: requestId,
+                requestId: requestId || '',
             });
             console.log('🚀 ~ handleCreateContract ~ response:', response);
 
             Alert.alert('Thành công', 'Tạo hợp đồng thành công');
-            navigation.navigate('ManageRequestRental');
+            navigation.goBack();
         } catch (error: any) {
             console.error('Error creating contract:', error);
             Alert.alert(

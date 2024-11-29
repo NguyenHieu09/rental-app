@@ -1123,3 +1123,70 @@ export const updateProperty = async (propertyId: string, formData: FormData) => 
         }
     }
 };
+
+
+export const fetchOwnerProperties = async () => {
+    try {
+        const token = await AsyncStorage.getItem('accessToken');
+
+        if (!token) {
+            throw new Error('No token provided');
+        }
+
+        const response = await axios.get(
+            `${API_BASE_URL}/properties/owner/cbb`,
+            {
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                },
+            },
+        );
+
+        return response.data;
+    } catch (error: any) {
+        if (
+            error.response &&
+            error.response.data &&
+            error.response.data.message
+        ) {
+            console.error('Error message:', error.response.data.message);
+            throw new Error(error.response.data.message);
+        } else {
+            console.error('Error fetching property list:', error);
+            throw (error as any).response;
+        }
+    }
+};
+
+export const fetchRentersList = async () => {
+    try {
+        const token = await AsyncStorage.getItem('accessToken');
+
+        if (!token) {
+            throw new Error('No token provided');
+        }
+
+        const response = await axios.get(
+            `${API_BASE_URL}/users/renters/cbb`,
+            {
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                },
+            },
+        );
+
+        return response.data;
+    } catch (error: any) {
+        if (
+            error.response &&
+            error.response.data &&
+            error.response.data.message
+        ) {
+            console.error('Error message:', error.response.data.message);
+            throw new Error(error.response.data.message);
+        } else {
+            console.error('Error fetching renters list:', error);
+            throw (error as any).response;
+        }
+    }
+};

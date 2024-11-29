@@ -529,7 +529,7 @@ export const generateContract = async (
         }
 
         const response = await axios.post(
-            `${API_CONTRACT_URL}/rental-requests/generate-contract`,
+            `${API_CONTRACT_URL}/contracts/generate`,
             contractRequest,
             {
                 headers: {

@@ -30,6 +30,7 @@ import OwnerTabs from './OwnerTabs';
 import RenterTabs from './RenterTabs';
 import WalletManagement from './WalletManagement';
 import EditPropertyScreen from '../screens/editProperty/EditProperty';
+import CreateContractScreen from '../screens/owner/createContract/CreateContractScreen';
 
 const Stack = createStackNavigator();
 
@@ -228,6 +229,15 @@ const Navigation: React.FC = () => {
                     component={EditPropertyScreen}
                     options={{
                         title: 'Cập nhật thông tin',
+                    }}
+
+                />
+
+                <Stack.Screen
+                    name='CreateContractScreen'
+                    component={CreateContractScreen}
+                    options={{
+                        title: 'Tạo hợp đồng',
                     }}
 
                 />

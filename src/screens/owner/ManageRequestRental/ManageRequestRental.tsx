@@ -150,11 +150,17 @@ const ManageRequestRental = () => {
             const contractRequest: IGenerateContractRequest = {
                 propertyId: item.property.propertyId,
                 renterId: item.renterId,
-                requestId: item.requestId,
+                // requestId: item.requestId,
+                rentalPrice: item.rentalPrice,
+                rentalDeposit: item.rentalDeposit,
+                rentalStartDate: format(item.rentalStartDate, 'yyyy-MM-dd'),
+                rentalEndDate: format(item.rentalEndDate, 'yyyy-MM-dd'),
             };
             console.log('Contract Request:', contractRequest);
 
             const contractData = await generateContract(contractRequest);
+            console.log('Contract Data:', contractData);
+
 
             navigation.navigate('ContractScreen', {
                 contractData,
@@ -165,7 +171,7 @@ const ManageRequestRental = () => {
             Alert.alert(
                 'Lỗi',
                 (error as any)?.message ||
-                    'Có lỗi xảy ra khi lấy thông tin chi tiết yêu cầu thuê.',
+                'Có lỗi xảy ra khi lấy thông tin chi tiết yêu cầu thuê.',
             );
         }
     };
