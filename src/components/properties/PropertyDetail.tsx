@@ -1,6 +1,6 @@
 import React, { useEffect, useLayoutEffect, useState } from 'react';
 import { View, Text, Image, FlatList, ActivityIndicator, StyleSheet, Dimensions, TouchableOpacity } from 'react-native';
-import { useRoute, RouteProp, NavigationProp, useNavigation } from '@react-navigation/native';
+import { useRoute, RouteProp, NavigationProp, useNavigation, useFocusEffect } from '@react-navigation/native';
 
 
 import { AntDesign } from '@expo/vector-icons';
@@ -44,32 +44,34 @@ const PropertyDetail: React.FC = () => {
         });
     }, [navigation, slug]);
 
-    useEffect(() => {
-        const loadPropertyDetail = async () => {
-            try {
-                const data = await fetchPropertyDetail(slug);
-                setProperty(data);
-            } catch (err: any) {
-                console.error('Error fetching property detail:', err);
-                setError(err.message);
-            } finally {
-                setLoading(false);
-            }
-        };
+    useFocusEffect(
+        React.useCallback(() => {
+            const loadPropertyDetail = async () => {
+                try {
+                    const data = await fetchPropertyDetail(slug);
+                    setProperty(data);
+                } catch (err: any) {
+                    console.error('Error fetching property detail:', err);
+                    setError(err.message);
+                } finally {
+                    setLoading(false);
+                }
+            };
 
-        const loadReviews = async () => {
-            try {
-                const reviewsData = await fetchPropertyReviews(slug);
-                setReviews(reviewsData);
-            } catch (err: any) {
-                console.error('Error fetching property reviews:', err);
-                setError(err.message);
-            }
-        };
+            const loadReviews = async () => {
+                try {
+                    const reviewsData = await fetchPropertyReviews(slug);
+                    setReviews(reviewsData);
+                } catch (err: any) {
+                    console.error('Error fetching property reviews:', err);
+                    setError(err.message);
+                }
+            };
 
-        loadPropertyDetail();
-        loadReviews();
-    }, [slug]);
+            loadPropertyDetail();
+            loadReviews();
+        }, [slug]) // Dependency array to re-run when `slug` changes
+    );
 
     if (loading) {
         return (
