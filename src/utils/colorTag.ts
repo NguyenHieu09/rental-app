@@ -115,20 +115,33 @@ export const getBorderColor = (color: string) => {
 
 
 export const getReportStatusColor = (status: ReportStatus) => {
-    if (status === 'pending_owner') return 'processing';
-    if (status === 'pending_renter') return 'processing';
-    if (status === 'owner_proposed') return 'processing';
-    if (status === 'owner_accepted') return 'success';
-    if (status === 'renter_accepted') return 'success';
-    if (status === 'renter_rejected') return 'error';
-    if (status === 'admin_processing') return 'processing';
-    if (status === 'admin_resolved') return 'success';
-    if (status === 'in_progress') return 'processing';
-    if (status === 'owner_completed') return 'success';
-    if (status === 'renter_completed') return 'success';
-    if (status === 'owner_not_resolved') return 'error';
-    if (status === 'cancelled') return 'default';
-    return 'default';
+    if (status === 'pending_owner') return PROCESSING_COLOR;
+    if (status === 'pending_renter') return PROCESSING_COLOR;
+    if (status === 'owner_proposed') return PROCESSING_COLOR;
+    if (status === 'owner_accepted') return SUCCESS_COLOR;
+    if (status === 'renter_accepted') return SUCCESS_COLOR;
+    if (status === 'renter_rejected') return ERROR_COLOR;
+    if (status === 'admin_processing') return PROCESSING_COLOR;
+    if (status === 'admin_resolved') return SUCCESS_COLOR;
+    if (status === 'in_progress') return PROCESSING_COLOR;
+    if (status === 'owner_completed') return SUCCESS_COLOR;
+    if (status === 'renter_completed') return SUCCESS_COLOR;
+    if (status === 'owner_not_resolved') return ERROR_COLOR;
+    if (status === 'cancelled') return DEFAULT_COLOR;
+    return DEFAULT_COLOR;
+};
+
+export const getReportTypeColor = (type: ReportType) => {
+    if (type === 'incident') return ERROR_COLOR;
+    if (type === 'violation') return WARNING_COLOR;
+    return DEFAULT_COLOR;
+};
+
+export const getReportPriorityColor = (priority: ReportPriority) => {
+    if (priority === 'low') return SUCCESS_COLOR;
+    if (priority === 'medium') return WARNING_COLOR;
+    if (priority === 'high') return ERROR_COLOR;
+    return DEFAULT_COLOR;
 };
 
 export const getReportStatusText = (status: ReportStatus) => {
@@ -148,11 +161,6 @@ export const getReportStatusText = (status: ReportStatus) => {
     return 'Không xác định';
 };
 
-export const getReportTypeColor = (type: ReportType) => {
-    if (type === 'incident') return 'error';
-    if (type === 'violation') return 'warning';
-    return 'default';
-};
 
 export const getReportTypeText = (type: ReportType) => {
     if (type === 'incident') return 'Sự cố';
@@ -160,12 +168,7 @@ export const getReportTypeText = (type: ReportType) => {
     return 'Không xác định';
 };
 
-export const getReportPriorityColor = (priority: ReportPriority) => {
-    if (priority === 'low') return 'success';
-    if (priority === 'medium') return 'warning';
-    if (priority === 'high') return 'error';
-    return 'default';
-};
+
 
 export const getReportPriorityText = (priority: ReportPriority) => {
     if (priority === 'low') return 'Thấp';

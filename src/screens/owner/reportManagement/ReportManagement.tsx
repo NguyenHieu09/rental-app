@@ -1,17 +1,26 @@
+
+
 import React, { useEffect, useState } from 'react';
-import { View, Text, FlatList, StyleSheet, ActivityIndicator } from 'react-native';
+import { View, Text, FlatList, StyleSheet, ActivityIndicator, TouchableOpacity } from 'react-native';
 import { useSelector } from 'react-redux';
-
-
 import { RootState } from '../../../redux-toolkit/store';
 import { fetchReportsByOwner } from '../../../api/contract';
 import { IReport, IReportFilterByOwner, ReportFilterStatus, ReportSort, ReportType } from '../../../types/report';
+import { getReportStatusColor, getReportStatusText, getReportPriorityColor, getReportPriorityText, getReportTypeColor, getReportTypeText } from '../../../utils/colorTag';
+import { formatDateTime } from '../../../utils/datetime';
+import { formatPrice } from '../../../utils/formattedPrice';
+import Tag from '../../../components/tag/Tag';
+import { useNavigation, NavigationProp } from '@react-navigation/native';
+import { RootStackParamList } from '../../../types/navigation';
+import { commonStyles } from '../../../styles/theme';
+import { format } from 'date-fns';
 
 const ReportManagement = () => {
     const user = useSelector((state: RootState) => state.user.user);
     const [reports, setReports] = useState<IReport[]>([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState('');
+    const navigation = useNavigation<NavigationProp<RootStackParamList>>();
 
     useEffect(() => {
         const loadReports = async () => {
@@ -43,15 +52,39 @@ const ReportManagement = () => {
     }
 
     return (
-        <View style={styles.container}>
+        <View style={commonStyles.container}>
             <FlatList
                 data={reports}
                 keyExtractor={(item) => item.id.toString()}
                 renderItem={({ item }) => (
-                    <View style={styles.reportItem}>
-                        <Text style={styles.reportTitle}>{item.title}</Text>
-                        <Text style={styles.reportDate}>{item.createdAt.toString()}</Text>
-                    </View>
+                    <TouchableOpacity
+                        style={styles.reportItem}
+                        onPress={() => navigation.navigate('ReportDetails', { reportId: item.id })}
+                    >
+                        <Text style={styles.reportTitle}>Tiêu đề: {item.title}</Text>
+                        <View style={styles.tagContainer}>
+                            <Text style={styles.tagText}>Loại báo cáo</Text>
+                            <Tag color={getReportTypeColor(item.type)}>
+                                {getReportTypeText(item.type)}
+                            </Tag>
+                        </View>
+                        <View style={styles.tagContainer}>
+                            <Text style={styles.tagText}>Mức độ ưu tiên</Text>
+                            <Tag color={getReportPriorityColor(item.priority)}>
+                                {getReportPriorityText(item.priority)}
+                            </Tag>
+                        </View>
+                        <View style={styles.tagContainer}>
+                            <Text style={styles.tagText}>Trạng thái</Text>
+                            <Tag color={getReportStatusColor(item.status)}>
+                                {getReportStatusText(item.status)}
+                            </Tag>
+                        </View>
+                        <Text style={styles.reportField}>Đề xuất: {item.proposed}</Text>
+                        <Text style={styles.reportField}>Bồi thường: {formatPrice(item.compensation)}</Text>
+                        <Text style={styles.reportField}>Ngày giải quyết: {item.resolvedAt ? format(item.resolvedAt, 'dd/MM/yyyy') : ''}</Text>
+                        <Text style={styles.reportField}>Ngày tạo: {formatDateTime(item.createdAt.toString(), true)}</Text>
+                    </TouchableOpacity>
                 )}
             />
         </View>
@@ -61,21 +94,32 @@ const ReportManagement = () => {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        padding: 16,
         backgroundColor: '#fff',
     },
     reportItem: {
-        padding: 16,
-        borderBottomWidth: 1,
-        borderBottomColor: '#ccc',
+        padding: 10,
+        borderWidth: 1,
+        borderColor: '#ccc',
+        borderRadius: 10,
+        // backgroundColor: '#f9f9f9',
+        marginBottom: 10,
     },
     reportTitle: {
         fontSize: 16,
         fontWeight: 'bold',
     },
-    reportDate: {
+    reportField: {
         fontSize: 14,
-        color: '#666',
+
+        marginTop: 10,
+    },
+    tagContainer: {
+        marginTop: 8,
+        flexDirection: 'row',
+        alignItems: 'center',
+    },
+    tagText: {
+        marginRight: 10,
     },
     errorText: {
         color: 'red',

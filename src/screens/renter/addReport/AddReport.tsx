@@ -32,6 +32,7 @@ const AddReport: React.FC = () => {
     const [reward, setReward] = useState<string>('');
     const [showDatePicker, setShowDatePicker] = useState<boolean>(false);
     const [images, setImages] = useState<ImageFile[]>([]);
+    const [loading, setLoading] = useState<boolean>(false);
 
     const handleDateChange = (event: any, selectedDate?: Date) => {
         const currentDate = selectedDate || resolutionDate;
@@ -61,10 +62,6 @@ const AddReport: React.FC = () => {
 
     const handleSubmit = async () => {
         const formData = new FormData();
-
-
-
-        // Append other form fields
         formData.append('type', reportType);
         formData.append('priority', severity);
         formData.append('title', title);
@@ -86,11 +83,11 @@ const AddReport: React.FC = () => {
 
         try {
             const res = await createReportByRenter(formData);
-            console.log('Report created successfully:', res);
-            Alert.alert('Success', 'Report created successfully');
-        } catch (error) {
+
+            Alert.alert('Thành công', 'Báo cáo của bạn đã được gửi thành công');
+        } catch (error: any) {
             console.error('Error creating report:', error);
-            Alert.alert('Error', 'Failed to create report');
+            Alert.alert('Error', error.message);
         }
     };
 
