@@ -222,9 +222,8 @@ const ManageContract = () => {
     const confirmCancelContract = async (cancelDate: Date, reason: string) => {
         if (selectedContract) {
             try {
-                const message = `Hủy hợp đồng ${
-                    selectedContract.contractId
-                } vào lúc ${format(cancelDate, 'yyyy-MM-dd')}`;
+                const message = `Hủy hợp đồng ${selectedContract.contractId
+                    } vào lúc ${format(cancelDate, 'yyyy-MM-dd')}`;
                 const signature = await handleSign({ message });
 
                 await createCancelContractRequest({

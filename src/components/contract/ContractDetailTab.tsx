@@ -1,4 +1,4 @@
-import React, { useCallback, useState } from 'react';
+import React, { useCallback, useLayoutEffect, useState } from 'react';
 import {
     ActivityIndicator,
     ScrollView,
@@ -7,7 +7,7 @@ import {
     TouchableOpacity,
     View,
 } from 'react-native';
-import { useFocusEffect, useNavigation } from '@react-navigation/native';
+import { NavigationProp, useFocusEffect, useNavigation } from '@react-navigation/native';
 import { fetchContractReviews } from '../../api/api';
 import { commonStyles } from '../../styles/theme';
 import { IContractDetail } from '../../types/contractDetail';
@@ -21,6 +21,8 @@ import Tag from '../tag/Tag';
 import { useSelector } from 'react-redux';
 import { AppDispatch, RootState } from '../../redux-toolkit/store';
 import { fetchContractDetails } from '../../api/contract';
+import { RootStackParamList } from '../../types/navigation';
+import { IconOutline } from '@ant-design/icons-react-native';
 
 const ContractDetailTab: React.FC<{ contractId: string }> = ({ contractId }) => {
     const [contract, setContract] = useState<IContractDetail | null>(null);
@@ -28,7 +30,9 @@ const ContractDetailTab: React.FC<{ contractId: string }> = ({ contractId }) => 
     const [loading, setLoading] = useState(true);
     const userId = useSelector((state: RootState) => state.user.user?.userId);
     const isRenter = contract?.renterId === userId;
-    const navigation = useNavigation<AppDispatch>();
+
+
+
 
     useFocusEffect(
         useCallback(() => {

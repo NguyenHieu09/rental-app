@@ -14,6 +14,7 @@ import {
     IExtensionRequest,
     IUpdateExtensionRequestStatus,
 } from '../types/extensionRequest';
+import { IReport, IReportDetail, IReportFilterByOwner } from '../types/report';
 
 const API_CONTRACT_URL = `${API_URL}/contract-service`;
 
@@ -529,7 +530,7 @@ export const generateContract = async (
         }
 
         const response = await axios.post(
-            `${API_CONTRACT_URL}/rental-requests/generate-contract`,
+            `${API_CONTRACT_URL}/contracts/generate`,
             contractRequest,
             {
                 headers: {
@@ -1059,6 +1060,145 @@ export const updateExtensionRequestStatus = async (
         } else {
             console.error('Error updating extension request status:', error);
             throw error;
+        }
+    }
+};
+
+export const fetchReportsByOwner = async (
+    filter: IReportFilterByOwner,
+): Promise<IReport[]> => {
+    try {
+        const token = await AsyncStorage.getItem('accessToken');
+
+        if (!token) {
+            throw new Error('No token provided');
+        }
+
+        const response = await axios.get<IReport[]>(
+            `${API_CONTRACT_URL}/reports/owner`,
+            {
+                params: filter,
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                },
+            },
+        );
+
+        return response.data;
+    } catch (error: any) {
+        if (
+            error.response &&
+            error.response.data &&
+            error.response.data.message
+        ) {
+            console.error('Error message:', error.response.data.message);
+            throw new Error(error.response.data.message);
+        } else {
+            console.error('Error fetching reports by owner:', error);
+            throw error;
+        }
+    }
+};
+
+
+export const fetchReportsByRenter = async (): Promise<IReport[]> => {
+    try {
+        const token = await AsyncStorage.getItem('accessToken');
+
+        if (!token) {
+            throw new Error('No token provided');
+        }
+
+        const response = await axios.get<IReport[]>(
+            `${API_CONTRACT_URL}/reports/renter`,
+            {
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                },
+            },
+        );
+
+        return response.data;
+    } catch (error: any) {
+        if (
+            error.response &&
+            error.response.data &&
+            error.response.data.message
+        ) {
+            console.error('Error message:', error.response.data.message);
+            throw new Error(error.response.data.message);
+        } else {
+            console.error('Error fetching reports by renter:', error);
+            throw error;
+        }
+    }
+};
+
+export const fetchReportDetails = async (reportId: number): Promise<IReportDetail> => {
+    try {
+        const token = await AsyncStorage.getItem('accessToken');
+
+        if (!token) {
+            throw new Error('No token provided');
+        }
+
+        const response = await axios.get<IReportDetail>(
+            `${API_CONTRACT_URL}/reports/${reportId}`,
+            {
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                },
+            },
+        );
+
+        return response.data;
+    } catch (error: any) {
+        if (error.response && error.response.data && error.response.data.message) {
+            console.error('Error message:', error.response.data.message);
+            throw new Error(error.response.data.message);
+        } else {
+            console.error('Error fetching report details:', error);
+            throw error;
+        }
+    }
+};
+
+export const createReportByRenter = async (formData: FormData) => {
+    try {
+        const token = await AsyncStorage.getItem('accessToken');
+
+        if (!token) {
+            throw new Error('No token provided');
+        }
+
+        const response = await axios.post(
+            `${API_CONTRACT_URL}/reports/renter`,
+            formData,
+            {
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                    'Content-Type': 'multipart/form-data',
+                },
+            },
+        );
+
+
+        if (response.status === 201) {
+            return { success: true, data: response.data };
+        } else {
+            return { success: false, message: 'Failed to create property' };
+        }
+    } catch (error: any) {
+        if (
+            error.response &&
+            error.response.data &&
+            error.response.data.message
+        ) {
+            console.error('Error message:', error.response.data.message);
+            throw new Error(error.response.data.message);
+        } else {
+            console.error('Error creating property:', error);
+            throw (error as any).response;
         }
     }
 };

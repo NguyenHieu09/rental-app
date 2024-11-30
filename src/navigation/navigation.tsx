@@ -30,6 +30,11 @@ import OwnerTabs from './OwnerTabs';
 import RenterTabs from './RenterTabs';
 import WalletManagement from './WalletManagement';
 import EditPropertyScreen from '../screens/editProperty/EditProperty';
+import CreateContractScreen from '../screens/owner/createContract/CreateContractScreen';
+import MyReport from '../screens/report/MyReport';
+import ReportManagement from '../screens/owner/reportManagement/ReportManagement';
+import ReportDetails from '../screens/reportDetails/ReportDetails';
+import AddReport from '../screens/renter/addReport/AddReport';
 
 const Stack = createStackNavigator();
 
@@ -232,7 +237,43 @@ const Navigation: React.FC = () => {
 
                 />
 
+                <Stack.Screen
+                    name='CreateContractScreen'
+                    component={CreateContractScreen}
+                    options={{
+                        title: 'Tạo hợp đồng',
+                    }}
 
+                />
+
+                <Stack.Screen
+                    name='ReportManagement'
+                    component={ReportManagement}
+                    options={{
+                        title: 'Quản lý báo cáo',
+                    }}
+
+                />
+
+                <Stack.Screen
+                    name='MyReport'
+                    component={MyReport}
+                    options={{
+                        title: 'Báo cáo của tôi',
+                    }}
+
+                />
+
+                <Stack.Screen
+                    name='ReportDetails'
+                    component={ReportDetails}
+                    options={{
+                        title: 'Chi tiết báo cáo',
+                    }}
+
+                />
+
+                <Stack.Screen name="AddReport" component={AddReport} options={{ title: 'Thêm báo cáo sự cố & vi phạm' }} />
             </Stack.Navigator>
         </NavigationContainer>
     );

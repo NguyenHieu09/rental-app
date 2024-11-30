@@ -29,8 +29,6 @@ const PersonalInfo = () => {
     const [error, setError] = useState('');
     const [loading, setLoading] = useState(false);
 
-
-
     const handleSave = async () => {
         setLoading(true);
         setError('');

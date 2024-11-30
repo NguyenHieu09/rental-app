@@ -77,9 +77,9 @@
 
 // export default ContractDetails;
 
-import React, { useEffect, useState } from 'react';
-import { View, ActivityIndicator, Alert, Text } from 'react-native';
-import { RouteProp, useRoute } from '@react-navigation/native';
+import React, { useCallback, useEffect, useLayoutEffect, useState } from 'react';
+import { View, ActivityIndicator, Alert, Text, TouchableOpacity } from 'react-native';
+import { NavigationProp, RouteProp, useFocusEffect, useNavigation, useRoute } from '@react-navigation/native';
 import { createMaterialTopTabNavigator } from '@react-navigation/material-top-tabs';
 import { fetchContractDetails } from '../../api/contract';
 import { IContractDetail } from '../../types/contractDetail';
@@ -87,6 +87,8 @@ import { commonStyles } from '../../styles/theme';
 import ContractDetailTab from '../../components/contract/ContractDetailTab';
 import NotHandledCancelRequestTab from '../../components/contract/NotHandledCancelRequestTab';
 import HandledCancelRequestTab from '../../components/contract/HandledCancelRequestTab';
+import { RootStackParamList } from '../../types/navigation';
+import { IconOutline } from '@ant-design/icons-react-native';
 
 type ContractDetailsRouteProp = RouteProp<
     { params: { contractId: string } },
@@ -100,6 +102,19 @@ const ContractDetails: React.FC = () => {
     const { contractId } = route.params;
     const [contract, setContract] = useState<IContractDetail | null>(null);
     const [loading, setLoading] = useState<boolean>(true);
+    const navigation = useNavigation<NavigationProp<RootStackParamList>>();
+
+    useLayoutEffect(() => {
+        navigation.setOptions({
+            headerRight: () => (
+                <TouchableOpacity style={{ right: 10 }} onPress={() => navigation.navigate('AddReport', { contractId })}>
+                    {/* <IconOutline name="plus" size={24} color="black" /> */}
+                    <Text>   Thêm báo cáo</Text>
+                </TouchableOpacity>
+            ),
+        });
+    }, [navigation, contract?.contractId]);
+
 
     useEffect(() => {
         const loadContractDetails = async () => {

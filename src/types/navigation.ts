@@ -17,7 +17,7 @@ export type RootStackParamList = {
     ManageProperty: undefined;
     // ManageProperty: { properties: IProperty[] };
     ManageRequestRental: undefined;
-    ContractScreen: { contractData: any, requestId: string };
+    ContractScreen: { contractData: any, requestId?: string };
     WalletManagement: undefined;
     Transactions: undefined;
     Wallet: { user: IUser };
@@ -36,4 +36,9 @@ export type RootStackParamList = {
     PersonalInfo: undefined;
     UpdatePassword: undefined;
     EditPropertyScreen: { slug: string };
+    CreateContractScreen: undefined;
+    MyReport: undefined;
+    ReportManagement: undefined;
+    ReportDetails: { reportId: number };
+    AddReport: { contractId: string };
 };

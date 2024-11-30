@@ -1,7 +1,6 @@
 
 
 
-import React, { useEffect, useState } from 'react';
 import {
     Alert,
     Image,
@@ -21,7 +20,7 @@ import { RootStackParamList } from '../../types/navigation';
 import { fetchPropertyAttributes, fetchPropertyDetail, fetchPropertyTypes, updateProperty } from '../../api/api';
 import { commonStyles } from '../../styles/theme';
 import AddressInput from '../../components/form/AddressInput';
-import { City, District, getCities, getDistricts, getWards, Ward } from '../../api/address';
+import { useEffect, useState } from 'react';
 
 export const interiorOptions = [
     {
@@ -72,9 +71,6 @@ const EditPropertyScreen: React.FC = () => {
     const [selectedAttributes, setSelectedAttributes] = useState<string[]>([]);
 
     const [propertyTypes, setPropertyTypes] = useState<IAttribute[]>([]);
-    const [cities, setCities] = useState<City[]>([]);
-    const [districts, setDistricts] = useState<District[]>([]);
-    const [wards, setWards] = useState<Ward[]>([]);
 
     useEffect(() => {
         const loadPropertyDetails = async () => {
@@ -123,8 +119,6 @@ const EditPropertyScreen: React.FC = () => {
             }
         };
 
-
-
         loadPropertyDetails();
         loadAttributesAndTypes();
 
@@ -147,7 +141,6 @@ const EditPropertyScreen: React.FC = () => {
             ]);
         }
     };
-
 
     const removeImage = (index: number) => {
         setImages((prevImages) => prevImages.filter((_, i) => i !== index));
@@ -191,6 +184,7 @@ const EditPropertyScreen: React.FC = () => {
             formData.append('acreage', acreage);
             formData.append('city', selectedCityName || propertyDetails?.address.city || '');
             formData.append('district', selectedDistrictName || propertyDetails?.address.district || '');
+
             formData.append('ward', selectedWardName || propertyDetails?.address.ward || '');
             formData.append('street', street || propertyDetails?.address.street || '');
             formData.append('conditions', JSON.stringify(conditions));
@@ -213,7 +207,6 @@ const EditPropertyScreen: React.FC = () => {
                     type: 'image/jpeg',
                 } as any);
             }
-
 
             console.log('Form data:', formData);
 
@@ -536,4 +529,6 @@ const styles = StyleSheet.create({
 });
 
 export default EditPropertyScreen;
+
+
 
