@@ -30,7 +30,9 @@ const options = [
     { id: '4', title: 'Yêu cầu thuê nhà', icon: 'home' },
     { id: '5', title: 'Quản lý hợp đồng', icon: 'file-text' },
     { id: '6', title: 'Thanh toán hóa đơn', icon: 'dollar' },
-    { id: '7', title: 'Cài đặt', icon: 'setting' },
+    { id: '7', title: 'Quản lý báo cáo', icon: 'setting' },
+
+    { id: '8', title: 'Báo cáo của tôi', icon: 'setting' },
 ];
 
 const ProfileScreen = () => {
@@ -50,9 +52,12 @@ const ProfileScreen = () => {
         navigation.navigate('Login');
     };
 
-    const filteredOptions = user?.userTypes.includes('owner')
-        ? options.filter((option) => option.id !== '6')
-        : options;
+    const filteredOptions = user?.userTypes.includes('renter')
+        ? options.filter((option) => option.id !== '7')
+        : user?.userTypes.includes('owner')
+            ? options.filter((option) => option.id !== '6' && option.id !== '8')
+            : options;
+
 
     const renderItem = ({
         item,
@@ -74,6 +79,10 @@ const ProfileScreen = () => {
                     navigation.navigate('ManageContract');
                 } else if (item.id === '6') {
                     navigation.navigate('PaymentScreen');
+                } else if (item.id === '7') {
+                    navigation.navigate('ReportManagement');
+                } else if (item.id === '8') {
+                    navigation.navigate('MyReport');
                 }
             }}
         >

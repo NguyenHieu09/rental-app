@@ -255,7 +255,7 @@ const CreateContractScreen: React.FC = () => {
                                 <TouchableOpacity
                                     onPress={() => handleRenterSelect(item)}
                                 >
-                                    <Text style={styles.listItem}>{item.name}</Text>
+                                    <Text style={styles.listItem}>{item.name} - {item.email}</Text>
                                 </TouchableOpacity>
                             ),
                         },

@@ -37,4 +37,8 @@ export type RootStackParamList = {
     UpdatePassword: undefined;
     EditPropertyScreen: { slug: string };
     CreateContractScreen: undefined;
+    MyReport: undefined;
+    ReportManagement: undefined;
+    ReportDetails: { reportId: number };
+    AddReport: { contractId: string };
 };
