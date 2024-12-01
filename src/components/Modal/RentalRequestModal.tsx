@@ -1,13 +1,20 @@
-
-
-
-import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, TextInput, TouchableOpacity, Alert } from 'react-native';
+import { addMonths, format, startOfDay } from 'date-fns';
+import React, { useEffect, useState } from 'react';
+import {
+    Alert,
+    StyleSheet,
+    Text,
+    TextInput,
+    TouchableOpacity,
+    View,
+} from 'react-native';
 import Modal from 'react-native-modal';
 import DateTimePickerModal from 'react-native-modal-datetime-picker';
-import { addMonths, format, startOfDay } from 'date-fns';
-import { IProperty } from '../../types/property';
 import { sendRentalRequest } from '../../api/contract';
+import { commonStyles } from '../../styles/theme';
+import { IProperty } from '../../types/property';
+import Button from '../button/Button';
+import FormGroup from '../form/FormGroup';
 
 interface RentalRequestModalProps {
     isVisible: boolean;
@@ -17,22 +24,45 @@ interface RentalRequestModalProps {
     userId: string;
 }
 
-const RentalRequestModal: React.FC<RentalRequestModalProps> = ({ isVisible, onClose, property, ownerId, userId }) => {
+interface Errors {
+    startDate?: string;
+    months?: string;
+    deposit?: string;
+    price?: string;
+}
+
+const RentalRequestModal: React.FC<RentalRequestModalProps> = ({
+    isVisible,
+    onClose,
+    property,
+    ownerId,
+    userId,
+}) => {
     const { propertyId, images, slug, title } = property;
     const [loading, setLoading] = useState(false);
-
+    const [errors, setErrors] = useState<Errors>();
     const [startDate, setStartDate] = useState<Date | null>(new Date()); // Mặc định là hôm nay
-    const [months, setMonths] = useState<string>(property?.minDuration?.toString() || '');
-    const [deposit, setDeposit] = useState<string>(property?.deposit?.toString() || '');
-    const [rentalPrice, setRentalPrice] = useState<string>(property?.price?.toString() || '');
+    const [months, setMonths] = useState<string>(
+        property?.minDuration?.toString() || '',
+    );
+    const [deposit, setDeposit] = useState<string>(
+        property?.deposit?.toString() || '',
+    );
+    const [rentalPrice, setRentalPrice] = useState<string>(
+        property?.price?.toString() || '',
+    );
 
-    const [isStartDatePickerVisible, setStartDatePickerVisibility] = useState(false);
+    const [isStartDatePickerVisible, setStartDatePickerVisibility] =
+        useState(false);
 
     const [endDate, setEndDate] = useState<Date | null>(null);
 
     useEffect(() => {
         if (startDate && months) {
-            const calculatedEndDate = addMonths(startOfDay(startDate), parseInt(months));
+            const calculatedEndDate = addMonths(
+                startOfDay(startDate),
+                parseInt(months),
+            );
             setEndDate(calculatedEndDate);
         } else {
             setEndDate(null);
@@ -42,26 +72,33 @@ const RentalRequestModal: React.FC<RentalRequestModalProps> = ({ isVisible, onCl
     const handleConfirmStartDate = (date: Date) => {
         setStartDate(date);
         setStartDatePickerVisibility(false);
+        setErrors((prev) => ({
+            ...prev,
+            startDate: undefined,
+        }));
     };
 
     const handleRentalRequest = async () => {
+        const errors: Errors = {};
+
         if (!startDate) {
-            Alert.alert('Lỗi', 'Vui lòng chọn ngày bắt đầu.');
-            return;
+            errors.startDate = 'Chọn ngày bắt đầu';
         }
 
         if (!months || parseInt(months) <= 0) {
-            Alert.alert('Lỗi', 'Số tháng phải lớn hơn 0.');
-            return;
+            errors.months = 'Nhập số tháng thuê';
         }
 
-        if (!deposit || parseFloat(deposit) <= 0) {
-            Alert.alert('Lỗi', 'Tiền cọc phải lớn hơn 0.');
-            return;
+        if (!deposit || parseFloat(deposit) < 0) {
+            errors.deposit = 'Nhập số tiền cọc';
         }
 
-        if (!rentalPrice || parseFloat(rentalPrice) <= 0) {
-            Alert.alert('Lỗi', 'Tiền thuê phải lớn hơn 0.');
+        if (!rentalPrice || parseFloat(rentalPrice) < 0) {
+            errors.price = 'Nhập số tiền thuê';
+        }
+
+        if (Object.keys(errors).length > 0) {
+            setErrors(errors);
             return;
         }
 
@@ -71,7 +108,7 @@ const RentalRequestModal: React.FC<RentalRequestModalProps> = ({ isVisible, onCl
             rentalPrice: parseFloat(rentalPrice),
             rentalDeposit: parseFloat(deposit),
             rentalEndDate: format(endDate!, 'dd/MM/yyyy'),
-            rentalStartDate: format(startDate, 'dd/MM/yyyy'),
+            rentalStartDate: format(startDate!, 'dd/MM/yyyy'),
         };
 
         setLoading(true); // Bật trạng thái loading
@@ -87,58 +124,117 @@ const RentalRequestModal: React.FC<RentalRequestModalProps> = ({ isVisible, onCl
         }
     };
 
+    const handleChangeMonths = (text: string) => {
+        setMonths(text);
+        setErrors((prev) => ({
+            ...prev,
+            months: undefined,
+        }));
+    };
+
+    const handleChangeDeposit = (text: string) => {
+        setDeposit(text);
+        setErrors((prev) => ({
+            ...prev,
+            deposit: undefined,
+        }));
+    };
+
+    const handleChangeRentalPrice = (text: string) => {
+        setRentalPrice(text);
+        setErrors((prev) => ({
+            ...prev,
+            price: undefined,
+        }));
+    };
+
+    const handleClose = () => {
+        setErrors({});
+        onClose();
+    };
+
     return (
         <Modal isVisible={isVisible}>
             <View style={styles.modalContent}>
-                <Text style={styles.modalTitle}>Nhập thông tin thuê nhà</Text>
-                <TouchableOpacity onPress={() => setStartDatePickerVisibility(true)}>
+                <Text style={styles.modalTitle}>{title}</Text>
+                <FormGroup
+                    label='Ngày bắt đầu'
+                    isRequired
+                    error={errors?.startDate}
+                >
+                    <TouchableOpacity
+                        onPress={() => setStartDatePickerVisibility(true)}
+                    >
+                        <TextInput
+                            style={styles.input}
+                            placeholder='Ngày bắt đầu'
+                            value={
+                                startDate ? format(startDate, 'dd/MM/yyyy') : ''
+                            }
+                            editable={false}
+                        />
+                    </TouchableOpacity>
+                    <DateTimePickerModal
+                        isVisible={isStartDatePickerVisible}
+                        mode='date'
+                        onConfirm={handleConfirmStartDate}
+                        onCancel={() => setStartDatePickerVisibility(false)}
+                        minimumDate={new Date()}
+                    />
+                </FormGroup>
+                <FormGroup label='Số tháng' isRequired error={errors?.months}>
                     <TextInput
                         style={styles.input}
-                        placeholder="Ngày bắt đầu"
-                        value={startDate ? format(startDate, 'dd/MM/yyyy') : ''}
+                        placeholder='Số tháng thuê'
+                        keyboardType='numeric'
+                        value={months}
+                        onChangeText={handleChangeMonths}
+                    />
+                </FormGroup>
+                <FormGroup label='Ngày kết thúc'>
+                    <TextInput
+                        style={styles.input}
+                        placeholder='Ngày kết thúc'
+                        value={endDate ? format(endDate, 'dd/MM/yyyy') : ''}
                         editable={false}
                     />
-                </TouchableOpacity>
-                <DateTimePickerModal
-                    isVisible={isStartDatePickerVisible}
-                    mode="date"
-                    onConfirm={handleConfirmStartDate}
-                    onCancel={() => setStartDatePickerVisibility(false)}
-                    minimumDate={new Date()}
-                />
-                <TextInput
-                    style={styles.input}
-                    placeholder="Số tháng thuê"
-                    keyboardType="numeric"
-                    value={months}
-                    onChangeText={(text) => setMonths(text)}
-                />
-                <TextInput
-                    style={styles.input}
-                    placeholder="Ngày kết thúc"
-                    value={endDate ? format(endDate, 'dd/MM/yyyy') : ''}
-                    editable={false}
-                />
-                <TextInput
-                    style={styles.input}
-                    placeholder="Tiền cọc"
-                    keyboardType="numeric"
-                    value={deposit}
-                    onChangeText={(text) => setDeposit(text)}
-                />
-                <TextInput
-                    style={styles.input}
-                    placeholder="Tiền thuê"
-                    keyboardType="numeric"
-                    value={rentalPrice}
-                    onChangeText={(text) => setRentalPrice(text)}
-                />
-                <TouchableOpacity style={[styles.submitButton]} onPress={handleRentalRequest} disabled={loading}>
-                    <Text style={styles.submitButtonText}>{loading ? 'Đang gửi...' : 'Gửi yêu cầu'}</Text>
-                </TouchableOpacity>
-                <TouchableOpacity style={styles.cancelButton} onPress={onClose}>
-                    <Text style={styles.cancelButtonText}>Hủy</Text>
-                </TouchableOpacity>
+                </FormGroup>
+                <FormGroup label='Tiền thuê' isRequired error={errors?.price}>
+                    <TextInput
+                        style={styles.input}
+                        placeholder='Tiền thuê'
+                        keyboardType='numeric'
+                        value={rentalPrice}
+                        onChangeText={handleChangeRentalPrice}
+                    />
+                </FormGroup>
+                <FormGroup label='Tiền cọc' isRequired error={errors?.deposit}>
+                    <TextInput
+                        style={styles.input}
+                        placeholder='Tiền cọc'
+                        keyboardType='numeric'
+                        value={deposit}
+                        onChangeText={handleChangeDeposit}
+                    />
+                </FormGroup>
+                <View style={styles.footer}>
+                    <Button
+                        variant='outlined'
+                        onPress={handleClose}
+                        style={commonStyles.flex1}
+                    >
+                        Huỷ
+                    </Button>
+                    <Button
+                        style={commonStyles.flex1}
+                        type='primary'
+                        variant='fill'
+                        loading={loading}
+                        onPress={handleRentalRequest}
+                    >
+                        Gửi yêu cầu
+                    </Button>
+                </View>
             </View>
         </Modal>
     );
@@ -149,11 +245,11 @@ const styles = StyleSheet.create({
         backgroundColor: 'white',
         padding: 20,
         borderRadius: 10,
+        gap: 8,
     },
     modalTitle: {
         fontSize: 18,
         fontWeight: 'bold',
-        marginBottom: 10,
         textAlign: 'center',
     },
     input: {
@@ -161,7 +257,6 @@ const styles = StyleSheet.create({
         borderColor: 'gray',
         borderRadius: 5,
         padding: 10,
-        marginBottom: 10,
     },
     submitButton: {
         backgroundColor: '#007BFF',
@@ -185,6 +280,11 @@ const styles = StyleSheet.create({
         color: 'white',
         fontWeight: '500',
         fontSize: 16,
+    },
+    footer: {
+        flexDirection: 'row',
+        marginTop: 12,
+        gap: 8,
     },
 });
 

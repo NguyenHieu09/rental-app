@@ -25,7 +25,7 @@ import { getFirstAndLastName } from '../../utils/avatar';
 
 const options = [
     { id: '1', title: 'Ví', icon: 'wallet' },
-    { id: '2', title: 'Thông tin tài khoản', icon: 'user' },
+    { id: '2', title: 'Quản lý tài khoản', icon: 'user' },
     { id: '3', title: 'Xác thực tài khoản', icon: 'idcard' },
     { id: '4', title: 'Yêu cầu thuê nhà', icon: 'home' },
     { id: '5', title: 'Quản lý hợp đồng', icon: 'file-text' },
@@ -55,9 +55,8 @@ const ProfileScreen = () => {
     const filteredOptions = user?.userTypes.includes('renter')
         ? options.filter((option) => option.id !== '7')
         : user?.userTypes.includes('owner')
-            ? options.filter((option) => option.id !== '6' && option.id !== '8')
-            : options;
-
+        ? options.filter((option) => option.id !== '6' && option.id !== '8')
+        : options;
 
     const renderItem = ({
         item,

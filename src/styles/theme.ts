@@ -42,6 +42,15 @@ export const commonStyles = StyleSheet.create({
         paddingHorizontal: SIZES.base,
         borderRadius: SIZES.radius,
     },
+    antInput: {
+        borderWidth: 1,
+        borderRadius: 6,
+        borderColor: '#d9d9d9',
+        borderStyle: 'solid',
+        backgroundColor: '#fff',
+        paddingHorizontal: 11,
+        paddingVertical: 4,
+    },
     button: {
         backgroundColor: COLORS.buttonBackground,
         paddingVertical: SIZES.base * 1.5,
