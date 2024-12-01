@@ -20,7 +20,6 @@ import { RootState } from '../../../redux-toolkit/store';
 import { useSelector } from 'react-redux';
 import { IGenerateContractRequest } from '../../../types/rentalRequest';
 import Button from '../../../components/button/Button';
-import { commonStyles } from '../../../styles/theme';
 
 interface Property {
     propertyId: string;
