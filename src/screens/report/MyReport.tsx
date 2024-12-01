@@ -111,7 +111,7 @@ const styles = StyleSheet.create({
         borderWidth: 1,
         borderColor: '#ccc',
         borderRadius: 10,
-        backgroundColor: '#f9f9f9',
+        backgroundColor: '#fff',
         marginBottom: 10,
     },
     reportTitle: {
@@ -139,3 +139,4 @@ const styles = StyleSheet.create({
 });
 
 export default MyReport;
+

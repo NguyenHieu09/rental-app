@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, TextInput, TouchableOpacity, StyleSheet, Alert, ActivityIndicator } from 'react-native';
+import { View, Text, TextInput, TouchableOpacity, StyleSheet, Alert, ActivityIndicator, Image, ScrollView } from 'react-native';
 import { useNavigation, NavigationProp } from '@react-navigation/native';
 import { RootStackParamList } from '../../types/navigation';
 import { RadioButton } from 'react-native-paper';
@@ -164,8 +164,13 @@ const RegisterScreen: React.FC = () => {
     };
 
     return (
-        <View style={commonStyles.container}>
+        <ScrollView style={styles.container}>
             <View style={commonStyles.header}>
+                <Image
+                    source={require('../../../assets/img/logo.png')}
+                    style={styles.image}
+                    resizeMode='contain'
+                />
                 <Text style={styles.title}>Đăng ký</Text>
                 <Text style={styles.subtitle}>Nhập thông tin của bạn để tạo tài khoản.</Text>
             </View>
@@ -241,11 +246,16 @@ const RegisterScreen: React.FC = () => {
             <TouchableOpacity onPress={handleLoginNavigation}>
                 <Text style={styles.link}>Đã có tài khoản? Đăng nhập ngay</Text>
             </TouchableOpacity>
-        </View>
+        </ScrollView>
     );
 };
 
 const styles = StyleSheet.create({
+    container: {
+        flex: 1,
+        paddingHorizontal: 15,
+        backgroundColor: '#fff',
+    },
     title: {
         fontSize: 24,
         fontWeight: 'bold',
@@ -283,7 +293,7 @@ const styles = StyleSheet.create({
         paddingVertical: 15,
         alignItems: 'center',
         borderRadius: 5,
-        marginBottom: 15,
+        // marginBottom: 15,
     },
     userTypeContainer: {
         marginBottom: 15,
@@ -310,6 +320,10 @@ const styles = StyleSheet.create({
         // textAlign: 'center',
         marginBottom: 15,
         marginTop: -5,
+    },
+    image: {
+        width: 100,
+        height: 100,
     },
 });
 

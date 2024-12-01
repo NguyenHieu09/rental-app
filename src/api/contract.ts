@@ -1202,3 +1202,205 @@ export const createReportByRenter = async (formData: FormData) => {
         }
     }
 };
+
+export const ownerProposeReport = async (formData: FormData) => {
+    try {
+        const token = await AsyncStorage.getItem('accessToken');
+
+        if (!token) {
+            throw new Error('No token provided');
+        }
+
+        const response = await axios.post(
+            `${API_CONTRACT_URL}/reports/owner/propose`,
+            formData,
+            {
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                    'Content-Type': 'multipart/form-data',
+                },
+            },
+        );
+
+
+        if (response.status === 201) {
+            return { success: true, data: response.data };
+        } else {
+            return { success: false, message: 'Failed to create property' };
+        }
+    } catch (error: any) {
+        if (error.response) {
+            const { data, status } = error.response;
+            console.error('Error response data:', data);
+            console.error('HTTP status:', status);
+            if (data.details) {
+                console.error('Error details:', data.details);
+            }
+            throw new Error(
+                data.message || ''
+            );
+        } else {
+            console.error('Error creating property:', error.message);
+            throw new Error('Network error or unknown issue occurred.');
+        }
+
+    }
+};
+
+export const acceptProposal = async (reportId: number, reportChildId: number) => {
+    try {
+        const token = await AsyncStorage.getItem('accessToken');
+
+        if (!token) {
+            throw new Error('No token provided');
+        }
+
+        const response = await axios.post(
+            `${API_CONTRACT_URL}/reports/owner/accept`,
+            { reportId, reportChildId },
+            {
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                },
+            },
+        );
+
+        if (response.status === 200) {
+            return { success: true, data: response.data };
+        } else {
+            return { success: false, message: 'Failed to accept proposal' };
+        }
+    } catch (error: any) {
+        if (error.response) {
+            const { data, status } = error.response;
+            console.error('Error response data:', data);
+            console.error('HTTP status:', status);
+            if (data.details) {
+                console.error('Error details:', data.details);
+            }
+            throw new Error(data.message || '');
+        } else {
+            console.error('Error accepting proposal:', error.message);
+            throw new Error('Network error or unknown issue occurred.');
+        }
+    }
+};
+
+
+export const acceptProposalByRenter = async (reportChildId: number) => {
+    try {
+        const token = await AsyncStorage.getItem('accessToken');
+
+        if (!token) {
+            throw new Error('No token provided');
+        }
+
+        const response = await axios.post(
+            `${API_CONTRACT_URL}/reports/renter/accept`,
+            { reportChildId },
+            {
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                },
+            },
+        );
+
+        if (response.status === 200) {
+            return { success: true, data: response.data };
+        } else {
+            return { success: false, message: 'Failed to accept proposal' };
+        }
+    } catch (error: any) {
+        if (error.response) {
+            const { data, status } = error.response;
+            console.error('Error response data:', data);
+            console.error('HTTP status:', status);
+            if (data.details) {
+                console.error('Error details:', data.details);
+            }
+            throw new Error(data.message || '');
+        } else {
+            console.error('Error accepting proposal:', error.message);
+            throw new Error('Network error or unknown issue occurred.');
+        }
+    }
+};
+
+export const rejectProposalByRenter = async (reportChildId: number) => {
+    try {
+        const token = await AsyncStorage.getItem('accessToken');
+
+        if (!token) {
+            throw new Error('No token provided');
+        }
+
+        const response = await axios.post(
+            `${API_CONTRACT_URL}/reports/renter/reject`,
+            { reportChildId },
+            {
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                },
+            },
+        );
+
+        if (response.status === 200) {
+            return { success: true, data: response.data };
+        } else {
+            return { success: false, message: 'Failed to accept proposal' };
+        }
+    } catch (error: any) {
+        if (error.response) {
+            const { data, status } = error.response;
+            console.error('Error response data:', data);
+            console.error('HTTP status:', status);
+            if (data.details) {
+                console.error('Error details:', data.details);
+            }
+            throw new Error(data.message || '');
+        } else {
+            console.error('Error accepting proposal:', error.message);
+            throw new Error('Network error or unknown issue occurred.');
+        }
+    }
+};
+
+
+export const cancelReport = async (reportId: number) => {
+    try {
+        const token = await AsyncStorage.getItem('accessToken');
+
+        if (!token) {
+            throw new Error('No token provided');
+        }
+
+        const response = await axios.post(
+            `${API_CONTRACT_URL}/reports/${reportId}/cancel`, {},
+
+            {
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                },
+            },
+        );
+
+        if (response.status === 200) {
+            return { success: true, data: response.data };
+        } else {
+            return { success: false, message: 'Failed to cancel report' };
+        }
+    } catch (error: any) {
+        if (error.response) {
+            const { data, status } = error.response;
+            console.error('Error response data:', data);
+            console.error('HTTP status:', status);
+            if (data.details) {
+                console.error('Error details:', data.details);
+            }
+            throw new Error(data.message || '');
+        } else {
+            console.error('Error canceling report:', error.message);
+            throw new Error('Network error or unknown issue occurred.');
+        }
+    }
+};

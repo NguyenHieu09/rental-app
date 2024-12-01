@@ -10,6 +10,7 @@ import RenderExploreItem from '../../../components/exploreItem/RenderExploreItem
 import { useDispatch, useSelector } from 'react-redux';
 import { AppDispatch, RootState } from '../../../redux-toolkit/store';
 import { setFavorites, resetFavorites, setError, setLoading } from '../../../redux-toolkit/slices/favoriteSlice';
+import { commonStyles } from '../../../styles/theme';
 
 const SavedScreen: React.FC = () => {
     const dispatch = useDispatch<AppDispatch>();
@@ -80,7 +81,9 @@ const SavedScreen: React.FC = () => {
                     ) : null}
                 />
             ) : (
-                <Text style={styles.emptyText}>Không có bất động sản yêu thích</Text>
+                <View style={commonStyles.container}>
+                    <Text style={styles.emptyText}>Không có bất động sản yêu thích</Text>
+                </View>
             )}
         </SafeAreaView>
     );
