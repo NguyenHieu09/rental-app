@@ -2,14 +2,14 @@
 
 export const validateName = (name: string): string | null => {
     if (!name) {
-        return "Tên không được để trống.";
+        return "Tên là bắt buộc.";
     }
     return null;
 };
 
 export const validateEmail = (email: string): string | null => {
     if (!email) {
-        return "Vui lòng nhập địa chỉ email.";
+        return "Email là bắt buộc.";
     }
 
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -21,7 +21,7 @@ export const validateEmail = (email: string): string | null => {
 
 export const validatePassword = (password: string): string | null => {
     if (!password) {
-        return "Mật khẩu không được để trống.";
+        return "Mật khẩu là bắt buộc.";
     }
 
     if (password.length < 6) {
@@ -37,7 +37,7 @@ export const validatePassword = (password: string): string | null => {
 
 export const validateOtp = (otp: string): string | null => {
     if (!otp) {
-        return "Vui lòng nhập mã OTP.";
+        return "OTP là bắt buộc.";
     }
 
     if (otp.length !== 6) {

@@ -1,28 +1,12 @@
-import {
-    NavigationProp,
-    useFocusEffect,
-    useNavigation,
-} from '@react-navigation/native';
-import { format } from 'date-fns';
+
+
 import React, { useCallback, useEffect, useState } from 'react';
-import {
-    ActivityIndicator,
-    Alert,
-    FlatList,
-    StyleSheet,
-    Text,
-    TouchableOpacity,
-    View,
-} from 'react-native';
+import { View, Text, FlatList, StyleSheet, ActivityIndicator, Alert, TouchableOpacity } from 'react-native';
 import { useSelector } from 'react-redux';
+import { useNavigation, NavigationProp, useFocusEffect } from '@react-navigation/native';
 import { useAccount, useConnect, useDisconnect } from 'wagmi';
-import {
-    cancelContractBeforeDeposit,
-    createCancelContractRequest,
-    createExtensionRequest,
-    fetchContractsForOwner,
-    fetchRentalContractsForRenter,
-} from '../../../api/contract';
+import { RootState } from '../../../redux-toolkit/store';
+import { fetchContractsForOwner, fetchRentalContractsForRenter, cancelContractBeforeDeposit, createCancelContractRequest, createExtensionRequest } from '../../../api/contract';
 import Button from '../../../components/button/Button';
 import CancelBeforeDepositModal from '../../../components/modal/CancelBeforeDepositModal';
 import CancelContractModal from '../../../components/modal/CancelContractModal';
@@ -30,13 +14,13 @@ import ConnectWalletModal from '../../../components/modal/ConnectWalletModal';
 import ExtendContractModal from '../../../components/modal/ExtendContractModal';
 import Tag from '../../../components/tag/Tag';
 import { useSignMessageCustom } from '../../../hook/useSignMessageCustom';
-import { RootState } from '../../../redux-toolkit/store';
 import { commonStyles } from '../../../styles/theme';
 import { ContractStatus, IContract } from '../../../types/contract';
 import { ContractExtensionRequestType } from '../../../types/extensionRequest';
 import { RootStackParamList } from '../../../types/navigation';
 import { getContractColor } from '../../../utils/colorTag';
 import { formatPrice } from '../../../utils/formattedPrice';
+import { format } from 'date-fns';
 
 const getStatusInVietnamese = (status: ContractStatus): string => {
     if (status === 'WAITING') return 'Chờ xác nhận';
@@ -59,9 +43,7 @@ const ManageContract = () => {
     const [loading, setLoading] = useState(true);
     const [isLoadingMore, setIsLoadingMore] = useState(false);
     const [modalVisible, setModalVisible] = useState(false);
-    const [selectedContract, setSelectedContract] = useState<IContract | null>(
-        null,
-    );
+    const [selectedContract, setSelectedContract] = useState<IContract | null>(null);
     const [cancelModalVisible, setCancelModalVisible] = useState(false);
     const [confirmModalVisible, setConfirmModalVisible] = useState(false);
     const [extendModalVisible, setExtendModalVisible] = useState(false);
@@ -97,10 +79,7 @@ const ManageContract = () => {
             if (user.userTypes.includes('owner')) {
                 response = await fetchContractsForOwner(ITEMS_PER_PAGE, skip);
             } else if (user.userTypes.includes('renter')) {
-                response = await fetchRentalContractsForRenter(
-                    ITEMS_PER_PAGE,
-                    skip,
-                );
+                response = await fetchRentalContractsForRenter(ITEMS_PER_PAGE, skip);
             } else {
                 throw new Error('Unknown user role');
             }
@@ -149,22 +128,31 @@ const ManageContract = () => {
     }, [user]);
 
     useEffect(() => {
-        // Kiểm tra nếu địa chỉ ví đã kết nối và không khớp với địa chỉ ví người dùng
-        if (address && address !== user?.walletAddress) {
-            setIsConnected(false); // Cập nhật trạng thái không kết nối
-            setModalVisible(true); // Mở modal yêu cầu kết nối ví
-            disconnectAsync(); // Ngắt kết nối ví hiện tại
-        } else if (address && address === user?.walletAddress) {
-            setIsConnected(true); // Địa chỉ ví khớp, kết nối thành công
-            setModalVisible(false); // Đóng modal
-        }
+        const verifyWalletAddress = async () => {
+            if (address && user?.walletAddress) {
+                if (address !== user.walletAddress) {
+                    // Địa chỉ ví không khớp
+                    await disconnectAsync();
+                    setIsConnected(false);
+                    setModalVisible(true);
+                    Alert.alert(
+                        'Thông báo',
+                        'Địa chỉ ví không khớp với địa chỉ đã đăng ký. Vui lòng kết nối ví đúng.',
+                    );
+                } else {
+                    // Địa chỉ ví khớp
+                    setIsConnected(true);
+                    setModalVisible(false); // Đóng modal nếu kết nối đúng
+                }
+            } else {
+                // Chưa kết nối ví
+                setIsConnected(false);
+                setModalVisible(true);
+            }
+        };
 
-        const timer = setTimeout(() => {
-            setLoading(false);
-        }, 2000);
-
-        return () => clearTimeout(timer);
-    }, [address, user?.walletAddress]);
+        verifyWalletAddress();
+    }, [address, user?.walletAddress, disconnectAsync]);
 
     useFocusEffect(
         useCallback(() => {
@@ -209,15 +197,6 @@ const ManageContract = () => {
             );
         }
     };
-
-    // const handleCancelContract = (contract: IContract) => {
-    //     setSelectedContract(contract);
-    //     if (contract.status === 'WAITING') {
-    //         setConfirmModalVisible(true);
-    //     } else {
-    //         setCancelModalVisible(true);
-    //     }
-    // };
 
     const confirmCancelContract = async (cancelDate: Date, reason: string) => {
         if (selectedContract) {
@@ -319,45 +298,6 @@ const ManageContract = () => {
         }
     };
 
-    // const renderContract = ({ item }: { item: IContract }) => (
-    //     <View key={item.contractId} style={styles.contractCard}>
-    //         <TouchableOpacity onPress={() => navigation.navigate('ContractDetails', { contractId: item.contractId })}>
-
-    //             <View style={styles.containerContract}>
-    //                 <View>
-    //                     {/* <Image source={{ uri: item.property.images[0] }} style={styles.image} /> */}
-    //                 </View>
-    //                 <View style={styles.details}>
-    //                     <Text style={styles.propertyTitle}>{item.property.title}</Text>
-    //                     <Text style={styles.price}>Giá thuê: {item.monthlyRent.toLocaleString()} đ</Text>
-    //                     <Text style={styles.deposit}>Tiền cọc: {item.depositAmount.toLocaleString()} đ</Text>
-    //                     {user && user.userTypes.includes('owner') ? (
-    //                         <Text>Người thuê: {item.renter.name}</Text>
-    //                     ) : (
-    //                         <Text>Chủ nhà: {item.owner.name}</Text>
-    //                     )}
-    //                     <Text style={styles.dates}>
-    //                         Từ: {format(new Date(item.startDate), 'dd/MM/yyyy')}
-    //                     </Text>
-    //                     <Text style={styles.dates}>
-    //                         Đến: {format(new Date(item.endDate), 'dd/MM/yyyy')}
-    //                     </Text>
-    //                     <Text style={styles.status}>Trạng thái: {getStatusInVietnamese(item.status)}</Text>
-
-    //                 </View>
-
-    //             </View>
-    //         </TouchableOpacity >
-    //         {(item.status === 'WAITING' || item.status === 'DEPOSITED' || item.status === 'ONGOING') && (
-    //             <TouchableOpacity style={[commonStyles.button, { paddingVertical: 10, marginTop: 10 }]} onPress={() => handleCancelContract(item)}>
-    //                 <Text style={commonStyles.buttonText}>Hủy hợp đồng</Text>
-    //             </TouchableOpacity>
-    //         )}
-
-    //     </View>
-
-    // );
-
     const renderContract = ({ item }: { item: IContract }) => {
         const isCancellable =
             item.status === 'WAITING' ||
@@ -404,7 +344,6 @@ const ManageContract = () => {
                     </View>
                 </TouchableOpacity>
 
-                {/* <W3mButton /> */}
                 <View style={styles.footer}>
                     <Tag color={getContractColor(item.status)}>
                         {getStatusInVietnamese(item.status)}

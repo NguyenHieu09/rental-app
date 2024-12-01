@@ -1,6 +1,6 @@
 
 
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { View, Text, FlatList, StyleSheet, ActivityIndicator, TouchableOpacity } from 'react-native';
 import { useSelector } from 'react-redux';
 import { RootState } from '../../../redux-toolkit/store';
@@ -10,7 +10,7 @@ import { getReportStatusColor, getReportStatusText, getReportPriorityColor, getR
 import { formatDateTime } from '../../../utils/datetime';
 import { formatPrice } from '../../../utils/formattedPrice';
 import Tag from '../../../components/tag/Tag';
-import { useNavigation, NavigationProp } from '@react-navigation/native';
+import { useNavigation, NavigationProp, useFocusEffect } from '@react-navigation/native';
 import { RootStackParamList } from '../../../types/navigation';
 import { commonStyles } from '../../../styles/theme';
 import { format } from 'date-fns';
@@ -22,26 +22,30 @@ const ReportManagement = () => {
     const [error, setError] = useState('');
     const navigation = useNavigation<NavigationProp<RootStackParamList>>();
 
-    useEffect(() => {
-        const loadReports = async () => {
-            try {
-                const filter: IReportFilterByOwner = {
-                    status: 'all' as ReportFilterStatus,
-                    type: 'incident' as ReportType,
-                    sort: 'newest' as ReportSort,
-                };
-                const response = await fetchReportsByOwner(filter);
-                console.log(response);
-                setReports(response);
-            } catch (error) {
-                setError('Failed to load reports');
-            } finally {
-                setLoading(false);
-            }
-        };
 
-        loadReports();
-    }, []);
+    const loadReports = async () => {
+        try {
+            const filter: IReportFilterByOwner = {
+                status: 'all' as ReportFilterStatus,
+                type: 'incident' as ReportType,
+                sort: 'newest' as ReportSort,
+            };
+            const response = await fetchReportsByOwner(filter);
+            console.log(response);
+            setReports(response);
+        } catch (error) {
+            setError('Failed to load reports');
+        } finally {
+            setLoading(false);
+        }
+    };
+    useFocusEffect(
+        useCallback(() => {
+            loadReports();
+        }, [])
+    );
+
+
 
     if (loading) {
         return <ActivityIndicator size="large" color="#0000ff" />;
