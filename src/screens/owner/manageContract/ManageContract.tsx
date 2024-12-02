@@ -1,12 +1,28 @@
-
-
+import {
+    NavigationProp,
+    useFocusEffect,
+    useNavigation,
+} from '@react-navigation/native';
+import { format } from 'date-fns';
 import React, { useCallback, useEffect, useState } from 'react';
-import { View, Text, FlatList, StyleSheet, ActivityIndicator, Alert, TouchableOpacity } from 'react-native';
+import {
+    ActivityIndicator,
+    Alert,
+    FlatList,
+    StyleSheet,
+    Text,
+    TouchableOpacity,
+    View,
+} from 'react-native';
 import { useSelector } from 'react-redux';
-import { useNavigation, NavigationProp, useFocusEffect } from '@react-navigation/native';
 import { useAccount, useConnect, useDisconnect } from 'wagmi';
-import { RootState } from '../../../redux-toolkit/store';
-import { fetchContractsForOwner, fetchRentalContractsForRenter, cancelContractBeforeDeposit, createCancelContractRequest, createExtensionRequest } from '../../../api/contract';
+import {
+    cancelContractBeforeDeposit,
+    createCancelContractRequest,
+    createExtensionRequest,
+    fetchContractsForOwner,
+    fetchRentalContractsForRenter,
+} from '../../../api/contract';
 import Button from '../../../components/button/Button';
 import CancelBeforeDepositModal from '../../../components/modal/CancelBeforeDepositModal';
 import CancelContractModal from '../../../components/modal/CancelContractModal';
@@ -14,13 +30,13 @@ import ConnectWalletModal from '../../../components/modal/ConnectWalletModal';
 import ExtendContractModal from '../../../components/modal/ExtendContractModal';
 import Tag from '../../../components/tag/Tag';
 import { useSignMessageCustom } from '../../../hook/useSignMessageCustom';
+import { RootState } from '../../../redux-toolkit/store';
 import { commonStyles } from '../../../styles/theme';
 import { ContractStatus, IContract } from '../../../types/contract';
 import { ContractExtensionRequestType } from '../../../types/extensionRequest';
 import { RootStackParamList } from '../../../types/navigation';
 import { getContractColor } from '../../../utils/colorTag';
 import { formatPrice } from '../../../utils/formattedPrice';
-import { format } from 'date-fns';
 
 const getStatusInVietnamese = (status: ContractStatus): string => {
     if (status === 'WAITING') return 'Chờ xác nhận';
@@ -43,7 +59,9 @@ const ManageContract = () => {
     const [loading, setLoading] = useState(true);
     const [isLoadingMore, setIsLoadingMore] = useState(false);
     const [modalVisible, setModalVisible] = useState(false);
-    const [selectedContract, setSelectedContract] = useState<IContract | null>(null);
+    const [selectedContract, setSelectedContract] = useState<IContract | null>(
+        null,
+    );
     const [cancelModalVisible, setCancelModalVisible] = useState(false);
     const [confirmModalVisible, setConfirmModalVisible] = useState(false);
     const [extendModalVisible, setExtendModalVisible] = useState(false);
@@ -79,7 +97,10 @@ const ManageContract = () => {
             if (user.userTypes.includes('owner')) {
                 response = await fetchContractsForOwner(ITEMS_PER_PAGE, skip);
             } else if (user.userTypes.includes('renter')) {
-                response = await fetchRentalContractsForRenter(ITEMS_PER_PAGE, skip);
+                response = await fetchRentalContractsForRenter(
+                    ITEMS_PER_PAGE,
+                    skip,
+                );
             } else {
                 throw new Error('Unknown user role');
             }
@@ -201,8 +222,9 @@ const ManageContract = () => {
     const confirmCancelContract = async (cancelDate: Date, reason: string) => {
         if (selectedContract) {
             try {
-                const message = `Hủy hợp đồng ${selectedContract.contractId
-                    } vào lúc ${format(cancelDate, 'yyyy-MM-dd')}`;
+                const message = `Hủy hợp đồng ${
+                    selectedContract.contractId
+                } vào lúc ${format(cancelDate, 'yyyy-MM-dd')}`;
                 const signature = await handleSign({ message });
 
                 await createCancelContractRequest({
@@ -252,7 +274,7 @@ const ManageContract = () => {
                     }),
                 );
             } catch (error: any) {
-                Alert.alert('Lỗi', 'Có lỗi xảy ra khi hủy hợp đồng');
+                throw error;
             } finally {
                 setConfirmModalVisible(false);
                 setSelectedContract(null);
@@ -287,10 +309,7 @@ const ManageContract = () => {
                     'Gửi yêu cầu gia hạn hợp đồng thành công',
                 );
             } catch (error: any) {
-                const errorMessage =
-                    error.response.data.message ||
-                    'Có lỗi xảy ra khi gửi yêu cầu gia hạn hợp đồng';
-                Alert.alert('Lỗi', errorMessage);
+                throw error;
             } finally {
                 setExtendModalVisible(false);
                 setSelectedContract(null);
@@ -322,23 +341,49 @@ const ManageContract = () => {
                                 {item.property.title}
                             </Text>
                             {user && user.userTypes.includes('owner') ? (
-                                <Text>Người thuê: {item.renter.name}</Text>
+                                <Text>
+                                    Người thuê:{' '}
+                                    <Text style={commonStyles.fw600}>
+                                        {item.renter.name}
+                                    </Text>
+                                </Text>
                             ) : (
-                                <Text>Chủ nhà: {item.owner.name}</Text>
+                                <Text>
+                                    Chủ nhà:{' '}
+                                    <Text style={commonStyles.fw600}>
+                                        {item.owner.name}
+                                    </Text>
+                                </Text>
                             )}
                             <Text style={styles.price}>
-                                Giá: {formatPrice(item.monthlyRent)}
+                                Giá:{' '}
+                                <Text style={commonStyles.fw600}>
+                                    {formatPrice(item.monthlyRent)}
+                                </Text>
                             </Text>
                             <Text style={styles.deposit}>
-                                Tiền cọc: {formatPrice(item.depositAmount)}
+                                Tiền cọc:{' '}
+                                <Text style={commonStyles.fw600}>
+                                    {formatPrice(item.depositAmount)}
+                                </Text>
                             </Text>
                             <Text style={styles.dates}>
                                 Ngày bắt đầu:{' '}
-                                {format(new Date(item.startDate), 'dd/MM/yyyy')}
+                                <Text style={commonStyles.fw600}>
+                                    {format(
+                                        new Date(item.startDate),
+                                        'dd/MM/yyyy',
+                                    )}
+                                </Text>
                             </Text>
                             <Text style={styles.dates}>
                                 Ngày kết thúc:{' '}
-                                {format(new Date(item.endDate), 'dd/MM/yyyy')}
+                                <Text style={commonStyles.fw600}>
+                                    {format(
+                                        new Date(item.endDate),
+                                        'dd/MM/yyyy',
+                                    )}
+                                </Text>
                             </Text>
                         </View>
                     </View>
@@ -368,7 +413,7 @@ const ManageContract = () => {
                                     isCancellable && handleExtendContract(item)
                                 }
                             >
-                                Gia hạn hợp đồng
+                                Gia hạn
                             </Button>
                         )}
                     </View>

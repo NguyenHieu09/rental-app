@@ -1,8 +1,6 @@
-
-
-
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { ActivityIndicator, Alert, StyleSheet, Text, View } from 'react-native';
+import { ScrollView } from 'react-native-gesture-handler';
 import { useSelector } from 'react-redux';
 import {
     fetchExtensionRequests,
@@ -12,18 +10,26 @@ import {
 } from '../../api/contract';
 import { RootState } from '../../redux-toolkit/store';
 import { commonStyles } from '../../styles/theme';
-import { ICancelContractResponse } from '../../types/cancelContract';
+import {
+    ContractCancelRequestStatus,
+    ICancelContractResponse,
+} from '../../types/cancelContract';
 import {
     ContractExtensionRequestStatus,
     IExtensionRequest,
     IUpdateExtensionRequestStatus,
 } from '../../types/extensionRequest';
-import { getCancellationStatusInVietnamese } from '../../utils/contract';
+import { getCancelRequestColor } from '../../utils/colorTag';
+import { formatDate, formatDateTime } from '../../utils/datetime';
 import Button from '../button/Button';
 import Tag from '../tag/Tag';
-import { getCancelRequestColor } from '../../utils/colorTag';
-import { ScrollView } from 'react-native-gesture-handler';
-import { useFocusEffect } from '@react-navigation/native';
+
+const NO_LOADING = 0;
+const CANCEL_CANCELLATION_LOADING = 1;
+const APPROVE_CANCELLATION_LOADING = 2;
+const REJECT_CANCELLATION_LOADING = 3;
+const CONTINUE_CANCELLATION_LOADING = 4;
+const UNILATERAL_CANCELLATION_LOADING = 5;
 
 const getStatusInVietnamese = (status: string): string => {
     if (status === 'PENDING') return 'Chờ xác nhận';
@@ -46,6 +52,13 @@ const NotHandledCancelRequestTab: React.FC<{ contractId: string }> = ({
     >([]);
     const [loading, setLoading] = useState(true);
     const [refresh, setRefresh] = useState(false); // State variable to trigger re-fetch
+    const isMyCancelRequest = cancelRequest?.requestedBy === user?.userId;
+    const [
+        cancelContractCancelRequestLoading,
+        setCancelContractCancelRequestLoading,
+    ] = useState(false);
+    const [cancelCancellationLoading, setCancelCancellationLoading] =
+        useState(NO_LOADING);
 
     useEffect(() => {
         const loadRequests = async () => {
@@ -73,49 +86,34 @@ const NotHandledCancelRequestTab: React.FC<{ contractId: string }> = ({
         loadRequests();
     }, [contractId, refresh]); // Add refresh to the dependency array
 
-    // useFocusEffect(
-    //     useCallback(() => {
-    //         const loadRequests = async () => {
-    //             try {
-    //                 const cancelRequestData =
-    //                     await fetchNotHandledCancelContractRequest(contractId);
-    //                 const extensionRequestsData = await fetchExtensionRequests(
-    //                     contractId,
-    //                 );
-
-    //                 setCancelRequest(cancelRequestData);
-    //                 setExtensionRequests(
-    //                     extensionRequestsData.filter(
-    //                         (request) => request.status === 'PENDING',
-    //                     ),
-    //                 );
-    //             } catch (error: any) {
-    //                 console.error('Error loading requests:', error);
-    //                 Alert.alert('Lỗi', 'Có lỗi xảy ra khi tải dữ liệu.');
-    //             } finally {
-    //                 setLoading(false);
-    //             }
-    //         };
-
-    //         loadRequests();
-    //     }, [contractId]),
-    // );
-    const handleStatusUpdate = async (newStatus: string) => {
+    const handleStatusUpdate = async (
+        newStatus: ContractCancelRequestStatus,
+    ) => {
         if (!cancelRequest) return;
+
+        if (newStatus === 'APPROVED')
+            setCancelCancellationLoading(APPROVE_CANCELLATION_LOADING);
+        else if (newStatus === 'REJECTED')
+            setCancelCancellationLoading(REJECT_CANCELLATION_LOADING);
+        else if (newStatus === 'CANCELLED')
+            setCancelCancellationLoading(CANCEL_CANCELLATION_LOADING);
+        else if (newStatus === 'CONTINUE')
+            setCancelCancellationLoading(CONTINUE_CANCELLATION_LOADING);
+        else if (newStatus === 'UNILATERAL_CANCELLATION')
+            setCancelCancellationLoading(UNILATERAL_CANCELLATION_LOADING);
 
         try {
             await updateCancelContractRequestStatus(
                 cancelRequest.id,
                 newStatus,
             );
-            Alert.alert(
-                'Thành công',
-                `Cập nhật trạng thái yêu cầu gia hạn thành công`,
-            );
+            Alert.alert('Thành công', `Cập nhật trạng thái yêu cầu thành công`);
             setRefresh(!refresh); // Trigger re-fetch by updating the refresh state
         } catch (error) {
             Alert.alert('Lỗi', 'Không thể cập nhật trạng thái yêu cầu');
             console.error('Error updating request status:', error);
+        } finally {
+            setCancelCancellationLoading(NO_LOADING);
         }
     };
 
@@ -136,7 +134,11 @@ const NotHandledCancelRequestTab: React.FC<{ contractId: string }> = ({
             );
             setRefresh(!refresh); // Trigger re-fetch by updating the refresh state
         } catch (error) {
-            Alert.alert('Lỗi', 'Không thể cập nhật trạng thái yêu cầu gia hạn');
+            Alert.alert(
+                'Lỗi',
+                (error as Error).message ||
+                    'Không thể cập nhật trạng thái yêu cầu gia hạn',
+            );
             console.error('Error updating extension request status:', error);
         }
     };
@@ -153,84 +155,137 @@ const NotHandledCancelRequestTab: React.FC<{ contractId: string }> = ({
         <ScrollView style={styles.container}>
             {cancelRequest ? (
                 <View style={styles.cancelRequestContainer}>
-                    <Text style={[styles.label, { textAlign: 'center' }]}>Yêu cầu hủy hợp đồng</Text>
-                    <Text style={styles.label}>
-                        Người yêu cầu:&nbsp;
-                        <Text style={styles.value}>
-                            {cancelRequest.userRequest.name}
-                        </Text>
+                    <Text style={[styles.label, { textAlign: 'center' }]}>
+                        Yêu cầu hủy hợp đồng
                     </Text>
-                    <Text style={styles.label}>
-                        Ngày gửi yêu cầu:&nbsp;
+                    <Text style={styles.value}>
+                        <Text style={commonStyles.fw600}>Người gửi:</Text>
+                        &nbsp;
+                        {cancelRequest.userRequest.name}
+                    </Text>
+                    <Text style={styles.value}>
+                        <Text style={commonStyles.fw600}>Ngày gửi:</Text>
+                        &nbsp;
                         <Text style={styles.value}>
-                            {new Date(
-                                cancelRequest.requestedAt,
-                            ).toLocaleDateString()}
+                            {formatDateTime(cancelRequest.requestedAt, true)}
                         </Text>
                     </Text>
 
-                    <Text style={styles.label}>
-                        Ngày hủy:&nbsp;
-                        <Text style={styles.value}>
-                            {new Date(
-                                cancelRequest.cancelDate,
-                            ).toLocaleDateString()}
+                    <Text style={styles.value}>
+                        <Text style={commonStyles.fw600}>
+                            Ngày kết thúc hợp đồng:
                         </Text>
+                        &nbsp;
+                        {formatDate(cancelRequest.cancelDate)}
                     </Text>
-                    <Text style={styles.label}>
-                        Lý do:&nbsp;
-                        <Text style={styles.value}>{cancelRequest.reason}</Text>
+                    <Text style={styles.value}>
+                        <Text style={commonStyles.fw600}>Lý do:</Text>
+                        &nbsp;
+                        {cancelRequest.reason}
                     </Text>
-                    <View style={{}}>
-                        <Text style={styles.label}>Trạng thái:</Text>
-                        <Tag color={getCancelRequestColor(cancelRequest.status)}>
+                    <View
+                        style={{
+                            flexDirection: 'row',
+                            alignItems: 'center',
+                            justifyContent: 'flex-start',
+                            gap: 4,
+                        }}
+                    >
+                        <View>
+                            <Text style={styles.label}>Trạng thái:</Text>
+                        </View>
+                        <Tag
+                            color={getCancelRequestColor(cancelRequest.status)}
+                        >
                             {getStatusInVietnamese(cancelRequest.status)}
                         </Tag>
                     </View>
 
                     <View style={styles.buttonContainer}>
-                        {cancelRequest.status === 'PENDING' &&
-                            user?.userId !== cancelRequest.requestedBy && (
+                        {isMyCancelRequest &&
+                            cancelRequest.status === 'PENDING' && (
+                                <Button
+                                    style={commonStyles.flex1}
+                                    type='danger'
+                                    variant='outlined'
+                                    onPress={() =>
+                                        handleStatusUpdate('CANCELLED')
+                                    }
+                                    loading={
+                                        cancelCancellationLoading ===
+                                        CANCEL_CANCELLATION_LOADING
+                                    }
+                                >
+                                    Hủy yêu cầu
+                                </Button>
+                            )}
+                        {isMyCancelRequest &&
+                            cancelRequest.status === 'REJECTED' && (
                                 <>
-                                    {user?.userTypes.includes('renter') ? (
-                                        <Button
-                                            style={commonStyles.flex1}
-                                            type='danger'
-                                            variant='outlined'
-                                            onPress={() =>
-                                                handleStatusUpdate('CANCELLED')
-                                            }
-                                        >
-                                            Hủy yêu cầu
-                                        </Button>
-                                    ) : (
-                                        <>
-                                            <Button
-                                                style={commonStyles.flex1}
-                                                type='danger'
-                                                variant='outlined'
-                                                onPress={() =>
-                                                    handleStatusUpdate(
-                                                        'REJECTED',
-                                                    )
-                                                }
-                                            >
-                                                Từ chối
-                                            </Button>
-                                            <Button
-                                                style={commonStyles.flex1}
-                                                type='primary'
-                                                variant='fill'
-                                                onPress={() =>
-                                                    handleStatusUpdate(
-                                                        'APPROVED',
-                                                    )
-                                                }
-                                            >
-                                                Chấp nhận
-                                            </Button>
-                                        </>
-                                    )}
+                                    <Button
+                                        style={commonStyles.flex1}
+                                        type='danger'
+                                        variant='outlined'
+                                        onPress={() =>
+                                            handleStatusUpdate(
+                                                'UNILATERAL_CANCELLATION',
+                                            )
+                                        }
+                                        loading={
+                                            cancelCancellationLoading ===
+                                            UNILATERAL_CANCELLATION_LOADING
+                                        }
+                                    >
+                                        Đơn phương chấm dứt
+                                    </Button>
+                                    <Button
+                                        style={commonStyles.flex1}
+                                        type='primary'
+                                        variant='fill'
+                                        onPress={() =>
+                                            handleStatusUpdate('CONTINUE')
+                                        }
+                                        loading={
+                                            cancelCancellationLoading ===
+                                            CONTINUE_CANCELLATION_LOADING
+                                        }
+                                    >
+                                        Tiếp tục thuê
+                                    </Button>
+                                </>
+                            )}
+                        {/* FIXME */}
+                        {cancelRequest.status === 'PENDING' &&
+                            !isMyCancelRequest && (
+                                <>
+                                    <Button
+                                        style={commonStyles.flex1}
+                                        type='danger'
+                                        variant='outlined'
+                                        onPress={() =>
+                                            handleStatusUpdate('REJECTED')
+                                        }
+                                        loading={
+                                            cancelCancellationLoading ===
+                                            REJECT_CANCELLATION_LOADING
+                                        }
+                                    >
+                                        Từ chối
+                                    </Button>
+                                    <Button
+                                        style={commonStyles.flex1}
+                                        type='primary'
+                                        variant='fill'
+                                        onPress={() =>
+                                            handleStatusUpdate('APPROVED')
+                                        }
+                                        loading={
+                                            cancelCancellationLoading ===
+                                            APPROVE_CANCELLATION_LOADING
+                                        }
+                                    >
+                                        Đồng ý
+                                    </Button>
                                 </>
                             )}
                     </View>
@@ -239,86 +294,104 @@ const NotHandledCancelRequestTab: React.FC<{ contractId: string }> = ({
 
             {extensionRequests.length > 0
                 ? extensionRequests.map((request) => (
-                    <View
-                        key={request.id}
-                        style={styles.extensionRequestContainer}
-                    >
-                        <Text style={[styles.label, { textAlign: 'center' }]}>
-                            {request.type === 'EXTEND_PAYMENT'
-                                ? 'Yêu cầu gia hạn thanh toán'
-                                : 'Yêu cầu gia hạn hợp đồng'}
-                        </Text>
-                        <Text style={styles.label}>Thời gian gia hạn:</Text>
-                        <Text style={styles.value}>
-                            {new Date(
-                                request.extensionDate,
-                            ).toLocaleDateString()}
-                        </Text>
-                        <Text style={styles.label}>Lý do:</Text>
-                        <Text style={styles.value}>{request.reason}</Text>
-                        <Text style={styles.label}>Ngày gửi yêu cầu:</Text>
-                        <Text style={styles.value}>
-                            {new Date(request.createdAt).toLocaleDateString()}
-                        </Text>
-                        <Text style={styles.label}>Trạng thái:</Text>
-
-
-                        <Tag color={getCancelRequestColor(request.status)}>
-                            {getStatusInVietnamese(request.status)}
-                        </Tag>
-                        <View style={styles.buttonContainer}>
-                            {request.status === 'PENDING' &&
-                                (
-                                    <>
-                                        {user?.userTypes.includes('renter') ? (
-                                            <Button
-                                                style={commonStyles.flex1}
-                                                type='danger'
-                                                variant='outlined'
-                                                onPress={() =>
-                                                    handleExtensionStatusUpdate(
-                                                        request.id,
-                                                        'CANCELLED',
-                                                    )
-                                                }
-                                            >
-                                                Hủy yêu cầu
-                                            </Button>
-                                        ) : (
-                                            <>
-                                                <Button
-                                                    style={commonStyles.flex1}
-                                                    type='danger'
-                                                    variant='outlined'
-                                                    onPress={() =>
-                                                        handleExtensionStatusUpdate(
-                                                            request.id,
-                                                            'REJECTED',
-                                                        )
-                                                    }
-                                                >
-                                                    Từ chối
-                                                </Button>
-                                                <Button
-                                                    style={commonStyles.flex1}
-                                                    type='primary'
-                                                    variant='fill'
-                                                    onPress={() =>
-                                                        handleExtensionStatusUpdate(
-                                                            request.id,
-                                                            'APPROVED',
-                                                        )
-                                                    }
-                                                >
-                                                    Chấp nhận
-                                                </Button>
-                                            </>
-                                        )}
-                                    </>
-                                )}
-                        </View>
-                    </View>
-                ))
+                      <View
+                          key={request.id}
+                          style={styles.extensionRequestContainer}
+                      >
+                          <Text style={[styles.label, { textAlign: 'center' }]}>
+                              {request.type === 'EXTEND_PAYMENT'
+                                  ? 'Yêu cầu gia hạn thanh toán'
+                                  : 'Yêu cầu gia hạn hợp đồng'}
+                          </Text>
+                          <Text style={styles.value}>
+                              <Text style={commonStyles.fw600}>
+                                  Thời gian ban đầu:
+                              </Text>
+                              &nbsp;
+                              {formatDate(request.date)}
+                          </Text>
+                          <Text style={styles.value}>
+                              <Text style={commonStyles.fw600}>
+                                  Thời gian gia hạn:
+                              </Text>
+                              &nbsp;
+                              {formatDate(request.extensionDate)}
+                          </Text>
+                          <Text style={styles.value}>
+                              <Text style={commonStyles.fw600}>Lý do:</Text>
+                              &nbsp;
+                              {request.reason}
+                          </Text>
+                          <Text style={styles.value}>
+                              <Text style={commonStyles.fw600}>
+                                  Ngày gửi yêu cầu:
+                              </Text>
+                              &nbsp;
+                              {formatDate(request.createdAt)}
+                          </Text>
+                          <View
+                              style={{
+                                  flexDirection: 'row',
+                              }}
+                          >
+                              <Tag
+                                  color={getCancelRequestColor(request.status)}
+                              >
+                                  {getStatusInVietnamese(request.status)}
+                              </Tag>
+                          </View>
+                          <View style={styles.buttonContainer}>
+                              {request.status === 'PENDING' && (
+                                  <>
+                                      {user?.userTypes.includes('renter') ? (
+                                          <Button
+                                              style={commonStyles.flex1}
+                                              type='danger'
+                                              variant='outlined'
+                                              onPress={() =>
+                                                  handleExtensionStatusUpdate(
+                                                      request.id,
+                                                      'CANCELLED',
+                                                  )
+                                              }
+                                          >
+                                              Hủy yêu cầu
+                                          </Button>
+                                      ) : (
+                                          <>
+                                              <Button
+                                                  style={commonStyles.flex1}
+                                                  type='danger'
+                                                  variant='outlined'
+                                                  onPress={() =>
+                                                      handleExtensionStatusUpdate(
+                                                          request.id,
+                                                          'REJECTED',
+                                                      )
+                                                  }
+                                              >
+                                                  Từ chối
+                                              </Button>
+                                              <Button
+                                                  style={commonStyles.flex1}
+                                                  type='primary'
+                                                  variant='fill'
+                                                  onPress={() =>
+                                                      handleExtensionStatusUpdate(
+                                                          request.id,
+                                                          'APPROVED',
+                                                      )
+                                                  }
+                                              >
+                                                  Chấp nhận
+                                              </Button>
+                                          </>
+                                      )}
+                                  </>
+                              )}
+                          </View>
+                      </View>
+                  ))
                 : null}
             {extensionRequests.length === 0 && !cancelRequest && (
                 <Text>Không có yêu cầu chờ xử lý</Text>
@@ -341,7 +414,6 @@ const styles = StyleSheet.create({
     label: {
         fontSize: 16,
         fontWeight: 'bold',
-        marginTop: 5,
     },
     value: {
         fontSize: 16,
@@ -359,6 +431,7 @@ const styles = StyleSheet.create({
         borderWidth: 1,
         padding: 10,
         marginBottom: 20,
+        gap: 4,
     },
     extensionRequestContainer: {
         backgroundColor: '#f9f9f9',
@@ -367,6 +440,7 @@ const styles = StyleSheet.create({
         borderWidth: 1,
         padding: 10,
         marginBottom: 20,
+        gap: 4,
     },
     buttonContainer: {
         flexDirection: 'row',

@@ -92,10 +92,10 @@ const Navigation: React.FC = () => {
                     isFirstLaunch
                         ? 'Welcome'
                         : user
-                            ? user.userTypes.includes('owner')
-                                ? 'DashboardOwner'
-                                : 'RenterTabs'
-                            : 'Login'
+                        ? user.userTypes.includes('owner')
+                            ? 'DashboardOwner'
+                            : 'RenterTabs'
+                        : 'Login'
                 }
             >
                 {isFirstLaunch && (
@@ -135,7 +135,6 @@ const Navigation: React.FC = () => {
                             fontSize: 20,
                             color: '#333',
                         },
-
                     }}
                 />
                 <Stack.Screen
@@ -209,23 +208,22 @@ const Navigation: React.FC = () => {
                             fontSize: 20,
                             color: '#333',
                         },
-
                     }}
                 />
                 <Stack.Screen
                     name='AccountInfo'
                     component={AccountInfo}
-                    options={{ title: 'Tài khoản và bảo mật' }}
+                    options={{ title: 'Quản lý tài khoản' }}
                 />
                 <Stack.Screen
                     name='UpdatePassword'
                     component={UpdatePassword}
-                    options={{ title: 'Tài khoản và bảo mật' }}
+                    options={{ title: 'Đổi mật khẩu' }}
                 />
                 <Stack.Screen
                     name='PersonalInfo'
                     component={PersonalInfo}
-                    options={{ title: 'Tài khoản và bảo mật' }}
+                    options={{ title: 'Chỉnh sửa thông tin' }}
                 />
 
                 <Stack.Screen
@@ -234,7 +232,6 @@ const Navigation: React.FC = () => {
                     options={{
                         title: 'Cập nhật thông tin',
                     }}
-
                 />
 
                 <Stack.Screen
@@ -243,7 +240,6 @@ const Navigation: React.FC = () => {
                     options={{
                         title: 'Tạo hợp đồng',
                     }}
-
                 />
 
                 <Stack.Screen
@@ -252,7 +248,6 @@ const Navigation: React.FC = () => {
                     options={{
                         title: 'Quản lý báo cáo',
                     }}
-
                 />
 
                 <Stack.Screen
@@ -261,7 +256,6 @@ const Navigation: React.FC = () => {
                     options={{
                         title: 'Báo cáo của tôi',
                     }}
-
                 />
 
                 <Stack.Screen
@@ -270,10 +264,13 @@ const Navigation: React.FC = () => {
                     options={{
                         title: 'Chi tiết báo cáo',
                     }}
-
                 />
 
-                <Stack.Screen name="AddReport" component={AddReport} options={{ title: 'Thêm báo cáo sự cố & vi phạm' }} />
+                <Stack.Screen
+                    name='AddReport'
+                    component={AddReport}
+                    options={{ title: 'Thêm báo cáo sự cố & vi phạm' }}
+                />
             </Stack.Navigator>
         </NavigationContainer>
     );

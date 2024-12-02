@@ -1,21 +1,37 @@
-import React, { useState, useCallback } from 'react';
-import { FlatList, Text, StyleSheet, View, ActivityIndicator } from 'react-native';
-import { useNavigation, useFocusEffect } from '@react-navigation/native';
+import {
+    NavigationProp,
+    useFocusEffect,
+    useNavigation,
+} from '@react-navigation/native';
+import React, { useCallback, useState } from 'react';
+import {
+    ActivityIndicator,
+    FlatList,
+    StyleSheet,
+    Text,
+    View,
+} from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { NavigationProp } from '@react-navigation/native';
-import { IPropertyInteraction } from '../../../types/propertyInteraction';
-import { RootStackParamList } from '../../../types/navigation';
+import { useDispatch, useSelector } from 'react-redux';
 import { getFavoriteProperties } from '../../../api/api';
 import RenderExploreItem from '../../../components/exploreItem/RenderExploreItem';
-import { useDispatch, useSelector } from 'react-redux';
+import {
+    resetFavorites,
+    setError,
+    setFavorites,
+    setLoading,
+} from '../../../redux-toolkit/slices/favoriteSlice';
 import { AppDispatch, RootState } from '../../../redux-toolkit/store';
-import { setFavorites, resetFavorites, setError, setLoading } from '../../../redux-toolkit/slices/favoriteSlice';
 import { commonStyles } from '../../../styles/theme';
+import { RootStackParamList } from '../../../types/navigation';
+import { IPropertyInteraction } from '../../../types/propertyInteraction';
 
 const SavedScreen: React.FC = () => {
     const dispatch = useDispatch<AppDispatch>();
     const navigation = useNavigation<NavigationProp<RootStackParamList>>();
-    const { favorites, pageInfo, loading, error } = useSelector((state: RootState) => state.favorite);
+    const { favorites, pageInfo, loading, error } = useSelector(
+        (state: RootState) => state.favorite,
+    );
     const [isLoadingMore, setIsLoadingMore] = useState(false);
 
     const itemsPerPage = pageInfo.pageSize;
@@ -27,7 +43,12 @@ const SavedScreen: React.FC = () => {
             }
             const skip = (page - 1) * itemsPerPage;
             const response = await getFavoriteProperties(itemsPerPage, skip);
-            dispatch(setFavorites({ data: response.data, pageInfo: response.pageInfo }));
+            dispatch(
+                setFavorites({
+                    data: response.data,
+                    pageInfo: response.pageInfo,
+                }),
+            );
         } catch (error: any) {
             console.error('Error fetching favorite properties:', error);
             dispatch(setError(error.message || 'Lỗi khi tải dữ liệu'));
@@ -40,7 +61,12 @@ const SavedScreen: React.FC = () => {
     };
 
     const loadMoreFavorites = () => {
-        if (loading || pageInfo.current * itemsPerPage >= pageInfo.total || isLoadingMore) return;
+        if (
+            loading ||
+            pageInfo.current * itemsPerPage >= pageInfo.total ||
+            isLoadingMore
+        )
+            return;
         setIsLoadingMore(true);
         loadFavorites(pageInfo.current + 1);
     };
@@ -53,7 +79,7 @@ const SavedScreen: React.FC = () => {
         useCallback(() => {
             dispatch(resetFavorites());
             loadFavorites(1);
-        }, [dispatch])
+        }, [dispatch]),
     );
 
     return (
@@ -61,7 +87,7 @@ const SavedScreen: React.FC = () => {
             {/* Hiển thị loading khi đang tải dữ liệu lần đầu */}
             {loading && favorites.length === 0 ? (
                 <View style={styles.loadingContainer}>
-                    <ActivityIndicator size="large" color="#0000ff" />
+                    <ActivityIndicator size='large' color='#0000ff' />
                     <Text style={styles.loadingText}>Đang tải...</Text>
                 </View>
             ) : error ? (
@@ -70,19 +96,30 @@ const SavedScreen: React.FC = () => {
                 <FlatList
                     data={favorites}
                     renderItem={renderSavedItem}
-                    keyExtractor={(item) => `${item.interactionId}-${item.property.propertyId}`}
+                    keyExtractor={(item) =>
+                        `${item.interactionId}-${item.property.propertyId}`
+                    }
                     onEndReached={loadMoreFavorites}
                     onEndReachedThreshold={0.5}
-                    ListFooterComponent={isLoadingMore ? (
-                        <View style={styles.loadingContainer}>
-                            <ActivityIndicator size="small" color="#0000ff" />
-                            <Text style={styles.loadingText}>Đang tải thêm...</Text>
-                        </View>
-                    ) : null}
+                    ListFooterComponent={
+                        isLoadingMore ? (
+                            <View style={styles.loadingContainer}>
+                                <ActivityIndicator
+                                    size='small'
+                                    color='#0000ff'
+                                />
+                                <Text style={styles.loadingText}>
+                                    Đang tải thêm...
+                                </Text>
+                            </View>
+                        ) : null
+                    }
                 />
             ) : (
                 <View style={commonStyles.container}>
-                    <Text style={styles.emptyText}>Không có bất động sản yêu thích</Text>
+                    <Text style={styles.emptyText}>
+                        Không có bất động sản yêu thích
+                    </Text>
                 </View>
             )}
         </SafeAreaView>
@@ -92,6 +129,7 @@ const SavedScreen: React.FC = () => {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
+        paddingHorizontal: 8,
     },
     loadingContainer: {
         flex: 1,

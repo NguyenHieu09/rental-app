@@ -1,15 +1,23 @@
-
-
-import * as ImagePicker from 'expo-image-picker';
-import React, { useState } from 'react';
-import { View, Text, TextInput, StyleSheet, ScrollView, TouchableOpacity, Image, Alert } from 'react-native';
-import { Picker } from '@react-native-picker/picker';
 import DateTimePicker from '@react-native-community/datetimepicker';
-import Button from '../../../components/button/Button';
+import { Picker } from '@react-native-picker/picker';
+import { RouteProp, useRoute } from '@react-navigation/native';
 import { format } from 'date-fns';
 import dayjs from 'dayjs';
+import * as ImagePicker from 'expo-image-picker';
+import React, { useState } from 'react';
+import {
+    Alert,
+    Image,
+    ScrollView,
+    StyleSheet,
+    Text,
+    TextInput,
+    TouchableOpacity,
+    View,
+} from 'react-native';
 import { createReportByRenter } from '../../../api/contract';
-import { RouteProp, useRoute } from '@react-navigation/native';
+import Button from '../../../components/button/Button';
+import FormGroup from '../../../components/form/FormGroup';
 import { RootStackParamList } from '../../../types/navigation';
 
 interface ImageFile {
@@ -27,8 +35,11 @@ const AddReport: React.FC = () => {
     const [severity, setSeverity] = useState<string>('');
     const [title, setTitle] = useState<string>('');
     const [description, setDescription] = useState<string>('');
-    const [resolutionSuggestion, setResolutionSuggestion] = useState<string>('');
-    const [resolutionDate, setResolutionDate] = useState<Date | undefined>(undefined);
+    const [resolutionSuggestion, setResolutionSuggestion] =
+        useState<string>('');
+    const [resolutionDate, setResolutionDate] = useState<Date | undefined>(
+        undefined,
+    );
     const [reward, setReward] = useState<string>('');
     const [showDatePicker, setShowDatePicker] = useState<boolean>(false);
     const [images, setImages] = useState<ImageFile[]>([]);
@@ -67,7 +78,10 @@ const AddReport: React.FC = () => {
         formData.append('title', title);
         formData.append('description', description);
         formData.append('proposed', resolutionSuggestion);
-        formData.append('resolvedAt', resolutionDate ? dayjs(resolutionDate).format('DD/MM/YYYY') : '');
+        formData.append(
+            'resolvedAt',
+            resolutionDate ? dayjs(resolutionDate).format('DD/MM/YYYY') : '',
+        );
         formData.append('compensation', String(reward || 0));
         formData.append('contractId', contractId);
 
@@ -79,7 +93,6 @@ const AddReport: React.FC = () => {
             } as any);
         }
         console.log('Form data:', formData);
-
 
         try {
             const res = await createReportByRenter(formData);
@@ -94,73 +107,134 @@ const AddReport: React.FC = () => {
     return (
         <ScrollView contentContainerStyle={styles.scrollViewContent}>
             <View style={styles.container}>
-                <Text style={styles.title}>Báo cáo sự cố & vi phạm</Text>
+                <FormGroup label='Loại báo cáo' isRequired>
+                    <View style={styles.pickerContainer}>
+                        <Picker
+                            selectedValue={reportType}
+                            onValueChange={setReportType}
+                        >
+                            <Picker.Item label='Chọn loại báo cáo' value='' />
+                            <Picker.Item label='Sự cố' value='incident' />
+                            <Picker.Item label='Vi phạm' value='violation' />
+                        </Picker>
+                    </View>
+                </FormGroup>
 
-                <Text style={styles.label}>Loại báo cáo</Text>
-                <View style={styles.pickerContainer}>
-                    <Picker selectedValue={reportType} onValueChange={setReportType}>
-                        <Picker.Item label="Chọn loại báo cáo" value="" />
-                        <Picker.Item label="Sự cố" value="incident" />
-                        <Picker.Item label="Vi phạm" value="violation" />
-                    </Picker>
-                </View>
+                <FormGroup label='Mức độ' isRequired>
+                    <View style={styles.pickerContainer}>
+                        <Picker
+                            selectedValue={severity}
+                            onValueChange={setSeverity}
+                        >
+                            <Picker.Item label='Chọn mức độ' value='' />
+                            <Picker.Item label='Thấp' value='low' />
+                            <Picker.Item label='Trung bình' value='medium' />
+                            <Picker.Item label='Cao' value='high' />
+                        </Picker>
+                    </View>
+                </FormGroup>
 
-                <Text style={styles.label}>Mức độ</Text>
-                <View style={styles.pickerContainer}>
-                    <Picker selectedValue={severity} onValueChange={setSeverity}>
-                        <Picker.Item label="Chọn mức độ" value="" />
-                        <Picker.Item label="Thấp" value="low" />
-                        <Picker.Item label="Trung bình" value="medium" />
-                        <Picker.Item label="Cao" value="high" />
-                    </Picker>
-                </View>
-
-                <Text style={styles.label}>Tiêu đề</Text>
-                <TextInput style={styles.input} value={title} onChangeText={setTitle} placeholder="Tóm tắt vấn đề" />
-
-                <Text style={styles.label}>Mô tả chi tiết</Text>
-                <TextInput style={styles.textarea} value={description} onChangeText={setDescription} placeholder="Mô tả chi tiết về sự cố hoặc vi phạm..." multiline />
-
-                <Text style={styles.label}>Đề xuất xử lý</Text>
-                <TextInput style={styles.input} value={resolutionSuggestion} onChangeText={setResolutionSuggestion} placeholder="Đề xuất phương án xử lý..." />
-
-                <Text style={styles.label}>Ngày giải quyết</Text>
-                <TouchableOpacity onPress={() => setShowDatePicker(true)} style={{ width: "100%" }}>
+                <FormGroup label='Tiêu đề' isRequired>
                     <TextInput
                         style={styles.input}
-                        placeholder="Ngày giải quyết"
-                        value={resolutionDate ? format(resolutionDate, 'dd/MM/yyyy') : ''}
-                        editable={false}
+                        value={title}
+                        onChangeText={setTitle}
+                        placeholder='Tóm tắt vấn đề'
                     />
-                </TouchableOpacity>
-                {showDatePicker && (
-                    <DateTimePicker
-                        value={resolutionDate || new Date()}
-                        mode="date"
-                        display="default"
-                        onChange={handleDateChange}
-                    />
-                )}
+                </FormGroup>
 
-                <Text style={styles.label}>Tiền bồi thường</Text>
-                <TextInput style={styles.input} value={reward} onChangeText={setReward} placeholder="Nhập số tiền bồi thường..." keyboardType="numeric" />
-                <Text style={styles.label}>Ảnh/video minh chứng</Text>
-                <TouchableOpacity style={styles.uploadButton} onPress={pickImage}>
-                    <Text style={styles.uploadButtonText}>Tải lên hình ảnh</Text>
-                </TouchableOpacity>
-                <View style={styles.imageContainer}>
-                    {images.map((image, index) => (
-                        <View key={index} style={styles.imageWrapper}>
-                            <Image source={{ uri: image.uri }} style={styles.image} />
-                            <TouchableOpacity style={styles.removeButton} onPress={() => removeImage(index)}>
-                                <Text style={styles.removeButtonText}>X</Text>
-                            </TouchableOpacity>
-                        </View>
-                    ))}
-                </View>
+                <FormGroup label='Mô tả chi tiết' isRequired>
+                    <TextInput
+                        style={styles.textarea}
+                        value={description}
+                        onChangeText={setDescription}
+                        placeholder='Mô tả chi tiết về sự cố hoặc vi phạm...'
+                        multiline
+                    />
+                </FormGroup>
+
+                <FormGroup label='Đề xuất xử lý' isRequired>
+                    <TextInput
+                        style={styles.input}
+                        value={resolutionSuggestion}
+                        onChangeText={setResolutionSuggestion}
+                        placeholder='Đề xuất phương án xử lý...'
+                    />
+                </FormGroup>
+
+                <FormGroup label='Ngày giải quyết' isRequired>
+                    <TouchableOpacity
+                        onPress={() => setShowDatePicker(true)}
+                        style={{ width: '100%' }}
+                    >
+                        <TextInput
+                            style={styles.input}
+                            placeholder='Ngày giải quyết'
+                            value={
+                                resolutionDate
+                                    ? format(resolutionDate, 'dd/MM/yyyy')
+                                    : ''
+                            }
+                            editable={false}
+                        />
+                    </TouchableOpacity>
+                    {showDatePicker && (
+                        <DateTimePicker
+                            value={resolutionDate || new Date()}
+                            mode='date'
+                            display='default'
+                            onChange={handleDateChange}
+                        />
+                    )}
+                </FormGroup>
+
+                <FormGroup label='Tiền bồi thường'>
+                    <TextInput
+                        style={styles.input}
+                        value={reward}
+                        onChangeText={setReward}
+                        placeholder='Nhập số tiền bồi thường...'
+                        keyboardType='numeric'
+                    />
+                </FormGroup>
+
+                <FormGroup label='Ảnh, video minh chứng'>
+                    <TouchableOpacity
+                        style={styles.uploadButton}
+                        onPress={pickImage}
+                    >
+                        <Text style={styles.uploadButtonText}>
+                            Tải lên hình ảnh
+                        </Text>
+                    </TouchableOpacity>
+                    <View style={styles.imageContainer}>
+                        {images.map((image, index) => (
+                            <View key={index} style={styles.imageWrapper}>
+                                <Image
+                                    source={{ uri: image.uri }}
+                                    style={styles.image}
+                                />
+                                <TouchableOpacity
+                                    style={styles.removeButton}
+                                    onPress={() => removeImage(index)}
+                                >
+                                    <Text style={styles.removeButtonText}>
+                                        X
+                                    </Text>
+                                </TouchableOpacity>
+                            </View>
+                        ))}
+                    </View>
+                </FormGroup>
 
                 <View style={styles.buttonContainer}>
-                    <Button type='primary' variant='fill' style={styles.button} onPress={handleSubmit}>Gửi báo cáo</Button>
+                    <Button
+                        type='primary'
+                        variant='fill'
+                        onPress={handleSubmit}
+                    >
+                        Gửi báo cáo
+                    </Button>
                 </View>
             </View>
         </ScrollView>
@@ -179,7 +253,7 @@ const styles = StyleSheet.create({
     title: {
         fontSize: 20,
         marginBottom: 20,
-        textAlign: 'center'
+        textAlign: 'center',
     },
     input: {
         height: 50,
@@ -190,7 +264,6 @@ const styles = StyleSheet.create({
         borderRadius: 5,
     },
     textarea: {
-        height: 100,
         borderColor: 'gray',
         borderWidth: 1,
         marginBottom: 12,
@@ -200,11 +273,11 @@ const styles = StyleSheet.create({
     buttonContainer: {
         flexDirection: 'row',
         justifyContent: 'space-between',
-        gap: 10
+        gap: 10,
     },
     button: {
         flex: 1,
-        height: 50
+        height: 50,
     },
     pickerContainer: {
         borderColor: 'gray',

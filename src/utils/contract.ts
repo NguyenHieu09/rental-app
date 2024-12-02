@@ -15,22 +15,13 @@ export const getStatusInVietnamese = (status: string): string => {
 };
 
 export const getCancellationStatusInVietnamese = (status: string): string => {
-    switch (status) {
-        case 'PENDING':
-            return 'Đang chờ';
-        case 'APPROVED':
-            return 'Đã chấp nhận hủy';
-        case 'REJECTED':
-            return 'Từ chối hủy';
-        case 'CANCELLED':
-            return 'Đã hủy';
-        case 'CONTINUE':
-            return 'Tiếp tục thuê';
-        case 'UNILATERAL_CANCELLATION':
-            return 'Hủy đơn phương';
-        default:
-            return status;
-    }
+    if (status === 'PENDING') return 'Chờ xác nhận';
+    if (status === 'APPROVED') return 'Đã chấp nhận';
+    if (status === 'REJECTED') return 'Đã từ chối';
+    if (status === 'CANCELLED') return 'Đã hủy';
+    if (status === 'CONTINUE') return 'Tiếp tục thuê';
+    if (status === 'UNILATERAL_CANCELLATION') return 'Huỷ một phía';
+    return 'Không xác định';
 };
 
 export const getOwnerCreateContractMessage = (data: ICreateContractRequest) => {

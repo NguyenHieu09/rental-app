@@ -84,10 +84,16 @@
 
 // export default AccountInfo;
 
-
 // AccountInfo.tsx
 import React from 'react';
-import { View, Text, TouchableOpacity, StyleSheet, Image, FlatList } from 'react-native';
+import {
+    View,
+    Text,
+    TouchableOpacity,
+    StyleSheet,
+    Image,
+    FlatList,
+} from 'react-native';
 import { useSelector } from 'react-redux';
 import { RootState } from '../../redux-toolkit/store';
 import { COLORS, commonStyles, SIZES } from '../../styles/theme';
@@ -99,7 +105,7 @@ import { IconOutline } from '@ant-design/icons-react-native';
 
 const accountOptions = [
     { id: '1', title: 'Chỉnh sửa thông tin', icon: 'user' },
-    { id: '2', title: 'Cập nhật mật khẩu', icon: 'lock' },
+    { id: '2', title: 'Đổi mật khẩu', icon: 'lock' },
     { id: '3', title: 'Xác thực tài khoản', icon: 'idcard' },
 ];
 
@@ -107,7 +113,11 @@ const AccountInfo = () => {
     const user = useSelector((state: RootState) => state.user.user);
     const navigation = useNavigation<NavigationProp<RootStackParamList>>();
 
-    const renderItem = ({ item }: { item: { id: string, title: string, icon: string } }) => (
+    const renderItem = ({
+        item,
+    }: {
+        item: { id: string; title: string; icon: string };
+    }) => (
         <TouchableOpacity
             style={styles.option}
             onPress={() => {
@@ -120,7 +130,11 @@ const AccountInfo = () => {
                 }
             }}
         >
-            <IconOutline name={item.icon as any} size={20} style={styles.optionIcon} />
+            <IconOutline
+                name={item.icon as any}
+                size={20}
+                style={styles.optionIcon}
+            />
             <Text style={styles.optionText}>{item.title}</Text>
         </TouchableOpacity>
     );
@@ -129,16 +143,23 @@ const AccountInfo = () => {
         <SafeAreaView style={styles.container}>
             <View style={commonStyles.header}>
                 {user?.avatar ? (
-                    <Image source={{ uri: user.avatar }} style={styles.avatar} />
+                    <Image
+                        source={{ uri: user.avatar }}
+                        style={styles.avatar}
+                    />
                 ) : (
                     user?.name && (
                         <View style={styles.nameInitials}>
-                            <Text style={styles.initials}>{getFirstAndLastName(user.name)}</Text>
+                            <Text style={styles.initials}>
+                                {getFirstAndLastName(user.name)}
+                            </Text>
                         </View>
                     )
                 )}
                 <Text style={styles.name}>{user?.name || 'Guest'}</Text>
-                <Text style={styles.email}>{user?.email || 'guest@example.com'}</Text>
+                <Text style={styles.email}>
+                    {user?.email || 'guest@example.com'}
+                </Text>
             </View>
             <FlatList
                 data={accountOptions}

@@ -1,56 +1,79 @@
-
-
+import { format, isValid, parse, parseISO } from 'date-fns';
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, Modal, TouchableOpacity, TextInput, Alert } from 'react-native';
-import { commonStyles } from '../../styles/theme';
-import { format, parseISO, isValid, parse } from 'date-fns';
+import {
+    Alert,
+    Modal,
+    StyleSheet,
+    Text,
+    TextInput,
+    TouchableOpacity,
+    View,
+} from 'react-native';
 import DateTimePickerModal from 'react-native-modal-datetime-picker';
 import { IContract } from '../../types/contract';
 import Button from '../button/Button';
+import FormGroup from '../form/FormGroup';
 
 interface ExtendContractModalProps {
     visible: boolean;
     onClose: () => void;
-    onConfirm: (extensionDate: string, reason: string) => void;
+    onConfirm: (extensionDate: string, reason: string) => Promise<void>;
     contract?: IContract;
     endDate?: string;
     type: string;
 }
 
-const ExtendContractModal: React.FC<ExtendContractModalProps> = ({ visible, onClose, onConfirm, type, contract, endDate }) => {
+const ExtendContractModal: React.FC<ExtendContractModalProps> = ({
+    visible,
+    onClose,
+    onConfirm,
+    type,
+    contract,
+    endDate,
+}) => {
     const [extensionDate, setExtensionDate] = useState('');
     const [reason, setReason] = useState('');
     const [loading, setLoading] = useState(false);
     const [isDatePickerVisible, setDatePickerVisibility] = useState(false);
+    const [error, setError] = useState('');
 
     const handleConfirmDate = (date: Date) => {
         const formattedDate = format(date, 'dd/MM/yyyy');
         setExtensionDate(formattedDate);
         setDatePickerVisibility(false);
+        setError('');
     };
 
     const handleConfirm = async () => {
         if (!extensionDate) {
-            Alert.alert('Lỗi', 'Vui lòng nhập ngày gia hạn');
-            return;
-        }
-
-        const parsedDate = parse(extensionDate, 'dd/MM/yyyy', new Date());
-        if (!isValid(parsedDate)) {
-            Alert.alert('Lỗi', 'Ngày gia hạn không hợp lệ');
-            return;
+            return setError('Vui lòng chọn ngày gia hạn');
+        } else if (!isValid(parse(extensionDate, 'dd/MM/yyyy', new Date()))) {
+            return setError('Ngày gia hạn không hợp lệ');
         }
 
         setLoading(true);
         try {
-            await onConfirm(format(parsedDate, 'yyyy-MM-dd'), reason);
-            Alert.alert('Thành công', 'Cập nhật trạng thái yêu cầu gia hạn thành công');
+            await onConfirm(
+                format(
+                    parse(extensionDate, 'dd/MM/yyyy', new Date()),
+                    'yyyy-MM-dd',
+                ),
+                reason,
+            );
             onClose();
         } catch (error) {
-            Alert.alert('Lỗi', 'Có lỗi xảy ra khi gia hạn');
+            console.log('🚀 ~ handleConfirm ~ error:', error);
+            Alert.alert('Lỗi', (error as Error).message || 'Có lỗi xảy ra');
         } finally {
             setLoading(false);
         }
+    };
+
+    const handleClose = () => {
+        setExtensionDate('');
+        setReason('');
+        setError('');
+        onClose();
     };
 
     const today = new Date();
@@ -61,8 +84,8 @@ const ExtendContractModal: React.FC<ExtendContractModalProps> = ({ visible, onCl
         type === 'EXTEND_PAYMENT' && isValid(paymentEndDate)
             ? paymentEndDate
             : type === 'EXTEND_CONTRACT' && isValid(contractEndDate)
-                ? contractEndDate
-                : today;
+            ? contractEndDate
+            : today;
 
     const maxDate =
         type === 'EXTEND_PAYMENT' && isValid(paymentEndDate)
@@ -70,45 +93,49 @@ const ExtendContractModal: React.FC<ExtendContractModalProps> = ({ visible, onCl
             : undefined;
 
     return (
-        <Modal visible={visible} transparent={true} animationType="slide">
+        <Modal visible={visible} transparent={true} animationType='slide'>
             <View style={styles.modalContainer}>
                 <View style={styles.modalContent}>
                     <Text style={styles.title}>
-                        {type === 'EXTEND_CONTRACT' ? 'Gia hạn hợp đồng' : 'Gia hạn hóa đơn'}
+                        {type === 'EXTEND_CONTRACT'
+                            ? 'Gia hạn hợp đồng'
+                            : 'Gia hạn hóa đơn'}
                     </Text>
-
-                    <TouchableOpacity onPress={() => setDatePickerVisibility(true)} style={{ width: "100%" }}>
+                    <FormGroup label='Ngày gia hạn' isRequired error={error}>
+                        <TouchableOpacity
+                            onPress={() => setDatePickerVisibility(true)}
+                            style={{ width: '100%' }}
+                        >
+                            <TextInput
+                                style={styles.input}
+                                placeholder='Chọn ngày gia hạn'
+                                value={extensionDate}
+                                editable={false}
+                            />
+                        </TouchableOpacity>
+                        <DateTimePickerModal
+                            isVisible={isDatePickerVisible}
+                            mode='date'
+                            onConfirm={handleConfirmDate}
+                            onCancel={() => setDatePickerVisibility(false)}
+                            minimumDate={minDate}
+                            maximumDate={maxDate}
+                        />
+                    </FormGroup>
+                    <FormGroup label='Lý do'>
                         <TextInput
                             style={styles.input}
-                            placeholder="Ngày gia hạn"
-                            value={extensionDate}
-                            editable={false}
+                            placeholder='Nhập lý do gia hạn...'
+                            value={reason}
+                            onChangeText={setReason}
                         />
-                    </TouchableOpacity>
-                    <DateTimePickerModal
-                        isVisible={isDatePickerVisible}
-                        mode="date"
-                        onConfirm={handleConfirmDate}
-                        onCancel={() => setDatePickerVisibility(false)}
-                        minimumDate={minDate}
-                        maximumDate={maxDate}
-                    />
-
-                    <TextInput
-                        style={styles.input}
-                        placeholder="Lý do"
-                        value={reason}
-                        onChangeText={setReason}
-                    />
+                    </FormGroup>
 
                     <View style={styles.buttonContainer}>
-
                         <Button
                             style={[styles.button]}
-
                             variant='outlined'
-                            type='danger'
-                            onPress={onClose}
+                            onPress={handleClose}
                         >
                             Hủy
                         </Button>
@@ -125,7 +152,7 @@ const ExtendContractModal: React.FC<ExtendContractModalProps> = ({ visible, onCl
                     </View>
                 </View>
             </View>
-        </Modal >
+        </Modal>
     );
 };
 
@@ -142,11 +169,11 @@ const styles = StyleSheet.create({
         borderRadius: 10,
         padding: 20,
         alignItems: 'center',
+        gap: 12,
     },
     title: {
         fontSize: 18,
         fontWeight: 'bold',
-        marginBottom: 20,
     },
     input: {
         width: '100%',
@@ -154,7 +181,6 @@ const styles = StyleSheet.create({
         borderColor: '#ccc',
         borderRadius: 5,
         padding: 10,
-        marginBottom: 10,
     },
     buttonContainer: {
         flexDirection: 'row',
@@ -165,12 +191,9 @@ const styles = StyleSheet.create({
     button: {
         // backgroundColor: '#2196F3',
 
-
         alignItems: 'center',
         justifyContent: 'space-between',
         flex: 1,
-
-
     },
     buttonText: {
         color: 'white',

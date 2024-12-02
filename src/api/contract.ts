@@ -619,41 +619,21 @@ export const fetchRentalRequestsForRenter = async (
 export const cancelContractBeforeDeposit = async (
     contractId: string,
 ): Promise<void> => {
-    try {
-        const token = await AsyncStorage.getItem('accessToken');
+    const token = await AsyncStorage.getItem('accessToken');
 
-        if (!token) {
-            throw new Error('No token provided');
-        }
-
-        const response = await axios.post(
-            `${API_CONTRACT_URL}/contracts/cancel-before-deposit`,
-            { contractId },
-            {
-                headers: {
-                    Authorization: `Bearer ${token}`,
-                },
-            },
-        );
-
-        if (response.status === 200) {
-            console.log('Cancel contract before deposit successful');
-        } else {
-            throw new Error('Failed to cancel contract before deposit');
-        }
-    } catch (error: any) {
-        if (
-            error.response &&
-            error.response.data &&
-            error.response.data.message
-        ) {
-            console.error('Error message:', error.response.data.message);
-            throw new Error(error.response.data.message);
-        } else {
-            console.error('Error canceling contract before deposit:', error);
-            throw error;
-        }
+    if (!token) {
+        throw new Error('No token provided');
     }
+
+    const response = await axios.post(
+        `${API_CONTRACT_URL}/contracts/cancel-before-deposit`,
+        { contractId },
+        {
+            headers: {
+                Authorization: `Bearer ${token}`,
+            },
+        },
+    );
 };
 
 export const createCancelContractRequest = async (
@@ -1100,7 +1080,6 @@ export const fetchReportsByOwner = async (
     }
 };
 
-
 export const fetchReportsByRenter = async (): Promise<IReport[]> => {
     try {
         const token = await AsyncStorage.getItem('accessToken');
@@ -1134,7 +1113,9 @@ export const fetchReportsByRenter = async (): Promise<IReport[]> => {
     }
 };
 
-export const fetchReportDetails = async (reportId: number): Promise<IReportDetail> => {
+export const fetchReportDetails = async (
+    reportId: number,
+): Promise<IReportDetail> => {
     try {
         const token = await AsyncStorage.getItem('accessToken');
 
@@ -1153,7 +1134,11 @@ export const fetchReportDetails = async (reportId: number): Promise<IReportDetai
 
         return response.data;
     } catch (error: any) {
-        if (error.response && error.response.data && error.response.data.message) {
+        if (
+            error.response &&
+            error.response.data &&
+            error.response.data.message
+        ) {
             console.error('Error message:', error.response.data.message);
             throw new Error(error.response.data.message);
         } else {
@@ -1181,7 +1166,6 @@ export const createReportByRenter = async (formData: FormData) => {
                 },
             },
         );
-
 
         if (response.status === 201) {
             return { success: true, data: response.data };
@@ -1222,7 +1206,6 @@ export const ownerProposeReport = async (formData: FormData) => {
             },
         );
 
-
         if (response.status === 201) {
             return { success: true, data: response.data };
         } else {
@@ -1236,18 +1219,18 @@ export const ownerProposeReport = async (formData: FormData) => {
             if (data.details) {
                 console.error('Error details:', data.details);
             }
-            throw new Error(
-                data.message || ''
-            );
+            throw new Error(data.message || '');
         } else {
             console.error('Error creating property:', error.message);
             throw new Error('Network error or unknown issue occurred.');
         }
-
     }
 };
 
-export const acceptProposal = async (reportId: number, reportChildId: number) => {
+export const acceptProposal = async (
+    reportId: number,
+    reportChildId: number,
+) => {
     try {
         const token = await AsyncStorage.getItem('accessToken');
 
@@ -1285,7 +1268,6 @@ export const acceptProposal = async (reportId: number, reportChildId: number) =>
         }
     }
 };
-
 
 export const acceptProposalByRenter = async (reportChildId: number) => {
     try {
@@ -1365,7 +1347,6 @@ export const rejectProposalByRenter = async (reportChildId: number) => {
     }
 };
 
-
 export const cancelReport = async (reportId: number) => {
     try {
         const token = await AsyncStorage.getItem('accessToken');
@@ -1375,7 +1356,8 @@ export const cancelReport = async (reportId: number) => {
         }
 
         const response = await axios.post(
-            `${API_CONTRACT_URL}/reports/${reportId}/cancel`, {},
+            `${API_CONTRACT_URL}/reports/${reportId}/cancel`,
+            {},
 
             {
                 headers: {
