@@ -16,6 +16,28 @@ export const formatDateTime = (date: string, toGMT7?: boolean) => {
     return `${hours}:${minutes}:${seconds} ${day}/${month}/${year}`;
 };
 
+// export const formatDateTime = (date: string) => {
+//     const timeZone = 'Asia/Ho_Chi_Minh';
+//     const options: Intl.DateTimeFormatOptions = {
+//         timeZone,
+//         hour: '2-digit',
+//         minute: '2-digit',
+//         second: '2-digit',
+//         day: '2-digit',
+//         month: '2-digit',
+//         year: 'numeric',
+//     };
+
+//     const formatter = new Intl.DateTimeFormat('vi-VN', options);
+//     const formattedDate = formatter.format(new Date(date));
+
+//     // Thay dấu phẩy bằng dấu cách
+//     return formattedDate.replace(/,/g, '');
+// };
+
+
+
+
 export const formatDate = (date: string, toGMT7?: boolean) => {
     const parsedDate = new Date(date);
     if (toGMT7) parsedDate.setHours(parsedDate.getHours() + 7);

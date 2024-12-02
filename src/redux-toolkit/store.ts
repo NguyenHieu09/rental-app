@@ -1,11 +1,12 @@
 import { configureStore } from '@reduxjs/toolkit';
-import userReducer from '../redux-toolkit/slices/userSlice';
+import baseReducer from '../redux-toolkit/slices/baseSlice';
+import chatBotReducer from '../redux-toolkit/slices/chatBotSlice';
 import chatReducer from '../redux-toolkit/slices/chatSlice';
 import conversationReducer from '../redux-toolkit/slices/conversationSlice';
-import socketReducer from '../redux-toolkit/slices/socketSlice';
-import notificationReducer from '../redux-toolkit/slices/notificationSlice';
 import favoriteReducer from '../redux-toolkit/slices/favoriteSlice';
-import chatBotReducer from '../redux-toolkit/slices/chatBotSlice';
+import notificationReducer from '../redux-toolkit/slices/notificationSlice';
+import socketReducer from '../redux-toolkit/slices/socketSlice';
+import userReducer from '../redux-toolkit/slices/userSlice';
 
 const store = configureStore({
     reducer: {
@@ -15,7 +16,8 @@ const store = configureStore({
         socket: socketReducer,
         notifications: notificationReducer,
         favorite: favoriteReducer,
-        chatBot: chatBotReducer
+        chatBot: chatBotReducer,
+        base: baseReducer,
     },
     middleware: (getDefaultMiddleware) =>
         getDefaultMiddleware({
