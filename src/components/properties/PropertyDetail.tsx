@@ -70,7 +70,7 @@ const PropertyDetail: React.FC = () => {
 
             loadPropertyDetail();
             loadReviews();
-        }, [slug]) // Dependency array to re-run when `slug` changes
+        }, [slug])
     );
 
     if (loading) {
@@ -183,7 +183,8 @@ const PropertyDetail: React.FC = () => {
                     return (
                         <View style={commonStyles.container}>
                             <Text style={styles.sectionTitle}>Đánh giá</Text>
-                            <PropertyReviews reviews={reviews} />
+                            {/* <PropertyReviews reviews={reviews} /> */}
+
                         </View>
                     );
                 }

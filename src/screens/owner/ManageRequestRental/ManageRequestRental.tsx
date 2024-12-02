@@ -263,13 +263,14 @@ const ManageRequestRental = () => {
                         }}
                     >
                         {user?.userTypes.includes('renter') ? (
-                            <Button
-                                variant='outlined'
-                                type='danger'
-                                onPress={() => handleCancelPress(item)}
-                            >
-                                Huỷ
-                            </Button>
+                            item.status === 'PENDING' as RentalRequestStatus && (
+                                <Button
+                                    variant='outlined'
+                                    type='danger'
+                                    onPress={() => handleCancelPress(item)}
+                                >
+                                    Huỷ
+                                </Button>)
                         ) : (
                             <>
                                 <Button
