@@ -15,6 +15,8 @@ export interface IRentalRequest {
     rentalEndDate: string;
     createdAt: string;
     updatedAt: string;
+    propertyId: string;
+
 }
 
 export type RentalRequestStatus = 'PENDING' | 'APPROVED' | 'REJECTED' | 'CANCELLED';
