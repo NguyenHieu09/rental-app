@@ -1,5 +1,15 @@
 import React, { useState } from 'react';
-import { View, Text, TextInput, TouchableOpacity, StyleSheet, Alert, ActivityIndicator, Image, ScrollView } from 'react-native';
+import {
+    View,
+    Text,
+    TextInput,
+    TouchableOpacity,
+    StyleSheet,
+    Alert,
+    ActivityIndicator,
+    Image,
+    ScrollView,
+} from 'react-native';
 import { useNavigation, NavigationProp } from '@react-navigation/native';
 import { RootStackParamList } from '../../types/navigation';
 import { RadioButton } from 'react-native-paper';
@@ -9,8 +19,15 @@ import { API_URL } from '@env';
 import { useDispatch, useSelector } from 'react-redux';
 import { AppDispatch, RootState } from '../../redux-toolkit/store';
 import { registerUserAsync } from '../../redux-toolkit/slices/userSlice';
-import { validateName, validateEmail, validatePassword, validateOtp, validateUserType, validateInputs } from '../../utils/validation';
-
+import {
+    validateName,
+    validateEmail,
+    validatePassword,
+    validateOtp,
+    validateUserType,
+    validateInputs,
+} from '../../utils/validation';
+import FormLabel from '../../components/form/FormLabel';
 
 interface ErrorState {
     name: string | null;
@@ -40,27 +57,39 @@ const RegisterScreen: React.FC = () => {
 
     const handleNameChange = (value: string) => {
         setName(value);
-        setErrors(prevErrors => ({ ...prevErrors, name: validateName(value) }));
+        setErrors((prevErrors) => ({
+            ...prevErrors,
+            name: validateName(value),
+        }));
     };
 
     const handleEmailChange = (value: string) => {
         setEmail(value);
-        setErrors(prevErrors => ({ ...prevErrors, email: validateEmail(value) }));
+        setErrors((prevErrors) => ({
+            ...prevErrors,
+            email: validateEmail(value),
+        }));
     };
 
     const handlePasswordChange = (value: string) => {
         setPassword(value);
-        setErrors(prevErrors => ({ ...prevErrors, password: validatePassword(value) }));
+        setErrors((prevErrors) => ({
+            ...prevErrors,
+            password: validatePassword(value),
+        }));
     };
 
     const handleOtpChange = (value: string) => {
         setOtp(value);
-        setErrors(prevErrors => ({ ...prevErrors, otp: validateOtp(value) }));
+        setErrors((prevErrors) => ({ ...prevErrors, otp: validateOtp(value) }));
     };
 
     const handleUserTypeChange = (value: string) => {
         setUserType(value);
-        setErrors(prevErrors => ({ ...prevErrors, userType: validateUserType(value) }));
+        setErrors((prevErrors) => ({
+            ...prevErrors,
+            userType: validateUserType(value),
+        }));
     };
 
     const handleRegister = async () => {
@@ -72,8 +101,14 @@ const RegisterScreen: React.FC = () => {
             userType: null,
         });
 
-        const validationErrors = validateInputs(name, email, password, otp, userType);
-        if (Object.values(validationErrors).some(error => error !== null)) {
+        const validationErrors = validateInputs(
+            name,
+            email,
+            password,
+            otp,
+            userType,
+        );
+        if (Object.values(validationErrors).some((error) => error !== null)) {
             setErrors(validationErrors);
             return;
         }
@@ -87,13 +122,15 @@ const RegisterScreen: React.FC = () => {
         });
 
         try {
-            const resultAction = await dispatch(registerUserAsync({
-                name,
-                email,
-                password,
-                userType: userType === 'Người thuê' ? 'renter' : 'owner',
-                otp,
-            })).unwrap();
+            const resultAction = await dispatch(
+                registerUserAsync({
+                    name,
+                    email,
+                    password,
+                    userType: userType === 'Người thuê' ? 'renter' : 'owner',
+                    otp,
+                }),
+            ).unwrap();
             console.log(resultAction);
 
             Alert.alert('Đăng ký', 'Đăng ký thành công!');
@@ -112,7 +149,12 @@ const RegisterScreen: React.FC = () => {
                 errorMessage = err.message;
             } else if (typeof err === 'string') {
                 errorMessage = err;
-            } else if (err && typeof err === 'object' && 'message' in err && typeof (err as any).message === 'string') {
+            } else if (
+                err &&
+                typeof err === 'object' &&
+                'message' in err &&
+                typeof (err as any).message === 'string'
+            ) {
                 errorMessage = (err as any).message;
             }
 
@@ -126,7 +168,10 @@ const RegisterScreen: React.FC = () => {
 
     const handleGetOtp = async () => {
         if (!name || !email || !password) {
-            Alert.alert('Lỗi', 'Vui lòng nhập đầy đủ họ tên, email và mật khẩu.');
+            Alert.alert(
+                'Lỗi',
+                'Vui lòng nhập đầy đủ họ tên, email và mật khẩu.',
+            );
             return;
         }
 
@@ -140,23 +185,39 @@ const RegisterScreen: React.FC = () => {
         });
 
         try {
-            const response = await axios.post(`${API_URL}/estate-manager-service/auth/register/otp`, {
-                email
-            });
+            const response = await axios.post(
+                `${API_URL}/estate-manager-service/auth/register/otp`,
+                {
+                    email,
+                },
+            );
 
             if (response.status === 200) {
                 Alert.alert('OTP', 'Mã OTP đã được gửi!');
             } else {
-                setErrors(prevErrors => ({ ...prevErrors, otp: response.data.message || 'Đã xảy ra lỗi, vui lòng thử lại.' }));
+                setErrors((prevErrors) => ({
+                    ...prevErrors,
+                    otp:
+                        response.data.message ||
+                        'Đã xảy ra lỗi, vui lòng thử lại.',
+                }));
                 console.log('OTP error:', response.data.message);
             }
         } catch (error) {
             if (axios.isAxiosError(error)) {
                 console.error('OTP Axios error:', error.response?.data);
-                setErrors(prevErrors => ({ ...prevErrors, otp: error.response?.data?.message || 'Đã xảy ra lỗi, vui lòng thử lại.' }));
+                setErrors((prevErrors) => ({
+                    ...prevErrors,
+                    otp:
+                        error.response?.data?.message ||
+                        'Đã xảy ra lỗi, vui lòng thử lại.',
+                }));
             } else {
                 console.error('OTP unknown error:', error);
-                setErrors(prevErrors => ({ ...prevErrors, otp: 'Đã xảy ra lỗi, vui lòng thử lại.' }));
+                setErrors((prevErrors) => ({
+                    ...prevErrors,
+                    otp: 'Đã xảy ra lỗi, vui lòng thử lại.',
+                }));
             }
         } finally {
             setOtpLoading(false);
@@ -165,87 +226,142 @@ const RegisterScreen: React.FC = () => {
 
     return (
         <ScrollView style={styles.container}>
-            <View style={commonStyles.header}>
-                <Image
-                    source={require('../../../assets/img/logo.png')}
-                    style={styles.image}
-                    resizeMode='contain'
-                />
-                <Text style={styles.title}>Đăng ký</Text>
-                <Text style={styles.subtitle}>Nhập thông tin của bạn để tạo tài khoản.</Text>
-            </View>
-
-            <TextInput
-                style={commonStyles.input}
-                placeholder="Nhập họ tên của bạn"
-                value={name}
-                onChangeText={handleNameChange}
-            />
-            {errors.name && <Text style={styles.errorText}>{errors.name}</Text>}
-
-            <TextInput
-                style={commonStyles.input}
-                placeholder="m@example.com"
-                value={email}
-                onChangeText={handleEmailChange}
-                keyboardType="email-address"
-            />
-            {errors.email && <Text style={styles.errorText}>{errors.email}</Text>}
-
-            <TextInput
-                style={commonStyles.input}
-                placeholder="Nhập mật khẩu của bạn"
-                value={password}
-                onChangeText={handlePasswordChange}
-                secureTextEntry
-            />
-            {errors.password && <Text style={styles.errorText}>{errors.password}</Text>}
-
-            <View style={styles.userTypeContainer}>
-                <Text>Loại tài khoản:</Text>
-                <RadioButton.Group onValueChange={handleUserTypeChange} value={userType}>
-                    <View style={styles.radioButtonRow}>
-                        <View style={styles.radioButtonContainer}>
-                            <RadioButton value="Người thuê" />
-                            <Text style={styles.radioButtonLabel}>Người thuê</Text>
-                        </View>
-                        <View style={styles.radioButtonContainer}>
-                            <RadioButton value="Chủ nhà" />
-                            <Text style={styles.radioButtonLabel}>Chủ nhà</Text>
-                        </View>
+            <View
+                style={{
+                    justifyContent: 'center',
+                    flex: 1,
+                    minHeight: '100%',
+                }}
+            >
+                <View>
+                    <View
+                        style={{
+                            alignItems: 'center',
+                        }}
+                    >
+                        <Image
+                            source={require('../../../assets/img/logo.png')}
+                            style={styles.image}
+                            resizeMode='contain'
+                        />
+                        <Text style={styles.title}>Đăng ký</Text>
+                        <Text style={styles.subtitle}>
+                            Nhập thông tin của bạn để tạo tài khoản.
+                        </Text>
                     </View>
-                </RadioButton.Group>
-            </View>
-            {errors.userType && <Text style={styles.errorText}>{errors.userType}</Text>}
 
-            <View style={styles.otpContainer}>
-                <TextInput
-                    style={styles.otpInput}
-                    placeholder="Nhập mã OTP"
-                    value={otp}
-                    onChangeText={handleOtpChange}
-                />
-                <TouchableOpacity style={styles.otpButton} onPress={handleGetOtp} disabled={otpLoading}>
-                    {otpLoading ? (
-                        <ActivityIndicator color="#fff" />
-                    ) : (
-                        <Text style={commonStyles.buttonText}>Lấy mã OTP</Text>
+                    <FormLabel isError={Boolean(errors.name)}>
+                        Họ và tên
+                    </FormLabel>
+                    <TextInput
+                        style={commonStyles.input}
+                        placeholder='Nhập họ tên của bạn'
+                        value={name}
+                        onChangeText={handleNameChange}
+                    />
+                    {errors.name && (
+                        <Text style={styles.errorText}>{errors.name}</Text>
                     )}
-                </TouchableOpacity>
+
+                    <FormLabel isError={Boolean(errors.email)}>Email</FormLabel>
+                    <TextInput
+                        style={commonStyles.input}
+                        placeholder='m@example.com'
+                        value={email}
+                        onChangeText={handleEmailChange}
+                        keyboardType='email-address'
+                    />
+                    {errors.email && (
+                        <Text style={styles.errorText}>{errors.email}</Text>
+                    )}
+
+                    <FormLabel isError={Boolean(errors.password)}>
+                        Mật khẩu
+                    </FormLabel>
+                    <TextInput
+                        style={commonStyles.input}
+                        placeholder='Nhập mật khẩu của bạn'
+                        value={password}
+                        onChangeText={handlePasswordChange}
+                        secureTextEntry
+                    />
+                    {errors.password && (
+                        <Text style={styles.errorText}>{errors.password}</Text>
+                    )}
+
+                    <FormLabel isError={Boolean(errors.userType)}>
+                        Loại tài khoản
+                    </FormLabel>
+                    <View style={styles.userTypeContainer}>
+                        <RadioButton.Group
+                            onValueChange={handleUserTypeChange}
+                            value={userType}
+                        >
+                            <View style={styles.radioButtonRow}>
+                                <View style={styles.radioButtonContainer}>
+                                    <RadioButton value='Người thuê' />
+                                    <Text style={styles.radioButtonLabel}>
+                                        Người thuê
+                                    </Text>
+                                </View>
+                                <View style={styles.radioButtonContainer}>
+                                    <RadioButton value='Chủ nhà' />
+                                    <Text style={styles.radioButtonLabel}>
+                                        Chủ nhà
+                                    </Text>
+                                </View>
+                            </View>
+                        </RadioButton.Group>
+                    </View>
+                    {errors.userType && (
+                        <Text style={styles.errorText}>{errors.userType}</Text>
+                    )}
+
+                    <FormLabel isError={Boolean(errors.otp)}>OTP</FormLabel>
+                    <View style={styles.otpContainer}>
+                        <TextInput
+                            style={styles.otpInput}
+                            placeholder='Nhập mã OTP'
+                            value={otp}
+                            onChangeText={handleOtpChange}
+                        />
+                        <TouchableOpacity
+                            style={styles.otpButton}
+                            onPress={handleGetOtp}
+                            disabled={otpLoading}
+                        >
+                            {otpLoading ? (
+                                <ActivityIndicator color='#fff' />
+                            ) : (
+                                <Text style={commonStyles.buttonText}>
+                                    Lấy mã OTP
+                                </Text>
+                            )}
+                        </TouchableOpacity>
+                    </View>
+                    {errors.otp && (
+                        <Text style={styles.errorText}>{errors.otp}</Text>
+                    )}
+
+                    <TouchableOpacity
+                        style={styles.registerButton}
+                        onPress={handleRegister}
+                        disabled={loading}
+                    >
+                        {loading ? (
+                            <ActivityIndicator color='#fff' />
+                        ) : (
+                            <Text style={commonStyles.buttonText}>Đăng ký</Text>
+                        )}
+                    </TouchableOpacity>
+
+                    <TouchableOpacity onPress={handleLoginNavigation}>
+                        <Text style={styles.link}>
+                            Đã có tài khoản? Đăng nhập ngay
+                        </Text>
+                    </TouchableOpacity>
+                </View>
             </View>
-            {errors.otp && <Text style={styles.errorText}>{errors.otp}</Text>}
-
-            <TouchableOpacity style={styles.registerButton} onPress={handleRegister} disabled={loading}>
-                {loading ? (
-                    <ActivityIndicator color="#fff" />
-                ) : (
-                    <Text style={commonStyles.buttonText}>Đăng ký</Text>
-                )}
-            </TouchableOpacity>
-
-            <TouchableOpacity onPress={handleLoginNavigation}>
-                <Text style={styles.link}>Đã có tài khoản? Đăng nhập ngay</Text>
-            </TouchableOpacity>
         </ScrollView>
     );
 };
@@ -253,7 +369,7 @@ const RegisterScreen: React.FC = () => {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        paddingHorizontal: 15,
+        paddingHorizontal: 8,
         backgroundColor: '#fff',
     },
     title: {
@@ -312,8 +428,8 @@ const styles = StyleSheet.create({
     },
     link: {
         marginTop: 20,
-        color: 'blue',
         textAlign: 'center',
+        textDecorationLine: 'underline',
     },
     errorText: {
         color: 'red',

@@ -78,7 +78,11 @@ const LoginScreen: React.FC = () => {
 
     return (
         <View style={commonStyles.container}>
-            <View style={commonStyles.header}>
+            <View
+                style={{
+                    alignItems: 'center',
+                }}
+            >
                 <Image
                     source={require('../../../assets/img/logo.png')}
                     style={styles.image}

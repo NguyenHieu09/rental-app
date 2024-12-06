@@ -116,7 +116,9 @@ const HomeScreen: React.FC = () => {
                     district,
                     city,
                 );
-                setNearbyProperties(dataWithCityAndDistrict.properties);
+
+                if (dataWithCityAndDistrict.properties?.length > 0)
+                    setNearbyProperties(dataWithCityAndDistrict.properties);
                 console.log(
                     'Total properties with city and district:',
                     dataWithCityAndDistrict.total,
@@ -256,7 +258,6 @@ const HomeScreen: React.FC = () => {
                         />
                     ))}
                 </ScrollView>
-
 
                 <Text style={styles.sectionTitle}>
                     Khám phá bất động sản gần đây
