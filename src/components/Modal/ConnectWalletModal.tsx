@@ -1,6 +1,7 @@
 import { W3mButton } from '@web3modal/wagmi-react-native';
 import React from 'react';
-import { Modal, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { Modal, StyleSheet, Text, View } from 'react-native';
+import { useAccount } from 'wagmi';
 import Button from '../button/Button';
 
 interface ConnectWalletModalProps {
@@ -12,6 +13,10 @@ const ConnectWalletModal: React.FC<ConnectWalletModalProps> = ({
     visible,
     onClose,
 }) => {
+    const { address } = useAccount();
+
+    if (address) return null;
+
     return (
         <Modal visible={visible} transparent={true} animationType='slide'>
             <View style={styles.modalContainer}>

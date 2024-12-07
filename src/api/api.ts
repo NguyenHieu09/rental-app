@@ -3,7 +3,10 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import axios from 'axios';
 import { IConversation } from '../types/chat';
 import { IFilterProperty } from '../types/property';
-import { ICreatePropertyInteraction } from '../types/propertyInteraction';
+import {
+    ICreatePropertyInteraction,
+    IPropertyInteraction,
+} from '../types/propertyInteraction';
 import { IDeleteReview } from '../types/review';
 import { IUser } from '../types/user';
 
@@ -120,11 +123,12 @@ export const updateUserInfo = async (
     const formData = new FormData();
     formData.append('phoneNumber', phoneNumber);
     formData.append('name', name);
-    formData.append('avatar', {
-        uri: avatarUri,
-        name: 'avatar.jpg',
-        type: 'image/jpeg',
-    } as any);
+    avatarUri &&
+        formData.append('avatar', {
+            uri: avatarUri,
+            name: 'avatar.jpg',
+            type: 'image/jpeg',
+        } as any);
 
     const token = await AsyncStorage.getItem('accessToken');
     if (!token) {
@@ -132,6 +136,7 @@ export const updateUserInfo = async (
     }
 
     try {
+        console.log('Updating user info with URL:', `${API_BASE_URL}/users`);
         const response = await fetch(`${API_BASE_URL}/users`, {
             method: 'PUT',
             headers: {
@@ -212,8 +217,17 @@ export const updateUserPassword = async (
 
 export const fetchPropertyDetail = async (slug: string) => {
     try {
+        const token = await AsyncStorage.getItem('accessToken');
+
         const response = await axios.get(
             `${API_BASE_URL}/properties/slug/${slug}`,
+            {
+                headers: token
+                    ? {
+                          Authorization: `Bearer ${token}`,
+                      }
+                    : {},
+            },
         );
         return response.data;
     } catch (error: any) {
@@ -1196,5 +1210,29 @@ export const suggestPropertiesService = async () => {
         return response.data;
     } catch (error: any) {
         return [];
+    }
+};
+
+export const getFavoriteBySlug = async (
+    slug: string,
+): Promise<IPropertyInteraction | null> => {
+    try {
+        const token = await AsyncStorage.getItem('accessToken');
+        if (!token) return null;
+
+        const response = await axios.get(
+            `${API_BASE_URL}/property-interactions/slug/${slug}`,
+            {
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                },
+            },
+        );
+        console.log('🚀 ~ response:', response);
+
+        return response.data;
+    } catch (error: any) {
+        console.log('🚀 ~ error:', error);
+        return null;
     }
 };
