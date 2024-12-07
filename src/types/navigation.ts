@@ -35,4 +35,5 @@ export type RootStackParamList = {
     ReportManagement: undefined;
     ReportDetails: { reportId: number };
     AddReport: { contractId: string };
+    ImageDetailScreen: { imageUrl: string };
 };

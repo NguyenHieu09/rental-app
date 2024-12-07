@@ -139,14 +139,11 @@ const DashboardOwner: React.FC = () => {
             <Text style={styles.cardLabel}>Yêu cầu thuê nhà</Text>
           </TouchableOpacity>
 
-          <TouchableOpacity style={styles.card}>
+          <TouchableOpacity style={styles.card} onPress={handleViewContracts}>
             <Text style={styles.cardText}>{countCancelRequest}</Text>
             <Text style={styles.cardLabel}>Yêu cầu{`\n`}hủy hợp đồng</Text>
           </TouchableOpacity>
-          <TouchableOpacity
-            style={styles.card}
-            onPress={handleViewRequestRental}
-          >
+          <TouchableOpacity style={styles.card} onPress={handleViewContracts}>
             <Text style={styles.cardText}>{countExtensionRequest}</Text>
             <Text style={styles.cardLabel}>Yêu cầu gia hạn</Text>
           </TouchableOpacity>

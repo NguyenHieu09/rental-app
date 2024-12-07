@@ -57,7 +57,7 @@ const ShowReviews: React.FC<Props> = ({ reviews }) => {
                     />
                   ))}
                 <Text style={styles.date}>
-                  {formatDateTime(child.createdAt)}
+                  {formatDateTime(child.createdAt, true)}
                 </Text>
               </View>
             </View>
@@ -96,11 +96,11 @@ const ShowReviews: React.FC<Props> = ({ reviews }) => {
                 />
               ))}
             <Text style={styles.date}>{formatDateTime(item.updatedAt)}</Text>
-            {item.children?.length > 0 && (
-              <View style={styles.childrenContainer}>{renderChildren}</View>
-            )}
           </View>
         </View>
+        {item.children?.length > 0 && (
+          <View style={styles.childrenContainer}>{renderChildren}</View>
+        )}
       </View>
     );
   };
@@ -146,7 +146,7 @@ const styles = StyleSheet.create({
     // paddingLeft: 16,
   },
   childReview: {
-    padding: 8,
+    // padding: 8,
     marginBottom: 10,
   },
   userContainer: {
