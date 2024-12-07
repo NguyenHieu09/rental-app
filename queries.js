@@ -14,7 +14,7 @@ const queries = {
         { $: { "android:name": "io.zerion.android" } },
         { $: { "android:name": "io.gnosis.safe" } },
         { $: { "android:name": "com.uniswap.mobile" } },
-        // Add other wallet package names here
+
     ]
 };
 

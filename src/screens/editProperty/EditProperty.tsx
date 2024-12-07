@@ -259,15 +259,35 @@ const EditPropertyScreen: React.FC = () => {
 
       console.log(selectedCityName, selectedDistrictName, selectedWardName);
 
-      for (const image of images) {
-        console.log("Image:", image);
+      // for (const image of images) {
+      //   console.log("Image:", image);
+      //   if (image.uri.startsWith("https://firebasestorage.googleapis.com/")) {
+      //     formData.append("images", image.uri);
+      //   } else {
+      //     formData.append("images", {
+      //       uri: image.uri,
+      //       name: image.fileName,
+      //       type: "image/jpeg",
+      //     } as any);
+      //   }
+      // }
 
-        formData.append("images", {
-          uri: image.uri,
-          name: image.fileName,
-          type: "image/jpeg",
-        } as any);
-      }
+      const imagePromises = images.map(async (image) => {
+        if (image.uri.startsWith("https://firebasestorage.googleapis.com/")) {
+          formData.append("images", image.uri);
+
+          console.log("Image:", image.uri);
+        } else {
+          formData.append("images", {
+            uri: image.uri,
+            name: image.fileName,
+            type: "image/jpeg",
+          } as any);
+        }
+      });
+
+      // Chờ tất cả các hình ảnh được xử lý xong
+      await Promise.all(imagePromises);
 
       console.log("Form data:", formData);
 
