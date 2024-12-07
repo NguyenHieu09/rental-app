@@ -1,9 +1,9 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { ChatStatus, IConversation } from '../../types/chat';
-import { combineConversations } from '../../utils/combineConversations';
-import { ITable } from '../../types/table';
 import { IReadConversationSocket } from '../../types/conversation';
 import { IPageInfo } from '../../types/page';
+import { ITable } from '../../types/table';
+import { combineConversations } from '../../utils/combineConversations';
 
 interface ConversationState {
     loading: boolean;
@@ -36,9 +36,16 @@ const conversationSlice = createSlice({
         },
         addConversation(state, action: PayloadAction<IConversation>) {
             const conversation = action.payload;
-            const newConversations = combineConversations([conversation], state.conversations);
+            const newConversations = combineConversations(
+                [conversation],
+                state.conversations,
+            );
             const selectedConversation = state.selectedConversation
-                ? newConversations.find(c => c.conversationId === state.selectedConversation?.conversationId) ?? null
+                ? newConversations.find(
+                      (c) =>
+                          c.conversationId ===
+                          state.selectedConversation?.conversationId,
+                  ) ?? null
                 : null;
 
             state.conversations = newConversations;
@@ -47,12 +54,22 @@ const conversationSlice = createSlice({
         },
         addConversations(state, action: PayloadAction<ITable<IConversation>>) {
             const conversations = action.payload;
-            const newConversations = combineConversations(state.conversations, conversations.data);
+            const newConversations = combineConversations(
+                state.conversations,
+                conversations.data,
+            );
             const selectedConversation = state.selectedConversation
-                ? newConversations.find(c => c.conversationId === state.selectedConversation?.conversationId) ?? null
+                ? newConversations.find(
+                      (c) =>
+                          c.conversationId ===
+                          state.selectedConversation?.conversationId,
+                  ) ?? null
                 : null;
 
-            const unreadCount = newConversations.reduce((acc, conversation) => acc + conversation.unreadCount, 0);
+            const unreadCount = newConversations.reduce(
+                (acc, conversation) => acc + conversation.unreadCount,
+                0,
+            );
 
             state.conversations = newConversations;
             state.pageInfo = conversations.pageInfo;
@@ -61,9 +78,18 @@ const conversationSlice = createSlice({
             state.unreadCount = unreadCount;
             state.loading = false;
         },
-        setSelectedConversation(state, action: PayloadAction<IConversation>) {
+        setSelectedConversation(
+            state,
+            action: PayloadAction<IConversation | null>,
+        ) {
             const conversation = action.payload;
-            const newConversations = state.conversations.map(c => {
+
+            if (!conversation) {
+                state.selectedConversation = null;
+                return;
+            }
+
+            const newConversations = state.conversations.map((c) => {
                 if (c.conversationId === conversation.conversationId) {
                     return { ...c, unreadCount: 0 };
                 }
@@ -74,34 +100,45 @@ const conversationSlice = createSlice({
             state.unreadCount -= conversation.unreadCount;
             state.conversations = newConversations;
         },
-        readConversation(state, action: PayloadAction<IReadConversationSocket>) {
+        readConversation(
+            state,
+            action: PayloadAction<IReadConversationSocket>,
+        ) {
             const { chatId, conversationId } = action.payload;
-            const newConversations = state.conversations.map(oldConversation => {
-                const conversation = { ...oldConversation };
+            const newConversations = state.conversations.map(
+                (oldConversation) => {
+                    const conversation = { ...oldConversation };
 
-                if (conversation.conversationId === conversationId) {
-                    let index = Infinity;
+                    if (conversation.conversationId === conversationId) {
+                        let index = Infinity;
 
-                    const newChats = conversation.chats.map((chat, i) => {
-                        if (chat.chatId === chatId) index = i;
-                        if (i <= index) {
-                            return { ...chat, status: 'READ' as ChatStatus };
-                        }
-                        return chat;
-                    });
+                        const newChats = conversation.chats.map((chat, i) => {
+                            if (chat.chatId === chatId) index = i;
+                            if (i <= index) {
+                                return {
+                                    ...chat,
+                                    status: 'READ' as ChatStatus,
+                                };
+                            }
+                            return chat;
+                        });
 
-                    return { ...conversation, chats: newChats };
-                }
+                        return { ...conversation, chats: newChats };
+                    }
 
-                return conversation;
-            });
+                    return conversation;
+                },
+            );
 
             state.conversations = newConversations;
 
             // Handle selectedConversation safely
-            const currentSelectedConversationId = state.selectedConversation?.conversationId;
+            const currentSelectedConversationId =
+                state.selectedConversation?.conversationId;
             if (currentSelectedConversationId) {
-                const foundConversation = newConversations.find(c => c.conversationId === currentSelectedConversationId);
+                const foundConversation = newConversations.find(
+                    (c) => c.conversationId === currentSelectedConversationId,
+                );
                 state.selectedConversation = foundConversation ?? null; // Use null if not found
             }
         },
@@ -117,9 +154,7 @@ export const {
     addConversations,
     setSelectedConversation,
     readConversation,
-    clearConversations
+    clearConversations,
 } = conversationSlice.actions;
 
 export default conversationSlice.reducer;
-
-

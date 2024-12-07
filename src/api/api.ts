@@ -149,7 +149,11 @@ export const updateUserInfo = async (
 
         return await response.json();
     } catch (error: any) {
-        if (error.response && error.response.data && error.response.data.message) {
+        if (
+            error.response &&
+            error.response.data &&
+            error.response.data.message
+        ) {
             console.error('Error message:', error.response.data.message);
             throw new Error(error.response.data.message);
         } else {
@@ -480,17 +484,7 @@ export const fetchPropertyAttributes = async () => {
 
 export const fetchPropertyTypes = async () => {
     try {
-        const token = await AsyncStorage.getItem('accessToken');
-
-        if (!token) {
-            throw new Error('No token provided');
-        }
-
-        const response = await axios.get(`${API_BASE_URL}/property-types`, {
-            headers: {
-                Authorization: `Bearer ${token}`,
-            },
-        });
+        const response = await axios.get(`${API_BASE_URL}/property-types`);
 
         return response.data;
     } catch (error: any) {
@@ -1043,7 +1037,6 @@ export const fetchPropertyOverview = async () => {
     }
 };
 
-
 export const updatePropertyVisibility = async (
     properties: string[],
     status: string,
@@ -1084,8 +1077,10 @@ export const updatePropertyVisibility = async (
     }
 };
 
-
-export const updateProperty = async (propertyId: string, formData: FormData) => {
+export const updateProperty = async (
+    propertyId: string,
+    formData: FormData,
+) => {
     try {
         const token = await AsyncStorage.getItem('accessToken');
 
@@ -1123,7 +1118,6 @@ export const updateProperty = async (propertyId: string, formData: FormData) => 
         }
     }
 };
-
 
 export const fetchOwnerProperties = async () => {
     try {
@@ -1166,14 +1160,11 @@ export const fetchRentersList = async () => {
             throw new Error('No token provided');
         }
 
-        const response = await axios.get(
-            `${API_BASE_URL}/users/renters/cbb`,
-            {
-                headers: {
-                    Authorization: `Bearer ${token}`,
-                },
+        const response = await axios.get(`${API_BASE_URL}/users/renters/cbb`, {
+            headers: {
+                Authorization: `Bearer ${token}`,
             },
-        );
+        });
 
         return response.data;
     } catch (error: any) {
@@ -1188,5 +1179,22 @@ export const fetchRentersList = async () => {
             console.error('Error fetching renters list:', error);
             throw (error as any).response;
         }
+    }
+};
+
+export const suggestPropertiesService = async () => {
+    try {
+        const token = await AsyncStorage.getItem('accessToken');
+        if (!token) return [];
+
+        const response = await axios.get(`${API_BASE_URL}/properties/suggest`, {
+            headers: {
+                Authorization: `Bearer ${token}`,
+            },
+        });
+
+        return response.data;
+    } catch (error: any) {
+        return [];
     }
 };

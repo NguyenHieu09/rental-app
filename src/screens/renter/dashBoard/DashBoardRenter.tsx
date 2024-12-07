@@ -1,31 +1,34 @@
-import React, { useCallback, useEffect, useState } from 'react';
-import * as Location from 'expo-location';
-import {
-    View,
-    Text,
-    TextInput,
-    ScrollView,
-    ActivityIndicator,
-    StyleSheet,
-    TouchableOpacity,
-} from 'react-native';
-import { commonStyles, COLORS } from '../../../styles/theme';
-import HomeHeader from '../../../components/homeHeader/HomeHeader';
-import Properties from '../../../components/properties/Properties';
-import PropertyCard from '../../../components/propertyCard/PropertyCard';
-import CustomButton from '../../../components/customButton/CustomButton';
-import { fetchNewestProperties } from '../../../api/api';
-import { useSelector } from 'react-redux';
-import { RootState } from '../../../redux-toolkit/store';
 import {
     NavigationProp,
     useFocusEffect,
     useNavigation,
 } from '@react-navigation/native';
+import * as Location from 'expo-location';
+import React, { useCallback, useState } from 'react';
+import {
+    ActivityIndicator,
+    ScrollView,
+    StyleSheet,
+    Text,
+    TextInput,
+    TouchableOpacity,
+    View,
+} from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
+import AntDesign from 'react-native-vector-icons/AntDesign';
+import { useSelector } from 'react-redux';
+import {
+    fetchNewestProperties,
+    suggestPropertiesService,
+} from '../../../api/api';
+import CustomButton from '../../../components/customButton/CustomButton';
+import HomeHeader from '../../../components/homeHeader/HomeHeader';
+import Properties from '../../../components/properties/Properties';
+import PropertyCard from '../../../components/propertyCard/PropertyCard';
+import { RootState } from '../../../redux-toolkit/store';
+import { COLORS, commonStyles } from '../../../styles/theme';
 import { RootStackParamList } from '../../../types/navigation';
 import { IProperty } from '../../../types/property';
-import AntDesign from 'react-native-vector-icons/AntDesign';
-import { SafeAreaView } from 'react-native-safe-area-context';
 
 const HomeScreen: React.FC = () => {
     const [properties, setProperties] = useState<IProperty[]>([]);
@@ -36,29 +39,26 @@ const HomeScreen: React.FC = () => {
     const ITEMS_PER_PAGE = 10;
     const user = useSelector((state: RootState) => state.user.user);
     const navigation = useNavigation<NavigationProp<RootStackParamList>>();
-    const [location, setLocation] = useState('Gò Vấp, Hồ Chí Minh, Việt Nam');
-    const [searchText, setSearchText] = useState<string>('');
+    const [suggestProperties, setSuggestProperties] = useState<IProperty[]>([]);
 
-    useEffect(() => {
-        const initialize = async () => {
-            console.log('Component mounted, loading properties');
-            await new Promise((res, rej) => {
-                getLocation()
-                    .then(res)
-                    .then(() => res('Error'));
-                setTimeout(() => res('Timeout'), 3000);
-            });
-            console.log('Component mounted, loading properties');
-            loadProperties(city, district);
-        };
+    // useEffect(() => {
+    //     const initialize = async () => {
+    //         console.log('Component mounted, loading properties');
+    //         await new Promise((res, rej) => {
+    //             getLocation()
+    //                 .then(res)
+    //                 .then(() => res('Error'));
+    //             setTimeout(() => res('Timeout'), 3000);
+    //         });
+    //         console.log('Component mounted, loading properties');
+    //     };
 
-        initialize();
-    }, [city, district]);
+    //     initialize();
+    // }, [city, district]);
 
     useFocusEffect(
         useCallback(() => {
             const refreshScreen = async () => {
-                setSearchText('');
                 await loadProperties(city, district);
             };
 
@@ -69,7 +69,6 @@ const HomeScreen: React.FC = () => {
     const getLocation = async () => {
         let { status } = await Location.requestForegroundPermissionsAsync();
         if (status !== 'granted') {
-            setLocation('Quyền truy cập vị trí bị từ chối');
             return;
         }
 
@@ -83,9 +82,6 @@ const HomeScreen: React.FC = () => {
         if (reverseGeocode.length > 0) {
             const { formattedAddress } = reverseGeocode[0];
             if (formattedAddress) {
-                setLocation(formattedAddress || 'Không tìm thấy vị trí');
-
-                console.log(formattedAddress);
                 const addressParts = formattedAddress
                     .split(',')
                     .map((part) => part.trim());
@@ -96,45 +92,44 @@ const HomeScreen: React.FC = () => {
 
                 setCity(city);
                 setDistrict(district);
+                loadProperties(city, district);
+                return;
             } else {
-                setLocation('Không tìm thấy vị trí');
             }
         } else {
-            setLocation('Không tìm thấy vị trí');
         }
+
+        loadProperties();
     };
 
     const loadProperties = async (city?: string, district?: string) => {
         try {
             setLoading(true);
+
+            const queries = [
+                fetchNewestProperties(ITEMS_PER_PAGE, 0),
+                suggestPropertiesService(),
+            ];
+
+            if (city)
+                queries.push(
+                    fetchNewestProperties(ITEMS_PER_PAGE, 0, district, city),
+                );
+
+            const [
+                dataWithoutCity,
+                suggestProperties,
+                dataWithCityAndDistrict,
+            ] = await Promise.all(queries);
+
             // Fetch properties with city
             if (city) {
-                console.log('🚀 ~ loadProperties ~ city:', city);
-                const dataWithCityAndDistrict = await fetchNewestProperties(
-                    ITEMS_PER_PAGE,
-                    0,
-                    district,
-                    city,
-                );
-
                 if (dataWithCityAndDistrict.properties?.length > 0)
                     setNearbyProperties(dataWithCityAndDistrict.properties);
-                console.log(
-                    'Total properties with city and district:',
-                    dataWithCityAndDistrict.total,
-                );
             }
 
-            // Fetch properties without city
-            const dataWithoutCity = await fetchNewestProperties(
-                ITEMS_PER_PAGE,
-                0,
-            );
             setProperties(dataWithoutCity.properties);
-            console.log(
-                'Total properties without city:',
-                dataWithoutCity.total,
-            );
+            setSuggestProperties(suggestProperties);
         } catch (error) {
             console.error('Error fetching properties:', error);
         } finally {
@@ -147,10 +142,7 @@ const HomeScreen: React.FC = () => {
     };
 
     const handlePress = (label: string) => {
-        // console.log('City:', label);
-
-        navigation.navigate('ExploreScreen', { city: label });
-        // console.log(`${label} button pressed!`);
+        navigation.navigate('ExploreScreen', { city: label, isNoFilter: true });
     };
 
     // const lastName = user?.name ? user.name.split(' ').pop() : 'Guest';
@@ -212,11 +204,9 @@ const HomeScreen: React.FC = () => {
                 <TextInput
                     style={styles.searchInput}
                     placeholder='Tìm kiếm nhà, căn hộ...'
-                    // value={searchText}
                     onFocus={() => {
                         navigation.navigate('ExploreScreen', {});
                     }}
-                    onChangeText={(text) => setSearchText(text)}
                 />
                 <TouchableOpacity>
                     <AntDesign name='search1' size={20} color='#000' />
@@ -239,6 +229,26 @@ const HomeScreen: React.FC = () => {
                             onPress={() => handlePress(location.title)}
                         />
                     ))}
+                </ScrollView>
+
+                <Text style={styles.sectionTitle}>Bất động sản cho bạn</Text>
+                <ScrollView
+                    horizontal
+                    showsHorizontalScrollIndicator={false}
+                    style={styles.featuredContainer}
+                    contentContainerStyle={{
+                        gap: 8,
+                    }}
+                >
+                    {suggestProperties.map(
+                        (property: IProperty, index: number) => (
+                            <Properties
+                                key={`${property.propertyId}-${index}`}
+                                property={property}
+                                onPress={() => handlePressProperty(property)}
+                            />
+                        ),
+                    )}
                 </ScrollView>
 
                 <Text style={styles.sectionTitle}>Bất động sản mới nhất</Text>

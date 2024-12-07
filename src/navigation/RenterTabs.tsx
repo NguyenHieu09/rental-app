@@ -122,6 +122,12 @@ const RenterTabs: React.FC = () => {
                     //     <Text style={{ color, fontSize: 14, fontWeight: '700' }}>Tìm kiếm</Text>
                     // ),
                 }}
+                listeners={({ navigation }) => ({
+                    tabPress: () =>
+                        navigation.navigate('ExploreScreen', {
+                            isNoFilter: false,
+                        }),
+                })}
             />
 
             <Tab.Screen

@@ -127,7 +127,14 @@ const NotificationsScreen: React.FC = () => {
             });
         } else if (notification.type === 'OWNER_DETAIL_PROPERTY') {
             navigation.navigate('ManageProperty');
-        }
+        } else if (notification.type === 'RENTER_CONTRACT')
+            navigation.navigate('ContractDetails', {
+                contractId: notification.docId,
+            });
+        else if (notification.type === 'REPORT')
+            navigation.navigate('ReportDetails', {
+                reportId: Number(notification.docId),
+            });
     };
 
     useFocusEffect(

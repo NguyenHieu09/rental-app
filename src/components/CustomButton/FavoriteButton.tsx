@@ -1,17 +1,20 @@
-import React, { useState, useEffect } from 'react';
-import { Alert, TouchableOpacity } from 'react-native';
 import { IconFill, IconOutline } from '@ant-design/icons-react-native';
-import { createPropertyToFavorites } from '../../api/api';
+import React, { useEffect, useState } from 'react';
+import { Alert, TouchableOpacity } from 'react-native';
 import { useDispatch } from 'react-redux';
-import { AppDispatch } from '../../redux-toolkit/store';
+import { createPropertyToFavorites } from '../../api/api';
 import { decrement, increment } from '../../redux-toolkit/slices/favoriteSlice';
+import { AppDispatch } from '../../redux-toolkit/store';
 
 interface FavoriteButtonProps {
     isFavorite?: boolean;
     propertyId: string;
 }
 
-const FavoriteButton: React.FC<FavoriteButtonProps> = ({ isFavorite, propertyId }) => {
+const FavoriteButton: React.FC<FavoriteButtonProps> = ({
+    isFavorite,
+    propertyId,
+}) => {
     const [favorite, setFavorite] = useState(isFavorite || false);
     const [loading, setLoading] = useState(false);
     const dispatch = useDispatch<AppDispatch>();
@@ -45,7 +48,6 @@ const FavoriteButton: React.FC<FavoriteButtonProps> = ({ isFavorite, propertyId 
             }
 
             // Thông báo cho người dùng
-
         } catch (error) {
             // Xử lý lỗi nếu cần
         } finally {
@@ -60,9 +62,9 @@ const FavoriteButton: React.FC<FavoriteButtonProps> = ({ isFavorite, propertyId 
     return (
         <TouchableOpacity onPress={handleFavoriteToggle} disabled={loading}>
             {favorite ? (
-                <IconFill name="heart" size={22} color="red" />
+                <IconFill name='heart' size={22} color='#ff4d4f' />
             ) : (
-                <IconOutline name="heart" size={22} color="black" />
+                <IconOutline name='heart' size={22} color='#ff4d4f' />
             )}
         </TouchableOpacity>
     );

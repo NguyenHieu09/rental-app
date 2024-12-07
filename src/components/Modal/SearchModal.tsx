@@ -1,23 +1,24 @@
+import { IconOutline } from '@ant-design/icons-react-native';
+import MultiSlider from '@ptomasroos/react-native-multi-slider';
+import { Picker } from '@react-native-picker/picker';
 import React, { useEffect, useState } from 'react';
 import {
-    Modal,
-    View,
-    Text,
-    ScrollView,
-    TouchableOpacity,
-    Pressable,
-    StyleSheet,
     Dimensions,
+    Modal,
+    Pressable,
+    ScrollView,
+    StyleSheet,
+    Text,
     TextInput,
+    TouchableOpacity,
+    View,
 } from 'react-native';
-import AddressInput from '../form/AddressInput';
-import { IconOutline } from '@ant-design/icons-react-native';
 import { RadioButton } from 'react-native-paper';
+import { fetchPropertyAttributes, fetchPropertyTypes } from '../../api/api';
 import { IAttribute } from '../../types/property';
-import { fetchPropertyAttributes } from '../../api/api';
-import { Picker } from '@react-native-picker/picker';
-import MultiSlider from '@ptomasroos/react-native-multi-slider';
+import { IPropertyType } from '../../types/propertyType';
 import { formatPrice } from '../../utils/formattedPrice';
+import AddressInput from '../form/AddressInput';
 
 export const interiorOptions = [
     {
@@ -79,6 +80,8 @@ const SearchModal: React.FC<SearchModalProps> = ({
         number | undefined
     >(undefined);
     const [priceRange, setPriceRange] = useState([0, 1000000000]);
+    const [types, setTypes] = useState<IPropertyType[]>([]);
+    const [type, setType] = useState<string>('');
 
     useEffect(() => {
         const loadAttributes = async () => {
@@ -91,6 +94,13 @@ const SearchModal: React.FC<SearchModalProps> = ({
         };
 
         loadAttributes();
+
+        const fetchTypes = async () => {
+            const data = await fetchPropertyTypes();
+            setTypes(data);
+        };
+
+        fetchTypes();
     }, []);
 
     const handleAttributeChange = (value: string) => {
@@ -116,6 +126,7 @@ const SearchModal: React.FC<SearchModalProps> = ({
         setNumberOfBedrooms(undefined);
         setNumberOfBathrooms(undefined);
         setInterior('');
+        setType('');
     };
 
     return (
@@ -171,7 +182,7 @@ const SearchModal: React.FC<SearchModalProps> = ({
                         </View>
 
                         <View style={styles.condition}>
-                            <Text style={styles.title}>Giá</Text>
+                            <Text style={styles.title}>Mức giá</Text>
                             <Text>{`Giá tối thiểu: ${formatPrice(
                                 priceRange[0],
                             )}`}</Text>
@@ -196,10 +207,63 @@ const SearchModal: React.FC<SearchModalProps> = ({
                                     markerStyle={styles.marker}
                                 />
                             </View>
+                            <TextInput
+                                style={styles.input}
+                                placeholder='Nhập giá tối thiểu'
+                                keyboardType='numeric'
+                                value={String(priceRange[0] || 0)}
+                                onChangeText={(text) => {
+                                    const value = Number(text) || priceRange[0];
+                                    const otherValue = priceRange[1];
+
+                                    if (value > otherValue) {
+                                        setPriceRange([otherValue, value]);
+                                    } else {
+                                        setPriceRange([value, otherValue]);
+                                    }
+                                }}
+                            />
+                            <TextInput
+                                style={styles.input}
+                                placeholder='Nhập giá tối đa'
+                                keyboardType='numeric'
+                                value={String(priceRange[1] || 0)}
+                                onChangeText={(text) => {
+                                    const value = Number(text) || priceRange[1];
+                                    const otherValue = priceRange[0];
+
+                                    if (value < otherValue) {
+                                        setPriceRange([value, otherValue]);
+                                    } else {
+                                        setPriceRange([otherValue, value]);
+                                    }
+                                }}
+                            />
                         </View>
 
                         <View style={styles.condition}>
-                            <Text style={styles.title}>Nội thất</Text>
+                            <Text style={styles.label}>Loại nhà</Text>
+                            <View style={[styles.input, { padding: 0 }]}>
+                                <Picker
+                                    style={(styles.input, { padding: 0 })}
+                                    selectedValue={type}
+                                    onValueChange={(itemValue) =>
+                                        setType(itemValue)
+                                    }
+                                >
+                                    <Picker.Item
+                                        label='Chọn loại nhà'
+                                        value={undefined}
+                                    />
+                                    {types.map((option) => (
+                                        <Picker.Item
+                                            key={option.id}
+                                            label={option.name}
+                                            value={option.name}
+                                        />
+                                    ))}
+                                </Picker>
+                            </View>
                             <View>
                                 <Text style={styles.label}>Số phòng ngủ</Text>
                                 <TextInput
@@ -208,6 +272,7 @@ const SearchModal: React.FC<SearchModalProps> = ({
                                     keyboardType='numeric'
                                     value={numberOfBedrooms?.toString()}
                                     onChangeText={(text) =>
+                                        Number(text) &&
                                         setNumberOfBedrooms(Number(text))
                                     }
                                 />
@@ -221,13 +286,16 @@ const SearchModal: React.FC<SearchModalProps> = ({
                                     keyboardType='numeric'
                                     value={numberOfBathrooms?.toString()}
                                     onChangeText={(text) =>
+                                        Number(text) &&
                                         setNumberOfBathrooms(Number(text))
                                     }
                                 />
                             </View>
 
-                            <View style={[styles.input, { padding: -10 }]}>
+                            <Text style={styles.label}>Nội thất</Text>
+                            <View style={[styles.input, { padding: 0 }]}>
                                 <Picker
+                                    style={(styles.input, { padding: 0 })}
                                     selectedValue={interior}
                                     onValueChange={(itemValue) =>
                                         setInterior(itemValue)
@@ -307,6 +375,7 @@ const SearchModal: React.FC<SearchModalProps> = ({
                                     bedroom: numberOfBedrooms,
                                     bathroom: numberOfBathrooms,
                                     furniture: interior,
+                                    type,
                                 };
                                 onApplyFilters(filterCriteria);
                                 onClose();

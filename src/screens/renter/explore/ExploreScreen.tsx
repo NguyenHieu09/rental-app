@@ -1,19 +1,3 @@
-import React, { useState, useEffect, useCallback, useRef } from 'react';
-import {
-    View,
-    Text,
-    FlatList,
-    TextInput,
-    StyleSheet,
-    TouchableOpacity,
-    ActivityIndicator,
-    Image,
-} from 'react-native';
-import { commonStyles } from '../../../styles/theme';
-import AntDesign from 'react-native-vector-icons/AntDesign';
-import SearchModal from '../../../components/modal/SearchModal';
-import { fetchFilteredProperties } from '../../../api/api';
-import { IProperty } from '../../../types/property';
 import {
     NavigationProp,
     RouteProp,
@@ -21,16 +5,31 @@ import {
     useNavigation,
     useRoute,
 } from '@react-navigation/native';
-import { RootStackParamList } from '../../../types/navigation';
+import React, { useCallback, useEffect, useState } from 'react';
+import {
+    ActivityIndicator,
+    FlatList,
+    StyleSheet,
+    Text,
+    TextInput,
+    TouchableOpacity,
+    View,
+} from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { IconFill, IconOutline } from '@ant-design/icons-react-native';
+import AntDesign from 'react-native-vector-icons/AntDesign';
+import { fetchFilteredProperties } from '../../../api/api';
 import RenderExploreItem from '../../../components/exploreItem/RenderExploreItem';
+import SearchModal from '../../../components/modal/SearchModal';
+import { commonStyles } from '../../../styles/theme';
+import { RootStackParamList } from '../../../types/navigation';
+import { IProperty } from '../../../types/property';
 
 const ITEMS_PER_PAGE = 10;
 
 const ExploreScreen: React.FC = () => {
     const route = useRoute<RouteProp<RootStackParamList, 'ExploreScreen'>>();
     const city = route.params?.city;
+    const isNoFilter = route.params?.isNoFilter;
     const [searchText, setSearchText] = useState<string>('');
     const [modalVisible, setModalVisible] = useState(false);
     const [exploreItems, setExploreItems] = useState<IProperty[]>([]);
@@ -108,8 +107,8 @@ const ExploreScreen: React.FC = () => {
             const data = await fetchFilteredProperties(
                 ITEMS_PER_PAGE,
                 skip,
-                filter,
-                query,
+                isNoFilter ? { city } : filter,
+                isNoFilter ? '' : query,
             );
 
             if (data && data.data) {

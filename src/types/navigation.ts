@@ -1,10 +1,4 @@
-import { RouteProp } from '@react-navigation/native';
-import { StackNavigationProp } from '@react-navigation/stack';
-import { IProperty } from './property';
-import { IRentalRequest } from './rentalRequest';
 import { IUser } from './user';
-import { IConversation } from './chat';
-
 
 export type RootStackParamList = {
     Login: undefined;
@@ -17,7 +11,7 @@ export type RootStackParamList = {
     ManageProperty: undefined;
     // ManageProperty: { properties: IProperty[] };
     ManageRequestRental: undefined;
-    ContractScreen: { contractData: any, requestId?: string };
+    ContractScreen: { contractData: any; requestId?: string };
     WalletManagement: undefined;
     Transactions: undefined;
     Wallet: { user: IUser };
@@ -26,7 +20,7 @@ export type RootStackParamList = {
     ContractDetails: { contractId: string };
     AuthenticationScreen: undefined;
     ManageCancelContract: undefined;
-    ExploreScreen: { city?: string };
+    ExploreScreen: { city?: string; isNoFilter?: boolean };
     PropertyDetail: { slug: string };
     ChatDetail: undefined;
     NotificationScreen: undefined;
