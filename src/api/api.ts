@@ -1102,23 +1102,45 @@ export const updateProperty = async (
             throw new Error('No token provided');
         }
 
-        const response = await axios.put(
+        const response = await fetch(
             `${API_BASE_URL}/properties/${propertyId}`,
-            formData,
             {
+                method: 'PUT',
                 headers: {
                     Authorization: `Bearer ${token}`,
-                    'Content-Type': 'multipart/form-data',
+                    // No need to set 'Content-Type' for FormData
                 },
+                body: formData,
             },
         );
 
-        if (response.status === 200) {
-            return { success: true, data: response.data };
-        } else {
-            return { success: false, message: 'Failed to update property' };
+        if (!response.ok) {
+            const errorText = await response.text();
+            console.error('Response error text:', errorText);
+            throw new Error('Failed to update property');
         }
+
+        return await response.json();
+
+        // const response = await axios.put(
+        //     `${API_BASE_URL}/properties/${propertyId}`,
+        //     formData,
+        //     {
+        //         headers: {
+        //             Authorization: `Bearer ${token}`,
+        //             'Content-Type': 'multipart/form-data',
+        //         },
+        //     },
+        // );
+        // console.log('🚀 ~ response:', response);
+
+        // if (response.status === 200) {
+        //     return { success: true, data: response.data };
+        // } else {
+        //     return { success: false, message: 'Failed to update property' };
+        // }
     } catch (error: any) {
+        console.log('🚀 ~ error:', error);
         if (
             error.response &&
             error.response.data &&
