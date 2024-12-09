@@ -135,6 +135,10 @@ const NotificationsScreen: React.FC = () => {
             navigation.navigate('ReportDetails', {
                 reportId: Number(notification.docId),
             });
+        else if (notification.type === 'REVIEW')
+            navigation.navigate('ContractDetails', {
+                contractId: notification.docId,
+            });
     };
 
     useFocusEffect(
