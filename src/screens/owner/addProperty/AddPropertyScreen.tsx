@@ -1,9 +1,7 @@
-
-
-
 import { Picker } from '@react-native-picker/picker';
+import { NavigationProp, useNavigation } from '@react-navigation/native';
 import * as ImagePicker from 'expo-image-picker';
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import {
     Alert,
     Image,
@@ -20,11 +18,13 @@ import {
     fetchPropertyAttributes,
     fetchPropertyTypes,
 } from '../../../api/api';
+import { addressToLngLatService } from '../../../api/goong';
 import AddressInput from '../../../components/form/AddressInput';
+import { ICoordinate } from '../../../components/map/Map';
 import { commonStyles } from '../../../styles/theme';
-import { IAttribute } from '../../../types/property';
-import { NavigationProp, useNavigation } from '@react-navigation/native';
 import { RootStackParamList } from '../../../types/navigation';
+import { IAttribute } from '../../../types/property';
+import MapHandle from './MapHandle';
 
 export const interiorOptions = [
     {
@@ -68,10 +68,12 @@ const AddPropertyScreen: React.FC = () => {
     const [minDuration, setMinDuration] = useState('');
     const [images, setImages] = useState<ImageFile[]>([]);
     const [street, setStreet] = useState('');
+    const mapRef = useRef<any>(null);
 
     const [selectedCity, setSelectedCity] = useState<string | undefined>(
         undefined,
     );
+    console.log('🚀 ~ selectedCity 123:', selectedCity);
     const [selectedDistrict, setSelectedDistrict] = useState<
         string | undefined
     >(undefined);
@@ -96,6 +98,9 @@ const AddPropertyScreen: React.FC = () => {
     const [propertyTypes, setPropertyTypes] = useState<IAttribute[]>([]);
     const [loading, setLoading] = useState(false);
     const navigation = useNavigation<NavigationProp<RootStackParamList>>();
+    const [coordinate, setCoordinate] = useState<ICoordinate | undefined>();
+    console.log('🚀 ~ coordinate:', coordinate);
+    const changeCoordinateRef = useRef<Boolean>(false);
 
     useEffect(() => {
         const loadAttributes = async () => {
@@ -185,6 +190,12 @@ const AddPropertyScreen: React.FC = () => {
             formData.append('ward', selectedWardName || '');
             formData.append('street', street);
             formData.append('conditions', JSON.stringify(conditions));
+
+            if (coordinate) {
+                formData.append('latitude', coordinate.latitude.toString());
+                formData.append('longitude', coordinate.longitude.toString());
+            }
+
             formData.append(
                 'type',
                 JSON.stringify({ id: type.id, name: type.name }),
@@ -200,8 +211,6 @@ const AddPropertyScreen: React.FC = () => {
                 } as any);
             }
             console.log('Form data:', formData);
-
-
 
             const response: ApiResponse = await createProperty(formData);
             if (response.success) {
@@ -224,6 +233,79 @@ const AddPropertyScreen: React.FC = () => {
         } finally {
             setLoading(false); // Stop loading state
         }
+    };
+
+    const getFullAddress = (
+        street: string,
+        ward: string | undefined,
+        district: string | undefined,
+        city: string | undefined,
+    ) => {
+        if (street && district && ward && city)
+            return `${street}, ${ward}, ${district}, ${city}`;
+
+        if (ward && district && city) return `${ward}, ${district}, ${city}`;
+
+        if (district && city) return `${district}, ${city}`;
+
+        return city!;
+    };
+
+    const handleConfirm = (coordinate: ICoordinate | undefined) => {
+        console.log('🚀 ~ handleConfirm ~ coordinate:', coordinate);
+        setCoordinate((prev) => {
+            console.log('🚀 ~ setCoordinate ~ prev:', prev);
+            if (
+                prev?.latitude === coordinate?.latitude &&
+                prev?.longitude === coordinate?.longitude
+            ) {
+                return prev;
+            }
+
+            changeCoordinateRef.current = true;
+            return coordinate;
+        });
+    };
+
+    const handleShowMap = () => {
+        console.log(
+            '🚀 ~ handleShowMap ~ coordinate',
+            selectedCity,
+            selectedDistrict,
+            selectedWard,
+            street,
+        );
+        console.log(
+            '🚀 ~ handleShowMap ~ coordinate',
+            selectedCityName,
+            selectedDistrict,
+            selectedWard,
+            street,
+        );
+        if (
+            ![selectedCity, selectedDistrict, selectedWard, street].some(
+                Boolean,
+            )
+        )
+            return;
+
+        const address = getFullAddress(
+            street,
+            selectedWard,
+            selectedDistrict,
+            selectedCity,
+        );
+        addressToLngLatService(address).then((res) => {
+            const { lat, lng } = res.results[0].geometry.location;
+            console.log('addressToLngLatService', lat, lng);
+
+            setCoordinate((prev) => {
+                if (prev?.latitude === lat && prev?.longitude === lng)
+                    return prev;
+
+                return { latitude: lat, longitude: lng };
+            });
+        });
     };
 
     return (
@@ -359,37 +441,60 @@ const AddPropertyScreen: React.FC = () => {
                 <View style={styles.radioContainer}>
                     <Text style={styles.label}>Tiện ích</Text>
                     {attributes.map((attribute) => (
-                        <View key={attribute.id} style={styles.checkboxContainer}>
-
+                        <View
+                            key={attribute.id}
+                            style={styles.checkboxContainer}
+                        >
                             <Checkbox
-                                color="#007BFF"
-                                status={selectedAttributes.includes(attribute.id) ? 'checked' : 'unchecked'}
-                                onPress={() => handleAttributeChange(attribute.id)} // Thêm hàm xử lý khi thay đổi checkbox
+                                color='#007BFF'
+                                status={
+                                    selectedAttributes.includes(attribute.id)
+                                        ? 'checked'
+                                        : 'unchecked'
+                                }
+                                onPress={() =>
+                                    handleAttributeChange(attribute.id)
+                                } // Thêm hàm xử lý khi thay đổi checkbox
                             />
                             <Text>{attribute.name}</Text>
                         </View>
                     ))}
                 </View>
 
-                <AddressInput
-                    selectedCity={selectedCity}
-                    setSelectedCity={(value, name) => {
-                        setSelectedCity(value);
-                        setSelectedCityName(name);
+                <View
+                    style={{
+                        position: 'relative',
                     }}
-                    selectedDistrict={selectedDistrict}
-                    setSelectedDistrict={(value, name) => {
-                        setSelectedDistrict(value);
-                        setSelectedDistrictName(name);
-                    }}
-                    selectedWard={selectedWard}
-                    setSelectedWard={(value, name) => {
-                        setSelectedWard(value);
-                        setSelectedWardName(name);
-                    }}
-                    street={street}
-                    setStreet={setStreet}
-                />
+                >
+                    <AddressInput
+                        coordinate={coordinate}
+                        selectedCity={selectedCity}
+                        setSelectedCity={(value, name) => {
+                            console.log('Change city', value, name);
+                            setSelectedCity(value);
+                            setSelectedCityName(name);
+                        }}
+                        selectedDistrict={selectedDistrict}
+                        setSelectedDistrict={(value, name) => {
+                            setSelectedDistrict(value);
+                            setSelectedDistrictName(name);
+                        }}
+                        selectedWard={selectedWard}
+                        setSelectedWard={(value, name) => {
+                            setSelectedWard(value);
+                            setSelectedWardName(name);
+                        }}
+                        street={street}
+                        setStreet={setStreet}
+                    />
+                    <MapHandle
+                        onShowMap={handleShowMap}
+                        ref={mapRef}
+                        handleConfirm={handleConfirm}
+                        coordinate={coordinate}
+                        setCoordinate={setCoordinate}
+                    />
+                </View>
 
                 <TouchableOpacity
                     style={styles.uploadButton}
@@ -446,7 +551,7 @@ const styles = StyleSheet.create({
         borderRadius: 5,
         padding: 10,
         marginBottom: 15,
-        height: 50
+        height: 50,
     },
     uploadButton: {
         borderWidth: 1,
@@ -519,7 +624,7 @@ const styles = StyleSheet.create({
         borderColor: '#ccc',
         borderRadius: 5,
         marginBottom: 15,
-        height: 50
+        height: 50,
     },
     picker: {
         fontSize: 20,

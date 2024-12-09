@@ -5,9 +5,10 @@ import {
     useNavigation,
     useRoute,
 } from '@react-navigation/native';
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import {
     ActivityIndicator,
+    Alert,
     Dimensions,
     FlatList,
     Image,
@@ -30,7 +31,7 @@ import {
     setSelectedConversation,
 } from '../../../redux-toolkit/slices/conversationSlice';
 import { AppDispatch, RootState } from '../../../redux-toolkit/store';
-import { commonStyles } from '../../../styles/theme';
+import { COLORS, commonStyles } from '../../../styles/theme';
 import { IConversation } from '../../../types/chat';
 import { RootStackParamList } from '../../../types/navigation';
 import { IProperty } from '../../../types/property';
@@ -38,9 +39,11 @@ import { formatPrice } from '../../../utils/formattedPrice';
 import { maskPhoneNumber } from '../../../utils/maskPhoneNumber';
 // import PropertyReviews from '../../components/review/PropertyReviews'; // Import PropertyReviews component
 import FavoriteButton from '../../../components/customButton/FavoriteButton';
+import Map from '../../../components/map/Map';
 import ShowReviews from '../../../components/review/ShowReview';
 import { IPropertyInteraction } from '../../../types/propertyInteraction';
 import { IReview } from '../../../types/review';
+import convertToDMS from '../../../utils/convertToDMS';
 
 const { width: screenWidth } = Dimensions.get('window');
 
@@ -61,6 +64,18 @@ const PropertyScreen: React.FC = () => {
     const [interaction, setInteraction] = useState<IPropertyInteraction | null>(
         null,
     );
+    const coordinate = useMemo(() => {
+        if (!property) return '';
+        if (!property.latitude || !property.longitude) return '';
+
+        const { latitude, longitude } = convertToDMS(
+            property.latitude,
+            property.longitude,
+        );
+
+        return `${latitude} - ${longitude}`;
+    }, [property]);
+    console.log('🚀 ~ coordinate ~ coordinate:', coordinate);
 
     useEffect(() => {
         const loadPropertyDetail = async () => {
@@ -210,6 +225,15 @@ const PropertyScreen: React.FC = () => {
         dispatch(addConversation(conversation));
         dispatch(setSelectedConversation(conversation));
         navigation.navigate('ChatDetail');
+    };
+
+    const openGoogleMaps = () => {
+        const url = `https://www.google.com/maps/search/?api=1&query=${property.latitude},${property.longitude}`;
+
+        Linking.openURL(url).catch((err) => {
+            console.log('Failed to open Google Maps:', err);
+            Alert.alert('Error', 'Failed to open Google Maps.');
+        });
     };
 
     return (
@@ -461,6 +485,51 @@ const PropertyScreen: React.FC = () => {
                                 ownerId={owner.userId}
                                 userId={user?.userId || ''}
                             />
+
+                            {property.latitude && property.longitude && (
+                                <>
+                                    <Text style={styles.sectionTitle}>
+                                        Vị trí
+                                    </Text>
+                                    <View
+                                        style={{
+                                            width: '100%',
+                                            aspectRatio: 16 / 9,
+                                            backgroundColor: 'gray',
+                                            position: 'relative',
+                                        }}
+                                    >
+                                        <Map
+                                            coordinate={{
+                                                latitude: property.latitude,
+                                                longitude: property.longitude,
+                                            }}
+                                        />
+                                        <View
+                                            style={{
+                                                position: 'absolute',
+                                                top: 0,
+                                                left: 0,
+                                                padding: 8,
+                                                backgroundColor:
+                                                    'rgba(255, 255, 255, 0.8)',
+                                            }}
+                                        >
+                                            <Text>{coordinate}</Text>
+                                            <TouchableOpacity>
+                                                <Text
+                                                    style={{
+                                                        color: COLORS.buttonBackground,
+                                                    }}
+                                                    onPress={openGoogleMaps}
+                                                >
+                                                    Xem trên bảng đồ lớn
+                                                </Text>
+                                            </TouchableOpacity>
+                                        </View>
+                                    </View>
+                                </>
+                            )}
                         </View>
                     );
                 } else if (item.key === 'reviews') {

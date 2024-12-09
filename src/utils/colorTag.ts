@@ -1,5 +1,6 @@
 import { ContractCancelRequestStatus } from '../types/cancelContract';
 import { ContractStatus } from '../types/contract';
+import { ContractExtensionRequestStatus } from '../types/extensionRequest';
 import { PropertyStatus } from '../types/property';
 import { RentalRequestStatus } from '../types/rentalRequest';
 import { ReportPriority, ReportStatus, ReportType } from '../types/report';
@@ -63,6 +64,15 @@ export const getCancelRequestColor = (status: ContractCancelRequestStatus) => {
     return DEFAULT_COLOR;
 };
 
+export const getExtensionRequestStatusColor = (
+    status: ContractExtensionRequestStatus,
+) => {
+    if (status === 'PENDING') return PROCESSING_COLOR;
+    if (status === 'APPROVED') return SUCCESS_COLOR;
+    if (status === 'REJECTED') return ERROR_COLOR;
+    return DEFAULT_COLOR;
+};
+
 export const getBgColor = (color: string) => {
     switch (color) {
         case PROCESSING_COLOR:
@@ -113,7 +123,6 @@ export const getBorderColor = (color: string) => {
     }
 };
 
-
 export const getReportStatusColor = (status: ReportStatus) => {
     if (status === 'pending_owner') return PROCESSING_COLOR;
     if (status === 'pending_renter') return PROCESSING_COLOR;
@@ -161,14 +170,11 @@ export const getReportStatusText = (status: ReportStatus) => {
     return 'Không xác định';
 };
 
-
 export const getReportTypeText = (type: ReportType) => {
     if (type === 'incident') return 'Sự cố';
     if (type === 'violation') return 'Vi phạm';
     return 'Không xác định';
 };
-
-
 
 export const getReportPriorityText = (priority: ReportPriority) => {
     if (priority === 'low') return 'Thấp';

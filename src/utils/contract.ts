@@ -1,5 +1,6 @@
 import { ContractCancelRequestStatus } from '../types/cancelContract';
 import { ICreateContractRequest } from '../types/contract';
+import { ContractExtensionRequestStatus } from '../types/extensionRequest';
 
 export const getStatusInVietnamese = (status: string): string => {
     if (status === 'WAITING') return 'Chờ xác nhận';
@@ -15,7 +16,9 @@ export const getStatusInVietnamese = (status: string): string => {
     return 'Không xác định';
 };
 
-export const getCancelRequestStatusText = (status: ContractCancelRequestStatus) => {
+export const getCancelRequestStatusText = (
+    status: ContractCancelRequestStatus,
+) => {
     if (status === 'PENDING') return 'Chờ xác nhận';
     if (status === 'APPROVED') return 'Đã chấp nhận';
     if (status === 'REJECTED') return 'Đã từ chối';
@@ -32,6 +35,16 @@ export const getCancellationStatusInVietnamese = (status: string): string => {
     if (status === 'CANCELLED') return 'Đã hủy';
     if (status === 'CONTINUE') return 'Tiếp tục thuê';
     if (status === 'UNILATERAL_CANCELLATION') return 'Huỷ một phía';
+    return 'Không xác định';
+};
+
+export const getExtensionRequestStatusText = (
+    status: ContractExtensionRequestStatus,
+) => {
+    if (status === 'PENDING') return 'Chờ xác nhận';
+    if (status === 'APPROVED') return 'Đã chấp nhận';
+    if (status === 'REJECTED') return 'Đã từ chối';
+    if (status === 'CANCELLED') return 'Đã hủy';
     return 'Không xác định';
 };
 
