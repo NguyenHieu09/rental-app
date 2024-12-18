@@ -44,6 +44,8 @@ import ShowReviews from "../../../components/review/ShowReview";
 import { IPropertyInteraction } from "../../../types/propertyInteraction";
 import { IReview } from "../../../types/review";
 import convertToDMS from "../../../utils/convertToDMS";
+import { getOnGoingContracts } from "../../../api/contract";
+import { formatDate } from "../../../utils/datetime";
 
 const { width: screenWidth } = Dimensions.get("window");
 
@@ -55,6 +57,7 @@ const PropertyScreen: React.FC = () => {
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
   const [isModalVisible, setModalVisible] = useState(false);
+  const [ongoingContracts, setOngoingContracts] = useState<any[]>([]);
   const user = useSelector((state: RootState) => state.user.user);
   const conversations = useSelector(
     (state: RootState) => state.conversations.conversations
@@ -102,8 +105,19 @@ const PropertyScreen: React.FC = () => {
       }
     };
 
+    const loadOngoingContracts = async () => {
+      try {
+        const contracts = await getOnGoingContracts(slug);
+        setOngoingContracts(contracts);
+      } catch (err: any) {
+        console.error("Error fetching ongoing contracts:", err);
+        setError(err.message);
+      }
+    };
+
     loadPropertyDetail();
     loadReviews();
+    loadOngoingContracts();
   }, [slug]);
 
   useEffect(() => {
@@ -180,9 +194,14 @@ const PropertyScreen: React.FC = () => {
   )?.value;
 
   const renderItem = ({ item }: { item: string }) => (
-    <View style={styles.carouselItem}>
+    <TouchableOpacity
+      style={styles.carouselItem}
+      onPress={() =>
+        navigation.navigate("ImageDetailScreen", { imageUrl: item })
+      }
+    >
       <Image source={{ uri: item }} style={styles.image} />
-    </View>
+    </TouchableOpacity>
   );
 
   const toggleModal = () => {
@@ -429,6 +448,23 @@ const PropertyScreen: React.FC = () => {
                 ownerId={owner.userId}
                 userId={user?.userId || ""}
               />
+
+              {/* Nếu có hợp đồng đang diễn ra, hiển thị danh sách hợp đồng với thời gian bắt đầu và kết thúc tại đây. */}
+              {ongoingContracts.length > 0 && (
+                <View>
+                  <Text style={styles.sectionTitle}>
+                    Các hợp đồng đang diễn ra
+                  </Text>
+                  {ongoingContracts.map((contract, index) => (
+                    <View key={index}>
+                      <Text>
+                        Từ {formatDate(contract.startDate)} đến{" "}
+                        {formatDate(contract.endDateActual)}
+                      </Text>
+                    </View>
+                  ))}
+                </View>
+              )}
 
               {property.latitude && property.longitude && (
                 <>

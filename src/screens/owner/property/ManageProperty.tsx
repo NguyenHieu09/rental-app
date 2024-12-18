@@ -19,6 +19,7 @@ import {
 import { IProperty, IFilterProperty } from "../../../types/property";
 import { commonStyles } from "../../../styles/theme";
 import Button from "../../../components/button/Button";
+import SearchPropertyModal from "../../../components/modal/SearchPropertyModal";
 
 const ManageProperty: React.FC = () => {
   const [properties, setProperties] = useState<IProperty[]>([]);
@@ -28,32 +29,46 @@ const ManageProperty: React.FC = () => {
   const [isLoadingMore, setIsLoadingMore] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [selectedProperties, setSelectedProperties] = useState<string[]>([]);
-  const [showCheckboxes, setShowCheckboxes] = useState(false); // State for checkbox visibility
+  const [showCheckboxes, setShowCheckboxes] = useState(false);
+  const [isSearchModalVisible, setIsSearchModalVisible] = useState(false);
+  const [filters, setFilters] = useState<IFilterProperty>({});
+
   const ITEMS_PER_PAGE = 10;
   const navigation = useNavigation();
 
   useEffect(() => {
     navigation.setOptions({
       headerRight: () => (
-        <TouchableOpacity
-          style={{ right: 15 }}
-          onPress={() => setShowCheckboxes(!showCheckboxes)}
-        >
-          <Text style={{ fontSize: 16, fontWeight: "500" }}>Sửa</Text>
-        </TouchableOpacity>
+        <View style={{ flexDirection: "row", alignItems: "center" }}>
+          <TouchableOpacity
+            style={{ marginRight: 15 }}
+            onPress={() => setShowCheckboxes(!showCheckboxes)}
+          >
+            <Text style={{ fontSize: 16, fontWeight: "500" }}>Sửa</Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            style={{ marginRight: 15 }}
+            onPress={() => setIsSearchModalVisible(true)}
+          >
+            <Ionicons name="search" size={24} color="black" />
+          </TouchableOpacity>
+        </View>
       ),
     });
   }, [navigation, showCheckboxes]);
 
-  const loadProperties = async (page: number) => {
+  const loadProperties = async (
+    page: number,
+    filters: IFilterProperty = {}
+  ) => {
     try {
-      console.log(`Loading page ${page}...`);
+      console.log(`Loading page ${page} with filters:`, filters);
       if (page === 0) setLoading(true);
       else setIsLoadingMore(true);
 
       const skip = page * ITEMS_PER_PAGE;
       console.log(`Fetching data with skip: ${skip}`);
-      const filters: IFilterProperty = {};
 
       const response = await fetchPropertiesWithFilters(
         filters,
@@ -87,8 +102,8 @@ const ManageProperty: React.FC = () => {
 
   useFocusEffect(
     useCallback(() => {
-      loadProperties(0);
-    }, [])
+      loadProperties(0, filters);
+    }, [filters])
   );
 
   const loadMoreProperties = () => {
@@ -160,7 +175,7 @@ const ManageProperty: React.FC = () => {
         `${status === "ACTIVE" ? "Hiện" : "Ẩn"} bất động sản thành công.`
       );
       setSelectedProperties([]);
-      loadProperties(0); // Reload data after successful update
+      loadProperties(0);
     } catch (error: any) {
       console.error(
         `Error ${status === "ACTIVE" ? "showing" : "hiding"} properties:`,
@@ -169,21 +184,26 @@ const ManageProperty: React.FC = () => {
 
       let errorMessage = "Đã xảy ra lỗi không xác định.";
 
-      // Xử lý lỗi từ phản hồi API
       if (error.response && error.response.data) {
-        // Kiểm tra và lấy message hoặc details từ phản hồi API
         const { message, details } = error.response.data;
         errorMessage = message || "Đã xảy ra lỗi trong quá trình xử lý.";
         if (details) {
           errorMessage += `\nChi tiết: ${details}`;
         }
       } else if (error.message) {
-        // Xử lý trường hợp lỗi không liên quan đến API
         errorMessage = error.message;
       }
 
       Alert.alert("Lỗi", errorMessage);
     }
+  };
+
+  const handleApplyFilters = (filters: any) => {
+    console.log("Applying filters:", filters);
+    setFilters(filters);
+    setCurrentPage(0);
+    setProperties([]);
+    loadProperties(0, filters);
   };
 
   if (loading && currentPage === 0) {
@@ -205,6 +225,9 @@ const ManageProperty: React.FC = () => {
 
   return (
     <View style={commonStyles.container}>
+      {properties.length === 0 && !loading && (
+        <Text style={styles.noPropertiesText}>Không tìm thấy bất động sản</Text>
+      )}
       <FlatList
         data={properties}
         renderItem={({ item, index }) => {
@@ -215,11 +238,11 @@ const ManageProperty: React.FC = () => {
               onSelect={handleSelect}
               isSelected={selectedProperties.includes(item.propertyId)}
               showCheckboxes={showCheckboxes}
-              key={`${item.propertyId}-${index}`} // Ensure unique key
+              key={`${item.propertyId}-${index}`}
             />
           );
         }}
-        keyExtractor={(item, index) => `${item.propertyId}-${index}`} // Ensure unique key
+        keyExtractor={(item, index) => `${item.propertyId}-${index}`}
         onEndReached={loadMoreProperties}
         onEndReachedThreshold={0.5}
         ListFooterComponent={
@@ -252,6 +275,11 @@ const ManageProperty: React.FC = () => {
           </Button>
         </View>
       )}
+      <SearchPropertyModal
+        visible={isSearchModalVisible}
+        onClose={() => setIsSearchModalVisible(false)}
+        onApplyFilters={handleApplyFilters}
+      />
     </View>
   );
 };
@@ -302,6 +330,11 @@ const styles = StyleSheet.create({
   showButtonText: {
     color: "#fff",
     fontWeight: "bold",
+  },
+  noPropertiesText: {
+    fontSize: 16,
+    textAlign: "center",
+    marginTop: 20,
   },
 });
 
