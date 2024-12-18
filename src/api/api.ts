@@ -688,49 +688,94 @@ const cleanFilters = (filters: any) => {
     );
 };
 
+// export const fetchFilteredProperties = async (
+//     take: number,
+//     skip: number,
+//     filters: any,
+//     query?: string,
+//     sort: string
+
+// ) => {
+//     try {
+//         const token = await AsyncStorage.getItem('accessToken');
+
+//         if (!token) {
+//             throw new Error('No token provided');
+//         }
+
+//         const cleanedFilters = cleanFilters(filters);
+//         // console.log('Cleaned filters:', cleanedFilters);
+
+//         const params: any = { ...cleanedFilters, take, skip };
+//         if (query) {
+//             params.q = query;
+//         }
+
+//         const response = await axios.get(`${API_BASE_URL}/properties/search`, {
+//             params,
+//             headers: {
+//                 Authorization: `Bearer ${token}`,
+//             },
+//         });
+
+//         return response.data;
+//     } catch (error: any) {
+//         if (
+//             error.response &&
+//             error.response.data &&
+//             error.response.data.message
+//         ) {
+//             console.error('Error message:', error.response.data.message);
+//             throw new Error(error.response.data.message);
+//         } else {
+//             console.error('Error fetching filtered properties:', error);
+//             throw (error as any).response;
+//         }
+//     }
+// };
+
 export const fetchFilteredProperties = async (
     take: number,
     skip: number,
     filters: any,
     query?: string,
-) => {
+    sort?: string
+  ) => {
     try {
-        const token = await AsyncStorage.getItem('accessToken');
-
-        if (!token) {
-            throw new Error('No token provided');
-        }
-
-        const cleanedFilters = cleanFilters(filters);
-        // console.log('Cleaned filters:', cleanedFilters);
-
-        const params: any = { ...cleanedFilters, take, skip };
-        if (query) {
-            params.q = query;
-        }
-
-        const response = await axios.get(`${API_BASE_URL}/properties/search`, {
-            params,
-            headers: {
-                Authorization: `Bearer ${token}`,
-            },
-        });
-
-        return response.data;
+      const token = await AsyncStorage.getItem('accessToken');
+  
+      if (!token) {
+        throw new Error('No token provided');
+      }
+  
+      const cleanedFilters = cleanFilters(filters);
+      const params: any = { ...cleanedFilters, take, skip, sort };
+      if (query) {
+        params.query = query;
+      }
+  
+      const response = await axios.get(`${API_BASE_URL}/properties/search`, {
+        params,
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+  
+      return response.data;
     } catch (error: any) {
-        if (
-            error.response &&
-            error.response.data &&
-            error.response.data.message
-        ) {
-            console.error('Error message:', error.response.data.message);
-            throw new Error(error.response.data.message);
-        } else {
-            console.error('Error fetching filtered properties:', error);
-            throw (error as any).response;
-        }
+      if (
+        error.response &&
+        error.response.data &&
+        error.response.data.message
+      ) {
+        console.error('Error message:', error.response.data.message);
+        throw new Error(error.response.data.message);
+      } else {
+        console.error('Error fetching filtered properties:', error);
+        throw (error as any).response;
+      }
     }
-};
+  };
 
 export const fetchAllConversations = async (): Promise<IConversation[]> => {
     try {
