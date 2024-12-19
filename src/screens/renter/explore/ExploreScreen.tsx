@@ -9,6 +9,7 @@ import React, { useCallback, useEffect, useState } from "react";
 import {
   ActivityIndicator,
   FlatList,
+  Modal,
   StyleSheet,
   Text,
   TextInput,
@@ -25,7 +26,8 @@ import { RootStackParamList } from "../../../types/navigation";
 import { IProperty } from "../../../types/property";
 
 const ITEMS_PER_PAGE = 10;
-const sortPropertyOptions = [
+
+export const sortPropertyOptions = [
   {
     label: "Thông thường",
     value: "normal",
@@ -39,8 +41,12 @@ const sortPropertyOptions = [
     value: "oldest",
   },
   {
-    label: "Giá",
-    value: "price",
+    label: "Giá thấp đến cao",
+    value: "price_asc",
+  },
+  {
+    label: "Giá cao đến thấp",
+    value: "price_desc",
   },
 ];
 
@@ -50,6 +56,7 @@ const ExploreScreen: React.FC = () => {
   const isNoFilter = route.params?.isNoFilter;
   const [searchText, setSearchText] = useState<string>("");
   const [modalVisible, setModalVisible] = useState(false);
+  const [sortModalVisible, setSortModalVisible] = useState(false);
   const [exploreItems, setExploreItems] = useState<IProperty[]>([]);
   const [filters, setFilters] = useState<any>({});
   const [loading, setLoading] = useState<boolean>(false);
@@ -58,7 +65,6 @@ const ExploreScreen: React.FC = () => {
   const [totalItems, setTotalItems] = useState<number>(0);
   const [selectedSortOption, setSelectedSortOption] =
     useState<string>("normal");
-  const [priceSortOrder, setPriceSortOrder] = useState<string>("price_asc");
 
   const navigation = useNavigation<NavigationProp<RootStackParamList>>();
 
@@ -169,18 +175,11 @@ const ExploreScreen: React.FC = () => {
   };
 
   const handleSortOptionSelect = (option: string) => {
-    if (option === "price") {
-      const newSortOrder =
-        selectedSortOption === "price_asc" ? "price_desc" : "price_asc";
-      setPriceSortOrder(newSortOrder);
-      setSelectedSortOption(newSortOrder);
-      loadProperties(0, filters.city || city, searchText, newSortOrder);
-    } else {
-      setSelectedSortOption(option);
-      loadProperties(0, filters.city || city, searchText, option);
-    }
+    setSelectedSortOption(option);
     setCurrentPage(0);
     setExploreItems([]);
+    loadProperties(0, filters.city || city, searchText, option);
+    setSortModalVisible(false);
   };
 
   return (
@@ -207,43 +206,22 @@ const ExploreScreen: React.FC = () => {
         </View>
 
         <View style={styles.sort}>
-          {sortPropertyOptions.map((option) => (
-            <TouchableOpacity
-              key={option.value}
-              style={[
-                styles.buttonSort,
-                selectedSortOption === option.value ||
-                (option.value === "price" &&
-                  (selectedSortOption === "price_asc" ||
-                    selectedSortOption === "price_desc"))
-                  ? styles.selectedSortButton
-                  : null,
-              ]}
-              onPress={() => handleSortOptionSelect(option.value)}
-            >
-              <View style={{ flexDirection: "row", alignItems: "center" }}>
-                <Text
-                  style={[
-                    styles.sortButtonText,
-                    selectedSortOption === option.value ||
-                    (option.value === "price" &&
-                      (selectedSortOption === "price_asc" ||
-                        selectedSortOption === "price_desc"))
-                      ? styles.selectedSortButtonText
-                      : null,
-                  ]}
-                >
-                  {option.label}
-                </Text>
-                {option.value === "price" &&
-                  (selectedSortOption === "price_asc" ? (
-                    <AntDesign name="arrowup" size={16} color="#007BFF" />
-                  ) : selectedSortOption === "price_desc" ? (
-                    <AntDesign name="arrowdown" size={16} color="#007BFF" />
-                  ) : null)}
-              </View>
-            </TouchableOpacity>
-          ))}
+          <TouchableOpacity
+            onPress={() => setSortModalVisible(true)}
+            style={styles.sortButton}
+          >
+            <Text style={styles.sortButtonText}>
+              {sortPropertyOptions.find(
+                (option) => option.value === selectedSortOption
+              )?.label || "Sắp xếp"}
+            </Text>
+            <AntDesign
+              name="down"
+              size={14}
+              color="#000"
+              style={{ marginLeft: 5 }}
+            />
+          </TouchableOpacity>
         </View>
       </View>
 
@@ -269,7 +247,7 @@ const ExploreScreen: React.FC = () => {
               </View>
             ) : null
           }
-          ListHeaderComponent={<View style={{ height: 85 }} />}
+          ListHeaderComponent={<View style={{ height: 100 }} />}
         />
       ) : (
         <Text style={styles.emptyText}>Không có kết quả tìm kiếm</Text>
@@ -280,6 +258,38 @@ const ExploreScreen: React.FC = () => {
         onClose={() => setModalVisible(false)}
         onApplyFilters={handleApplyFilters}
       />
+
+      <Modal
+        visible={sortModalVisible}
+        transparent={true}
+        animationType="fade"
+        onRequestClose={() => setSortModalVisible(false)}
+      >
+        <View style={styles.modalContainer}>
+          <View style={styles.modalContent}>
+            {sortPropertyOptions.map((option) => (
+              <TouchableOpacity
+                key={option.value}
+                style={[
+                  styles.modalOption,
+                  selectedSortOption === option.value && styles.selectedOption,
+                ]}
+                onPress={() => handleSortOptionSelect(option.value)}
+              >
+                <Text
+                  style={[
+                    styles.modalOptionText,
+                    selectedSortOption === option.value &&
+                      styles.selectedOptionText,
+                  ]}
+                >
+                  {option.label}
+                </Text>
+              </TouchableOpacity>
+            ))}
+          </View>
+        </View>
+      </Modal>
     </SafeAreaView>
   );
 };
@@ -377,23 +387,61 @@ const styles = StyleSheet.create({
   },
   sort: {
     flexDirection: "row",
+    justifyContent: "flex-end",
+    marginTop: 10,
+    marginRight: 10,
+  },
+  sortButton: {
+    flexDirection: "row",
     justifyContent: "center",
-    marginTop: 5,
-  },
-  buttonSort: {
-    borderRadius: 5,
-    paddingHorizontal: 10,
+    alignItems: "center",
     padding: 5,
-  },
-  selectedSortButton: {
-    // backgroundColor: "#007BFF",
+    backgroundColor: "#f5f5f5",
+    borderRadius: 5,
   },
   sortButtonText: {
-    fontSize: 15,
+    // color: "#fff",
+    fontSize: 16,
+  },
+  modalContainer: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: "rgba(0, 0, 0, 0.5)",
+  },
+  modalContent: {
+    width: "60%",
+    backgroundColor: "#fff",
+
+    alignItems: "center",
+  },
+  modalTitle: {
+    fontSize: 18,
+    fontWeight: "bold",
+    marginBottom: 20,
+  },
+  modalOption: {
+    paddingVertical: 10,
+    paddingHorizontal: 20,
+
+    marginBottom: 10,
+    width: "100%",
+    alignItems: "center",
+  },
+  selectedOption: {
+    // backgroundColor: "#ccc",
+  },
+  modalOptionText: {
+    fontSize: 16,
     color: "#000",
   },
-  selectedSortButtonText: {
-    color: "#007BFF",
+  selectedOptionText: {
+    // color: "#fff",
+  },
+
+  modalCloseButtonText: {
+    color: "#fff",
+    fontSize: 16,
   },
 });
 
