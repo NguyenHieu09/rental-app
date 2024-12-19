@@ -142,9 +142,14 @@ const PropertyDetail: React.FC = () => {
   )?.value;
 
   const renderItem = ({ item }: { item: string }) => (
-    <View style={styles.carouselItem}>
+    <TouchableOpacity
+      style={styles.carouselItem}
+      onPress={() =>
+        navigation.navigate("ImageDetailScreen", { imageUrl: item })
+      }
+    >
       <Image source={{ uri: item }} style={styles.image} />
-    </View>
+    </TouchableOpacity>
   );
 
   return (
@@ -259,10 +264,12 @@ const PropertyDetail: React.FC = () => {
                     <Text style={styles.text}>Có {ratingCount} đánh giá</Text>
                   </>
                 )}
-                {ratingCount <= 0 && (
-                  <Text style={styles.text}>Chưa có đánh giá nào</Text>
-                )}
               </View>
+              {ratingCount <= 0 && (
+                <Text style={[styles.text, { textAlign: "center" }]}>
+                  Chưa có đánh giá nào
+                </Text>
+              )}
 
               <ShowReviews reviews={reviews} />
             </View>
